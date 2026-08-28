@@ -1,0 +1,46 @@
+================================================================================
+HƯỚNG DẪN 5 MASTER MACRO (CHUẨN 5/5 MACRODROID FREE) — BUN K11 AI VIP
+================================================================================
+
+Để tương thích 100% với giới hạn 5/5 Macro của phiên bản MacroDroid miễn phí,
+toàn bộ 9 module tính năng đã được quy hoạch gọn gàng thành ĐÚNG 5 MASTER MACRO
+(GIỮ NGUYÊN 100% TOÀN BỘ TÍNH NĂNG CAO CẤP):
+
+--------------------------------------------------------------------------------
+DANH SÁCH 5 MASTER MACRO TOÀN DIỆN (NẠP ĐỦ 5/5):
+--------------------------------------------------------------------------------
+1. ⚡ 01 BUN K11 MASTER CORE & HUD:
+   - Nút nổi logo bunbunk11.png trên màn hình.
+   - Menu trung tâm OLED Cyberpunk.
+   - Bộ chọn nhanh 3 Profile: ULTRA (120 FPS), PERFORMANCE, BALANCED.
+
+2. 🎮 02 AUTO GAME LIFECYCLE & RESTORE:
+   - Tự động nhận diện khi MỞ Free Fire / FF MAX: Tự động lưu Backup -> Kích hoạt Profile ULTRA -> Khóa 120 FPS.
+   - Tự động nhận diện khi THOÁT Game: Tự động hoàn tác (Restore) 100% về cài đặt ban đầu.
+
+3. 🚀 03 PERFORMANCE & THERMAL GUARD ENGINE:
+   - Khóa cứng 120Hz/90Hz, Triệt tiêu độ trễ animation 0ms.
+   - Ép xung GPU SurfaceFlinger + Dọn sạch RAM đệm (Drop caches).
+   - Thermal Guard: Giám sát nhiệt độ pin, tự động làm mát khi máy nóng.
+
+4. ⚡ 04 TOUCH REGEDIT & ZERO DELAY ENGINE:
+   - Triệt tiêu ma sát vuốt màn hình (view_scroll_friction = 0.0001).
+   - Đẩy tốc độ con trỏ lên mức tối đa (pointer_speed = 7).
+   - Tần số lấy mẫu chạm 360Hz, Độ trễ phản hồi chạm 0ms.
+
+5. 🎯 05 AIM COMPUTATION & HEAD LOCK ENGINE:
+   - Lực hút từ tính vùng đầu Magnet FOV 28% (Hitbox Bone 8).
+   - Kéo tâm 2 tầng vi mô: Fast Pull 35ms (bứt tốc) + Micro Lock 45ms (ghìm đầu).
+   - Tâm ảo Hologram Laser căn chuẩn 50%/50% + Cứu hộ khẩn cấp.
+
+--------------------------------------------------------------------------------
+HƯỚNG DẪN NẠP FILE VÀO MACRODROID TRÊN ĐIỆN THOẠI:
+--------------------------------------------------------------------------------
+Bước 1: Mở ứng dụng MacroDroid -> Chọn mục "Sao lưu / Khôi phục" (Backup / Restore).
+Bước 2: Chọn tệp "macro200k_ultra_upgrade.mdr".
+Bước 3: Màn hình sẽ hiện đúng 5/5 macro -> Bạn tích chọn cả 5 macro (hoặc bấm chọn tất cả) -> Bấm Khôi phục.
+Bước 4: Cấp 3 quyền (Trợ năng, Vẽ trên app khác, Ghi cài đặt) -> Mở Free Fire và tận hưởng!
+
+================================================================================
+Đầy đủ 100% tính năng — Không lo giới hạn 5 macro của MacroDroid!
+================================================================================

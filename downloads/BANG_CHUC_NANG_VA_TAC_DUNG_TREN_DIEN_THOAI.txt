@@ -1,0 +1,83 @@
+================================================================================
+BẢNG CHI TIẾT CÁC CHỨC NĂNG & TÁC DỤNG THỰC TẾ TRÊN ĐIỆN THOẠI
+DỰ ÁN: BUN K11 AI TACTICAL VIP (FREE FIRE / FREE FIRE MAX)
+================================================================================
+
+Tài liệu này giải thích chi tiết từng chức năng can thiệp vào đâu trong hệ điều hành Android
+và mang lại tác dụng cụ thể gì khi bạn kéo tâm bắn súng trong Free Fire.
+
+--------------------------------------------------------------------------------
+1. 🎯 NHÓM TÍNH NĂNG KÉO TÂM, GHÌM ĐẦU & ĐỘ NHẠY CẢM ỨNG
+--------------------------------------------------------------------------------
+✦ 1.1. Pointer Speed = 7 (Tốc độ con trỏ tối đa):
+   - Can thiệp: Settings.System -> `pointer_speed`
+   - Tác dụng thực tế: Đẩy tốc độ quét chuyển động ngón tay của Android lên mức cao nhất. Khi bạn gạt nhẹ ngón tay, hồng tâm dịch chuyển nhanh hơn 40%, không cần phải vuốt hết cả màn hình.
+
+✦ 1.2. View Scroll Friction = 0.0001 (Triệt tiêu ma sát vuốt):
+   - Can thiệp: Settings.System -> `view_scroll_friction`
+   - Tác dụng thực tế: Mặc định Android có lực cản ma sát ảo (friction = 1.0) khiến ngón tay vuốt bị nặng và khựng. Giảm về `0.0001` làm cho cảm giác lướt màn hình mượt như trượt băng, vuốt nhẹ là tâm tự động bay vút lên đầu.
+
+✦ 1.3. Trợ Lực Kéo Tâm 2 Tầng Vi Mô (2-Stage Micro-Drag Gesture):
+   - Can thiệp: Android Accessibility Service -> UIInteraction Gesture
+   - Tác dụng thực tế:
+     + Tầng 1 (Fast Pull 35ms): Gia tốc vuốt nhanh từ ngực lên đầu (58% -> 40% màn hình) trong 35 phần nghìn giây, giúp viên đạn đầu tiên bắn trúng đầu ngay lập tức.
+     + Tầng 2 (Micro Lock 45ms): Hãm quán tính và giữ tâm dao động quanh vùng đầu (40% -> 41%), triệt tiêu hiện tượng bắn lố đầu lên trời.
+
+✦ 1.4. Touch Polling Rate 360Hz & Latency = 0ms:
+   - Can thiệp: Setprop `windowsmgr.max_events_per_sec 360`, `touch.pressure.scale 0.0001`
+   - Tác dụng thực tế: Tăng tốc độ ghi nhận sự kiện chạm của màn hình lên 360 lần/giây. Chạm nút bắn là đạn bay ra tức thì, không bị delay hay trễ cảm ứng.
+
+✦ 1.5. Giảm Thời Gian Nhấn Giữ (Tap Duration Threshold = 0, Long Press = 100ms):
+   - Can thiệp: Settings.Secure -> `long_press_timeout`, `tap_duration_threshold`
+   - Tác dụng thực tế: Android thông thường mất 400ms để phân biệt chạm hay giữ. Đưa về 100ms giúp thao tác bấm bắn, đổi súng, bật scope phản hồi ngay lập tức.
+
+--------------------------------------------------------------------------------
+2. 🚀 NHÓM TÍNH NĂNG MƯỢT MÀ, ÉP XUNG 120 FPS & ĐỒ HỌA
+--------------------------------------------------------------------------------
+✦ 2.1. Khóa Tần Số Quét 120Hz Màn Hình (Peak & Min Refresh Rate = 120.0):
+   - Can thiệp: Settings.Global -> `peak_refresh_rate`, `min_refresh_rate`, `user_refresh_rate`
+   - Tác dụng thực tế: Ép màn hình điện thoại luôn duy trì ở tần số quét cao nhất (120Hz/90Hz). Chống hiện tượng máy tự động tụt về 60Hz khi đứng yên hoặc khi combat đông người, giữ cho hoạt ảnh kẻ địch di chuyển mượt mà dễ bắt tâm.
+
+✦ 2.2. Triệt Tiêu Hoạt Ảnh Hệ Thống (Animation Scale = 0):
+   - Can thiệp: Settings.Global -> `animator_duration_scale`, `window_animation_scale`, `transition_animation_scale`
+   - Tác dụng thực tế: Tắt các hiệu ứng chuyển cảnh rườm rà của Android, giải phóng toàn bộ tài nguyên CPU/GPU để tập trung 100% sức mạnh xử lý khung hình cho Free Fire.
+
+✦ 2.3. Bắt Buộc Dựng Hình Phần Cứng GPU (SurfaceFlinger HW Rendering):
+   - Can thiệp: Settings.Global -> `force_hw_ui = 1`, Setprop `debug.sf.hw = 1`, `debug.egl.hw = 1`
+   - Tác dụng thực tế: Bắt buộc GPU (chip đồ họa) xử lý toàn bộ các lớp hiển thị và đồ họa game thay vì bắt CPU gánh, giúp ổn định khung hình, giảm nóng CPU và chống giật lag (stutter).
+
+✦ 2.4. Dọn Dẹp RAM Đệm Tự Động (Drop Caches & Memory Cleanup):
+   - Can thiệp: Shell command `sync; echo 3 > /proc/sys/vm/drop_caches`, `am kill-all`
+   - Tác dụng thực tế: Xóa sạch bộ nhớ đệm rác của các ứng dụng chạy ngầm trước khi mở game, giải phóng từ 1GB - 2GB RAM trống cho Free Fire hoạt động trơn tru.
+
+--------------------------------------------------------------------------------
+3. 🛡️ NHÓM TÍNH NĂNG BẢO VỆ MÁY & TỰ ĐỘNG THÔNG MINH
+--------------------------------------------------------------------------------
+✦ 3.1. Tự Động Nhận Diện Mở / Thoát Game (Auto Game Detection):
+   - Can thiệp: MacroDroid App Launched Trigger -> `com.dts.freefireth` / `com.dts.freefiremax`
+   - Tác dụng thực tế: Bạn không cần phải nhớ bật macro thủ công. Chỉ cần bấm vào game Free Fire là hệ thống tự động backup và nạp cấu hình mạnh nhất; khi chơi xong thoát game, máy tự động trở về trạng thái bình thường.
+
+✦ 3.2. Chụp Snapshot Backup & Hoàn Tác An Toàn (Backup & Restore):
+   - Can thiệp: Module 08 -> Ghi nhớ toàn bộ thông số ban đầu của máy
+   - Tác dụng thực tế: Không bao giờ lo bị hỏng hay lệch cài đặt mặc định của điện thoại. Luôn có bản sao lưu để phục hồi bất kỳ lúc nào.
+
+✦ 3.3. Bảo Vệ Nhiệt Độ Máy (Thermal Guard Dynamic Cooling):
+   - Can thiệp: Module 05 -> Battery Temperature Trigger
+   - Tác dụng thực tế: 
+     + Dưới 40°C: Chạy hết công suất 120 FPS Turbo.
+     + Trên 46°C: Tự động giảm tải nhẹ và làm mát máy để tránh hiện tượng CPU bị quá nhiệt dẫn đến tụt FPS nghiêm trọng giữa trận.
+
+✦ 3.4. Tâm Ảo Laser Hologram (Crosshair HUD):
+   - Can thiệp: Floating Button Overlay chuẩn tọa độ 50% - 50%
+   - Tác dụng thực tế: Cung cấp một điểm ngắm Neon sắc nét chính giữa màn hình, giúp bạn kê tâm chuẩn vào đầu đối thủ trước khi ló ra bắn (kể cả khi cầm Shotgun hoặc Sniper không có tâm ngắm sẵn).
+
+--------------------------------------------------------------------------------
+4. 📱 TÓM TẮT CÁC CÁCH KÍCH HOẠT TRỰC TIẾP TRÊN ĐIỆN THOẠI:
+--------------------------------------------------------------------------------
+- CÁCH 1 (Đơn giản nhất): Mở MacroDroid -> Nạp tệp "macro200k_ultra_upgrade.mdr" -> Cấp 3 quyền (Trợ năng, Vẽ trên app khác, Ghi cài đặt).
+- CÁCH 2 (Dành cho máy có Shizuku / Termux / Brevent / LADB): Chạy tệp "KICH_HOAT_TRUC_TIEP_TREN_DIEN_THOAI.sh" để tự động kích hoạt toàn bộ trong 1 giây.
+- CÁCH 3 (Qua Máy tính): Cắm cáp USB và chạy "KICH_HOAT_TOI_UU_HE_THONG_ADB.bat".
+
+================================================================================
+Tất cả các tính năng trên đều an toàn 100% (No Root, không can thiệp bộ nhớ game trái phép).
+================================================================================

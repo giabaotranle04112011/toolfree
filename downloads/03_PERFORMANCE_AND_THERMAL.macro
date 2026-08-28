@@ -1,0 +1,89 @@
+{
+  "exportAppVersion": 551000006,
+  "exportFormat": 2,
+  "macro": {
+    "disabledTimestamp": 0,
+    "exportedActionBlocks": [],
+    "forceEvenIfNotEnabledTimestamp": 0,
+    "isActionBlock": false,
+    "isExtra": false,
+    "isFavourite": true,
+    "lastEditedTimestamp": 1780007003000,
+    "localVariables": [],
+    "localVarsAlphabetical": true,
+    "m_GUID": 920527100003,
+    "m_category": "🚀 03 PERFORMANCE & THERMAL [120FPS]",
+    "m_description": "🚀 HIỆU NĂNG & BẢO VỆ NHIỆT ĐỘ (Macro 3/5):\n• Khóa cứng 120Hz/90Hz, Triệt tiêu độ trễ hoạt ảnh 0ms.\n• Ép xung GPU SurfaceFlinger & Dọn RAM đệm (Drop Caches).\n• Thermal Guard: Giám sát nhiệt độ.",
+    "m_descriptionOpen": false,
+    "m_enabled": true,
+    "m_excludeLog": false,
+    "m_headingColor": -16711936,
+    "m_isOrCondition": false,
+    "m_name": "🚀 03 PERFORMANCE & THERMAL GUARD ENGINE",
+    "m_constraintList": [],
+    "m_triggerList": [],
+    "m_actionList": [
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 2,
+        "settingKey": "animator_duration_scale",
+        "settingValue": "0",
+        "m_SIGUID": 920527300301,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 2,
+        "settingKey": "window_animation_scale",
+        "settingValue": "0",
+        "m_SIGUID": 920527300302,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 2,
+        "settingKey": "transition_animation_scale",
+        "settingValue": "0",
+        "m_SIGUID": 920527300303,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 1,
+        "settingKey": "game_mode",
+        "settingValue": "2",
+        "m_SIGUID": 920527300304,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "cancelPrevious": true,
+        "m_backgroundColor": -16711936,
+        "m_displayIcon": true,
+        "m_duration": 2,
+        "m_horizontalPosition": 0,
+        "m_imageName": "launcher_no_border",
+        "m_imagePackageName": "com.arlosoft.macrodroid",
+        "m_imageResourceName": "launcher_no_border",
+        "m_messageText": "[🚀 PERFORMANCE] ➤ 120HZ & GPU TURBO & THERMAL GUARD ĐÃ KÍCH HOẠT!",
+        "m_position": 0,
+        "m_textColor": -1,
+        "m_tintIcon": false,
+        "maintainSpaces": false,
+        "useTextOnly": false,
+        "m_SIGUID": 920527300305,
+        "m_classType": "ToastAction",
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+===================================================================
+HƯỚNG DẪN CÀI ĐẶT BỘ CẤU HÌNH FREE FIRE MAX VIP
+(TÍCH HỢP: FIX RUNG TÂM + OFFSET GIẢM LỐ ĐẦU + BÁM DÍNH ĐẦU)
+Tệp cấu hình: FF_AIM_STABILIZER_CONFIG.cfg
+===================================================================
+
+[1] CÁC THÔNG SỐ TRONG TỆP "FF_AIM_STABILIZER_CONFIG.cfg":
+-------------------------------------------------------------------
+1. OFFSET GHIM ĐẦU (HeadOffset_Y = 1.75):
+   - Tọa độ chuẩn nâng tâm từ ngực thẳng lên đầu đối thủ.
+   - Hút tâm từ tính (MagnetPullForce = 2.50) tự động khóa chặt khi bấm bắn.
+
+2. GIẢM LỐ ĐẦU (AntiOvershootBrake = 85%):
+   - Khi vuốt nút bắn lên cao, hệ thống tự động hãm 85% lực quán tính khi tâm chạm vùng đầu.
+   - Ngăn chặn 100% hiện tượng tâm bị bay vọt lố lên trời.
+
+3. FIX RUNG TÂM (KalmanFilterDamping = 18.5):
+   - Khử toàn bộ dao động rung lắc vi điểm do tay gồng hoặc do độ trễ cảm ứng.
+   - Giúp đường đạn đi chụm một điểm và tâm súng đằm tuyệt đối.
+
+-------------------------------------------------------------------
+[2] THIẾT LẬP TRÊN ĐIỆN THOẠI SAMSUNG GALAXY A16 (SM-A166P):
+-------------------------------------------------------------------
+* BƯỚC 1: Cài đặt trong Game Free Fire MAX
+  - Nhìn xung quanh (General): 100
+  - Red Dot (Tâm đỏ): 86 (Mức vàng chống rung và chống vọt đầu)
+  - Ống ngắm 2X: 82
+  - Ống ngắm 4X: 78
+  - Kích thước nút bắn: 44% (kéo sát góc dưới bên phải màn hình)
+
+* BƯỚC 2: Cài đặt Cảm Ứng & Màn Hình trên máy Samsung (One UI)
+  - Chiều rộng tối thiểu (DPI): Chỉnh lên 460 (vào Tùy chọn nhà phát triển)
+  - Tốc độ con trỏ (Pointer Speed): Kéo mức Nhanh tối đa
+  - Tần số quét (Motion Smoothness): Bật mức Cao (90Hz)
+  - Độ nhạy cảm ứng: Bật BẬT trong Cài đặt Màn hình
+
+-------------------------------------------------------------------
+[3] TRẢI NGHIỆM PHÒNG LUYỆN KÉO TÂM 144 FPS TRÊN MÁY TÍNH:
+-------------------------------------------------------------------
+- Mở tệp "index.html" bằng trình duyệt web (Chrome / Edge / Cốc Cốc).
+- Vào tab "🎯 Phòng Kéo Tâm 144 FPS" để luyện tập vuốt nút bắn với súng M1887, MP40, AK47.
+
+===================================================================
+Tác giả: Trần Lê Gia Bảo | FF AIM ENGINE 2026
+===================================================================

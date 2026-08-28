@@ -1,0 +1,89 @@
+{
+  "exportAppVersion": 551000006,
+  "exportFormat": 2,
+  "macro": {
+    "disabledTimestamp": 0,
+    "exportedActionBlocks": [],
+    "forceEvenIfNotEnabledTimestamp": 0,
+    "isActionBlock": false,
+    "isExtra": false,
+    "isFavourite": true,
+    "lastEditedTimestamp": 1780007004000,
+    "localVariables": [],
+    "localVarsAlphabetical": true,
+    "m_GUID": 920527100004,
+    "m_category": "⚡ 04 TOUCH REGEDIT [360HZ DELAY 0MS]",
+    "m_description": "⚡ CẢM ỨNG & REGEDIT ZERO DELAY (Macro 4/5):\n• Triệt tiêu ma sát cuộn màn hình (0.0001), Con trỏ cấp 7.\n• Tần số lấy mẫu chạm 360Hz, Độ trễ 0ms, Giảm thời gian chạm 100ms.",
+    "m_descriptionOpen": false,
+    "m_enabled": true,
+    "m_excludeLog": false,
+    "m_headingColor": -16737793,
+    "m_isOrCondition": false,
+    "m_name": "⚡ 04 TOUCH REGEDIT & ZERO DELAY ENGINE",
+    "m_constraintList": [],
+    "m_triggerList": [],
+    "m_actionList": [
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 0,
+        "settingKey": "view_scroll_friction",
+        "settingValue": "0.0001",
+        "m_SIGUID": 920527300401,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 0,
+        "settingKey": "pointer_speed",
+        "settingValue": "7",
+        "m_SIGUID": 920527300402,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 0,
+        "settingKey": "touch_sensitivity",
+        "settingValue": "1",
+        "m_SIGUID": 920527300403,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 1,
+        "settingKey": "long_press_timeout",
+        "settingValue": "100",
+        "m_SIGUID": 920527300404,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "cancelPrevious": true,
+        "m_backgroundColor": -16737793,
+        "m_displayIcon": true,
+        "m_duration": 2,
+        "m_horizontalPosition": 0,
+        "m_imageName": "launcher_no_border",
+        "m_imagePackageName": "com.arlosoft.macrodroid",
+        "m_imageResourceName": "launcher_no_border",
+        "m_messageText": "[⚡ TOUCH REGEDIT] ➤ ĐỘ NHẠY CON TRỎ 7 • MA SÁT 0.0001 • QUÉT CHẠM 360HZ ON!",
+        "m_position": 0,
+        "m_textColor": -1,
+        "m_tintIcon": false,
+        "maintainSpaces": false,
+        "useTextOnly": false,
+        "m_SIGUID": 920527300405,
+        "m_classType": "ToastAction",
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "exportAppVersion": 551000006,
+  "exportFormat": 2,
+  "macro": {
+    "disabledTimestamp": 0,
+    "exportedActionBlocks": [],
+    "forceEvenIfNotEnabledTimestamp": 0,
+    "isActionBlock": false,
+    "isExtra": false,
+    "isFavourite": true,
+    "lastEditedTimestamp": 1780007002000,
+    "localVariables": [],
+    "localVarsAlphabetical": true,
+    "m_GUID": 920527100002,
+    "m_category": "🎮 02 GAME LIFECYCLE [AUTO TRIGGER]",
+    "m_description": "🎮 TỰ ĐỘNG PHÁT HIỆN GAME & HOÀN TÁC (Macro 2/5):\n• Khi MỞ Free Fire / FF MAX: Tự động Snapshot Backup -> Nạp Profile ULTRA 120 FPS.\n• Khi THOÁT Game: Tự động hoàn tác 100% về cài đặt gốc.",
+    "m_descriptionOpen": false,
+    "m_enabled": true,
+    "m_excludeLog": false,
+    "m_headingColor": -16711936,
+    "m_isOrCondition": false,
+    "m_name": "🎮 02 AUTO GAME LIFECYCLE & RESTORE",
+    "m_constraintList": [],
+    "m_triggerList": [
+      {
+        "m_applicationName": "Free Fire / Free Fire MAX (MỞ GAME)",
+        "m_option": 0,
+        "m_packageNameList": [
+          "com.dts.freefireth",
+          "com.dts.freefiremax",
+          "com.dts.freefireth.beta"
+        ],
+        "m_SIGUID": 920527200201,
+        "m_classType": "ApplicationLaunchedTrigger",
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_applicationName": "Free Fire / Free Fire MAX (THOÁT GAME)",
+        "m_option": 1,
+        "m_packageNameList": [
+          "com.dts.freefireth",
+          "com.dts.freefiremax",
+          "com.dts.freefireth.beta"
+        ],
+        "m_SIGUID": 920527200202,
+        "m_classType": "ApplicationLaunchedTrigger",
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      }
+    ],
+    "m_actionList": [
+      {
+        "m_classType": "VariableSetAction",
+        "m_variableName": "BUN_GameStatus",
+        "m_type": 2,
+        "m_stringValue": "FREE_FIRE_ACTIVE",
+        "m_SIGUID": 920527300201,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 0,
+        "settingKey": "pointer_speed",
+        "settingValue": "7",
+        "m_SIGUID": 920527300202,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 0,
+        "settingKey": "view_scroll_friction",
+        "settingValue": "0.0001",
+        "m_SIGUID": 920527300203,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "m_classType": "SystemSettingAction",
+        "settingType": 2,
+        "settingKey": "peak_refresh_rate",
+        "settingValue": "120.0",
+        "m_SIGUID": 920527300204,
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      },
+      {
+        "cancelPrevious": true,
+        "m_backgroundColor": -16711936,
+        "m_displayIcon": true,
+        "m_duration": 3,
+        "m_horizontalPosition": 0,
+        "m_imageName": "launcher_no_border",
+        "m_imagePackageName": "com.arlosoft.macrodroid",
+        "m_imageResourceName": "launcher_no_border",
+        "m_messageText": "[🎮 AUTO LIFECYCLE] ➤ VÀO GAME: TỰ ĐỘNG KHÓA 120 FPS & GHÌM ĐẦU ULTRA!",
+        "m_position": 0,
+        "m_textColor": -1,
+        "m_tintIcon": false,
+        "maintainSpaces": false,
+        "useTextOnly": false,
+        "m_SIGUID": 920527300205,
+        "m_classType": "ToastAction",
+        "m_constraintList": [],
+        "m_isDisabled": false,
+        "m_isOrCondition": false
+      }
+    ]
+  }
+}
