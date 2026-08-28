@@ -28,6 +28,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
+    <!-- Firebase Realtime Database SDK (Cross-Device Live Sync Engine) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
         /* ==========================================================================
            CLASSQUID 3D THEME ENGINE (DARK OBSIDIAN / WHITE LIGHT DUAL MODE)
@@ -4416,10 +4420,13 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
 
         // =========================================================================
         // REAL-TIME COMMUNITY REVIEWS & CLOUD FEED ENGINE (2026 PRO)
+        // Hỗ trợ đồng bộ đa thiết bị tức thì (Máy B gửi -> Máy A thấy ngay lập tức)
         // =========================================================================
         let currentReviewRating = 5;
         let currentUserTag = '🔥 Game Thủ Free Fire';
         const reviewChannel = window.BroadcastChannel ? new BroadcastChannel('tlgb_live_reviews_v2026') : null;
+        let firebaseDb = null;
+        let reviewsRef = null;
 
         const DEFAULT_REVIEWS = [
             {
@@ -4463,6 +4470,61 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
                 verified: true
             }
         ];
+
+        function initFirebaseRealtime() {
+            try {
+                if (window.firebase && !firebase.apps.length) {
+                    const firebaseConfig = {
+                        databaseURL: "https://tlgb-classquid-2026-default-rtdb.asia-southeast1.firebasedatabase.app"
+                    };
+                    firebase.initializeApp(firebaseConfig);
+                    firebaseDb = firebase.database();
+                    reviewsRef = firebaseDb.ref('live_reviews');
+
+                    // Lắng nghe dữ liệu thời gian thực từ TOÀN BỘ CÁC THIẾT BỊ trên thế giới
+                    reviewsRef.limitToLast(60).on('child_added', (snapshot) => {
+                        const r = snapshot.val();
+                        if (r && r.id) {
+                            handleIncomingRealtimeReview(r, true);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.log("Firebase Realtime init note:", err);
+            }
+        }
+
+        function handleIncomingRealtimeReview(r, isFromRemote) {
+            const container = document.getElementById('comments-container');
+            if (!container) return;
+
+            // Kiểm tra xem bình luận này đã có trong danh sách chưa
+            if (document.getElementById(r.id)) return;
+
+            // Thêm vào đầu danh sách với hiệu ứng phát sáng
+            const temp = document.createElement('div');
+            temp.innerHTML = renderReviewCard(r);
+            const newEl = temp.firstElementChild;
+            newEl.style.animation = 'scaleIn 0.35s ease-out';
+            container.prepend(newEl);
+
+            // Cập nhật bộ nhớ cục bộ
+            const stored = JSON.parse(localStorage.getItem('tlgb_user_reviews_v2026') || '[]');
+            if (!stored.some(item => item.id === r.id)) {
+                stored.unshift(r);
+                localStorage.setItem('tlgb_user_reviews_v2026', JSON.stringify(stored));
+            }
+
+            const countEl = document.getElementById('total-reviews-count');
+            if (countEl) {
+                countEl.textContent = `${(186 + stored.length)}+ Đánh giá`;
+            }
+
+            if (isFromRemote) {
+                playSound('success');
+                showToast(`💬 [REAL-TIME] ${escapeHtml(r.name)} vừa gửi đánh giá mới!`);
+            }
+        }
 
         function setReviewRating(val) {
             currentReviewRating = val;
@@ -4535,6 +4597,9 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
             if (countEl) {
                 countEl.textContent = `${(186 + userReviews.length)}+ Đánh giá`;
             }
+
+            // Khởi động kết nối Real-time Cloud
+            initFirebaseRealtime();
         }
 
         function submitUserReview() {
@@ -4557,7 +4622,7 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
                 return;
             }
 
-            // Anti-spam cooldown (5s)
+            // Chống spam (cooldown 5s)
             const lastPost = parseInt(localStorage.getItem('tlgb_last_post_time') || '0');
             const now = Date.now();
             if (now - lastPost < 5000) {
@@ -4566,57 +4631,47 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
             }
             localStorage.setItem('tlgb_last_post_time', now);
 
-            // UI feedback
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang Gửi...';
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang Phát Trực Tiếp Lên Mây...';
 
             const nowObj = new Date();
             const timeStr = `${nowObj.getDate().toString().padStart(2,'0')}/${(nowObj.getMonth()+1).toString().padStart(2,'0')}/${nowObj.getFullYear()} ${nowObj.getHours().toString().padStart(2,'0')}:${nowObj.getMinutes().toString().padStart(2,'0')}`;
             
             const newReview = {
-                id: 'rev_' + Date.now(),
+                id: 'rev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                 name: name,
                 tag: currentUserTag,
                 stars: currentReviewRating,
                 msg: msg,
                 time: `${timeStr} (Vừa xong)`,
+                timestamp: Date.now(),
                 likes: 1,
                 verified: true
             };
 
+            // 1. Lưu vào DOM & LocalStorage ngay lập tức
+            handleIncomingRealtimeReview(newReview, false);
+
+            // 2. Bắn dữ liệu lên Firebase Realtime Database (Đồng bộ tức thì sang TẤT CẢ các máy khác!)
+            if (reviewsRef) {
+                try {
+                    reviewsRef.push(newReview);
+                } catch (e) {
+                    console.log("Firebase push error:", e);
+                }
+            }
+
+            // 3. Đồng bộ đa tab bằng BroadcastChannel
+            if (reviewChannel) {
+                reviewChannel.postMessage({ type: 'NEW_REVIEW', review: newReview });
+            }
+
             setTimeout(() => {
                 playSound('success');
-                
-                // Save locally
-                const stored = JSON.parse(localStorage.getItem('tlgb_user_reviews_v2026') || '[]');
-                stored.unshift(newReview);
-                localStorage.setItem('tlgb_user_reviews_v2026', JSON.stringify(stored));
-
-                // Prepend to DOM immediately
-                const container = document.getElementById('comments-container');
-                if (container) {
-                    const temp = document.createElement('div');
-                    temp.innerHTML = renderReviewCard(newReview);
-                    const newEl = temp.firstElementChild;
-                    container.prepend(newEl);
-                }
-
-                // Broadcast to other open tabs in real-time!
-                if (reviewChannel) {
-                    reviewChannel.postMessage({ type: 'NEW_REVIEW', review: newReview });
-                }
-
-                // Reset inputs
                 msgInput.value = '';
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi Đánh Giá Ngay';
-
-                showToast("🎉 Đã gửi đánh giá thành công! Cảm ơn bạn rất nhiều ❤️");
-
-                const countEl = document.getElementById('total-reviews-count');
-                if (countEl) {
-                    countEl.textContent = `${(186 + stored.length)}+ Đánh giá`;
-                }
+                showToast("🎉 Đã gửi đánh giá thành công lên Real-time Cloud! ❤️");
             }, 300);
         }
 
@@ -4640,12 +4695,11 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
             }
         }
 
-        // Listen to multi-tab real-time updates
+        // Lắng nghe multi-tab
         if (reviewChannel) {
             reviewChannel.onmessage = (e) => {
                 if (e.data && e.data.type === 'NEW_REVIEW') {
-                    loadSavedReviews();
-                    showToast(`💬 Đánh giá mới từ ${e.data.review.name}!`);
+                    handleIncomingRealtimeReview(e.data.review, true);
                 }
             };
         }
