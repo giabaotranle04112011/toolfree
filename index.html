@@ -28,9 +28,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <!-- Firebase Realtime Database SDK (Cross-Device Live Sync Engine) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- PeerJS WebRTC P2P Real-Time Engine (Direct Cross-Device Mesh) -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
     <style>
         /* ==========================================================================
@@ -3686,12 +3685,17 @@
                         <h3 style="font-size:19px; color:var(--text-title); display:flex; align-items:center; gap:8px; margin:0;">
                             <i class="fa-solid fa-comments" style="color:var(--accent-gold)"></i> ĐÁNH GIÁ TỪ CỘNG ĐỒNG
                         </h3>
-                        <span class="comments-live-indicator">
-                            <span class="comments-live-dot"></span> REAL-TIME CLOUD FEED
+                        <span class="comments-live-indicator" id="cloud-sync-status">
+                            <span class="comments-live-dot"></span> LIVE CLOUD (P2P + SSE)
                         </span>
                     </div>
-                    <div style="font-size:13.5px; color:var(--accent-gold); font-weight:800; display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-star"></i> 4.99 / 5.0 • <span id="total-reviews-count" style="color:var(--text-title);">186+ Đánh giá</span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="font-size:13.5px; color:var(--accent-gold); font-weight:800; display:flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-star"></i> 4.99 / 5.0 • <span id="total-reviews-count" style="color:var(--text-title);">186+ Đánh giá</span>
+                        </div>
+                        <button class="theme-toggle-btn" onclick="forceReloadCloudReviews()" title="Tải lại đánh giá mới nhất từ máy chủ" style="width:34px; height:34px; font-size:13px;">
+                            <i class="fa-solid fa-rotate-right" id="refresh-cloud-icon"></i>
+                        </button>
                     </div>
                 </div>
                 <p style="font-size:12.5px; color:var(--text-body); margin-top:2px; margin-bottom:14px;">
@@ -4541,6 +4545,40 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
                     })
                     .catch(() => {});
             }, 3000);
+        }
+
+        function forceReloadCloudReviews() {
+            playSound('click');
+            const icon = document.getElementById('refresh-cloud-icon');
+            if (icon) icon.classList.add('fa-spin');
+            
+            showToast("🔄 Đang tải các đánh giá mới nhất từ Real-time Cloud...");
+            
+            fetch(`${CLOUD_URL}/json?poll=1&since=all&t=${Date.now()}`)
+                .then(res => res.text())
+                .then(text => {
+                    const lines = text.trim().split('\n');
+                    lines.forEach(line => {
+                        if (line) {
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.event === 'message' && data.message) {
+                                    const review = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+                                    handleIncomingRealtimeReview(review, false);
+                                }
+                            } catch (err) {}
+                        }
+                    });
+                    setTimeout(() => {
+                        if (icon) icon.classList.remove('fa-spin');
+                        playSound('success');
+                        showToast("✅ Đã cập nhật xong tất cả đánh giá thời gian thực!");
+                    }, 400);
+                })
+                .catch(err => {
+                    if (icon) icon.classList.remove('fa-spin');
+                    showToast("⚠️ Lỗi kết nối máy chủ");
+                });
         }
 
         function handleIncomingRealtimeReview(r, isFromRemote) {
