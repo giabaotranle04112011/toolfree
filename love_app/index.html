@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Love App • Đồng Hồ Đếm Ngày Yêu & Kết Nối Đôi</title>
+  
+  <!-- Romantic Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-theme="pink">
+
+  <!-- Background Canvas for Falling Hearts/Petals/Stars -->
+  <canvas id="particle-canvas"></canvas>
+  <div id="custom-bg-overlay"></div>
+
+  <!-- Main Mobile App Shell -->
+  <div class="app-container">
+
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="status-badge online" id="header-status-badge" onclick="window.loveApp.switchTab('pair')">
+          <span class="status-dot"></span>
+          <span id="header-status-text">Trực tuyến</span>
+        </div>
+        <div class="partner-battery" id="partner-battery-display" style="display: none;">
+          🔋 100%
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" id="btn-bgm-toggle" title="Bật/Tắt Nhạc Nền">
+          <i class="fa-solid fa-music"></i>
+        </button>
+        <button class="icon-btn" onclick="openModal('modal-edit-profile')" title="Chỉnh sửa thông tin">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content Tabs -->
+    <main class="main-content">
+
+      <!-- =======================================================
+           TAB 1: TRANG CHỦ & ĐẾM NGÀY YÊU (HOME)
+           ======================================================= -->
+      <section class="tab-pane active" id="tab-home">
+        
+        <!-- Couple Profile Banner -->
+        <div class="glass-card couple-profile-banner">
+          <!-- You -->
+          <div class="person-card" onclick="openModal('modal-edit-profile')">
+            <div class="avatar-wrapper">
+              <img id="user-avatar" class="avatar-img" src="" alt="Bạn" />
+              <div class="avatar-badge"><i class="fa-solid fa-mars"></i></div>
+            </div>
+            <div class="person-name" id="user-name">Anh Yêu</div>
+            <div class="person-tag" id="user-tag">Kim Ngưu ♉</div>
+          </div>
+
+          <!-- Pulsing Heart & Days Since -->
+          <div class="couple-heart-center">
+            <div class="center-heart-icon" onclick="window.loveApp.tapHeart(event)">❤️</div>
+            <div class="love-since-tag" id="love-since-date">Bắt đầu: --/--/----</div>
+          </div>
+
+          <!-- Partner -->
+          <div class="person-card" onclick="openModal('modal-edit-profile')">
+            <div class="avatar-wrapper">
+              <img id="partner-avatar" class="avatar-img" src="" alt="Người Yêu" />
+              <div class="avatar-badge" style="background: #ff7597;"><i class="fa-solid fa-venus"></i></div>
+            </div>
+            <div class="person-name" id="partner-name">Em Yêu</div>
+            <div class="person-tag" id="partner-tag">Sư Tử ♌</div>
+          </div>
+        </div>
+
+        <!-- BIG MAIN LOVE DAYS COUNTER -->
+        <div class="glass-card main-counter-card">
+          <div class="counter-header-label">BÊN NHAU ĐƯỢC</div>
+          <div class="counter-big-number">
+            <span id="counter-days-num">0</span>
+            <span class="counter-big-unit">NGÀY</span>
+          </div>
+
+          <!-- Time Breakdown (Years, Months, Days, Live Seconds) -->
+          <div class="time-breakdown-grid">
+            <div class="time-box">
+              <span class="time-box-val" id="counter-years-val">0</span>
+              <span class="time-box-label">Năm</span>
+            </div>
+            <div class="time-box">
+              <span class="time-box-val" id="counter-months-val">0</span>
+              <span class="time-box-label">Tháng</span>
+            </div>
+            <div class="time-box">
+              <span class="time-box-val" id="counter-days-val">0</span>
+              <span class="time-box-label">Ngày</span>
+            </div>
+            <div class="time-box">
+              <span class="time-box-val" id="counter-secs-val" style="font-size: 13px; color: var(--primary-light);">00:00:00</span>
+              <span class="time-box-label">Giờ:Phút:Giây</span>
+            </div>
+          </div>
+
+          <!-- Relationship Bio Note -->
+          <div class="relationship-bio" id="home-relationship-bio" onclick="openModal('modal-edit-profile')">
+            "Mỗi ngày bên em là một ngày ngập tràn hạnh phúc và yêu thương! ❤️"
+          </div>
+        </div>
+
+        <!-- TAP TO SEND LOVE HEART BUTTON -->
+        <div class="glass-card tap-heart-area">
+          <button class="tap-heart-btn" onclick="window.loveApp.tapHeart(event)" title="Chạm để gửi tim">
+            ❤️
+          </button>
+          <div class="tap-heart-count">
+            <i class="fa-solid fa-heart" style="color: var(--primary-light);"></i>
+            Đã gửi <span id="total-hearts-count">0</span> trái tim yêu thương
+          </div>
+        </div>
+
+        <!-- Quick Summary Widgets -->
+        <div class="quick-widgets-row">
+          <div class="quick-widget" onclick="window.loveApp.switchTab('map')">
+            <div class="qw-top"><i class="fa-solid fa-location-dot"></i> Khoảng cách đôi</div>
+            <div class="qw-val" id="home-distance-val">Đang tính...</div>
+          </div>
+          <div class="quick-widget" onclick="window.loveApp.switchTab('pair')">
+            <div class="qw-top"><i class="fa-solid fa-link"></i> Ghép đôi trực tuyến</div>
+            <div class="qw-val" style="color: var(--primary-light);">P2P Sync ❤️</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =======================================================
+           TAB 2: BẢN ĐỒ VỊ TRÍ & KHOẢNG CÁCH (MAP & LOCATION)
+           ======================================================= -->
+      <section class="tab-pane" id="tab-map">
+        
+        <div class="glass-card">
+          <div class="card-title">
+            <i class="fa-solid fa-location-crosshairs"></i> Vị Trí & Khoảng Cách Đôi
+          </div>
+          
+          <div class="map-container-wrapper">
+            <div id="couple-map"></div>
+          </div>
+
+          <div class="distance-banner">
+            <div class="distance-info">
+              <h4>Khoảng cách giữa hai bạn:</h4>
+              <div class="dist-number" id="map-distance-val">Đang định vị...</div>
+              <div style="font-size: 11px; color: var(--text-sub);" id="map-distance-estimate"></div>
+            </div>
+            <div style="font-size: 32px;">📍💞</div>
+          </div>
+
+          <div class="location-actions">
+            <button class="app-btn" onclick="window.loveMap.requestGPSNow()">
+              <i class="fa-solid fa-crosshairs"></i> Lấy GPS Hiện Tại
+            </button>
+            <button class="app-btn secondary" onclick="window.loveMap.sendCurrentLocation()">
+              <i class="fa-solid fa-paper-plane"></i> Gửi Tọa Độ Cho Bae
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =======================================================
+           TAB 3: KẾT NỐI TRỰC TUYẾN QUA MÃ (PAIRING & REALTIME)
+           ======================================================= -->
+      <section class="tab-pane" id="tab-pair">
+        
+        <div class="glass-card connection-box">
+          <div class="card-title">
+            <i class="fa-solid fa-heart-pulse"></i> Kết Nối Trực Tuyến 2 Người
+          </div>
+
+          <div id="pairing-status-banner" style="text-align: center; padding: 6px; font-size: 13px;">
+            Đang chờ kết nối...
+          </div>
+
+          <!-- My Room Code -->
+          <div class="room-code-display">
+            <div class="code-title">Mã kết nối của bạn:</div>
+            <div class="code-text" id="my-room-code-display" onclick="window.loveApp.copyRoomCode()">
+              LOVE-8888
+            </div>
+            <button class="code-copy-btn" onclick="window.loveApp.copyRoomCode()">
+              <i class="fa-regular fa-copy"></i> Sao chép gửi người yêu
+            </button>
+          </div>
+
+          <!-- Join Partner Code -->
+          <div class="join-room-section">
+            <label style="font-size: 12px; color: var(--text-sub); font-weight: 600;">Nhập mã kết nối của người yêu:</label>
+            <div class="input-with-btn">
+              <input type="text" id="partner-code-input" class="app-input" placeholder="VD: LOVE-9527" style="text-transform: uppercase;" />
+              <button class="app-btn" onclick="window.loveApp.connectPartnerFromInput()">
+                Kết Nối
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-time Quick Actions -->
+          <div style="margin-top: 10px;">
+            <div class="card-title"><i class="fa-solid fa-bolt"></i> Tương Tác Nhanh Trực Tiếp</div>
+            <div class="realtime-action-grid">
+              <div class="action-card-btn" onclick="window.loveConnection.sendKiss(); window.loveApp.showToast('💋 Đã gửi nụ hôn nồng cháy!')">
+                <span class="act-icon">💋</span>
+                <span class="act-title">Gửi Nụ Hôn</span>
+              </div>
+              <div class="action-card-btn" onclick="window.loveConnection.sendHug(); window.loveApp.showToast('🫂 Đã gửi cái ôm ấm áp!')">
+                <span class="act-icon">🫂</span>
+                <span class="act-title">Gửi Cái Ôm</span>
+              </div>
+              <div class="action-card-btn" onclick="window.loveConnection.sendPoke(); window.loveApp.showToast('💓 Đã gõ cửa trái tim đối phương!')">
+                <span class="act-icon">💓</span>
+                <span class="act-title">Gõ Cửa Trái Tim</span>
+              </div>
+              <div class="action-card-btn" onclick="openModal('modal-quick-msg')">
+                <span class="act-icon">💌</span>
+                <span class="act-title">Gửi Lời Nhắn</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =======================================================
+           TAB 4: CỘT MỐC & KỶ NIỆM (MILESTONES & COUNTDOWN)
+           ======================================================= -->
+      <section class="tab-pane" id="tab-milestones">
+        
+        <div class="glass-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="card-title" style="margin-bottom: 0;">
+              <i class="fa-solid fa-calendar-check"></i> Cột Mốc & Đếm Ngược
+            </div>
+            <button class="app-btn" style="padding: 6px 12px; font-size: 12px;" onclick="openModal('modal-add-milestone')">
+              + Thêm Cột Mốc
+            </button>
+          </div>
+
+          <div class="milestone-list" id="milestone-list-container">
+            <!-- Dynamic Milestones -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =======================================================
+           TAB 5: NHẬT KÝ TÌNH YÊU (DIARY & TIMELINE)
+           ======================================================= -->
+      <section class="tab-pane" id="tab-diary">
+        
+        <div class="glass-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="card-title" style="margin-bottom: 0;">
+              <i class="fa-solid fa-book-heart"></i> Nhật Ký & Kỷ Niệm
+            </div>
+            <button class="app-btn" style="padding: 6px 12px; font-size: 12px;" onclick="openModal('modal-add-memory')">
+              + Viết Kỷ Niệm
+            </button>
+          </div>
+
+          <div class="diary-timeline" id="diary-timeline-container">
+            <!-- Dynamic Diary entries -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =======================================================
+           TAB 6: THƯ TÌNH BÍ MẬT & BUCKET LIST
+           ======================================================= -->
+      <section class="tab-pane" id="tab-letters">
+        
+        <!-- PIN LOCK GATE SCREEN -->
+        <div id="letters-lock-screen" class="glass-card lock-gate">
+          <div style="font-size: 48px;">🔒💌</div>
+          <h3 style="color: #fff; font-size: 18px;">Hộp Thư Tình Bí Mật</h3>
+          <p style="font-size: 12px; color: var(--text-sub);">Nhập mã PIN bảo mật để mở khóa những bức thư tình riêng tư</p>
+          <input type="password" id="pin-input-field" class="pin-digit" maxlength="6" placeholder="PIN" style="width: 140px; letter-spacing: 6px;" />
+          <button class="app-btn" onclick="window.loveApp.unlockLetters()">
+            <i class="fa-solid fa-key"></i> Mở Khóa Thư
+          </button>
+          <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" onclick="document.getElementById('pin-input-field').value=''; window.loveApp.unlockLetters();">
+            (Nếu chưa cài mã PIN, bấm Mở Khóa trực tiếp)
+          </span>
+        </div>
+
+        <!-- UNLOCKED CONTENT -->
+        <div id="letters-unlocked-screen" style="display: none; display: flex; flex-direction: column; gap: 16px;">
+          
+          <!-- Secret Letters -->
+          <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div class="card-title" style="margin-bottom: 0;">
+                <i class="fa-solid fa-envelope-open-text"></i> Thư Tình Gửi Em
+              </div>
+              <button class="app-btn" style="padding: 6px 12px; font-size: 12px;" onclick="openModal('modal-add-letter')">
+                + Viết Thư
+              </button>
+            </div>
+            <div id="secret-letters-list"></div>
+          </div>
+
+          <!-- Couple Bucket List -->
+          <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div class="card-title" style="margin-bottom: 0;">
+                <i class="fa-solid fa-list-check"></i> Couple Bucket List
+              </div>
+              <span id="bucket-progress-text" style="font-size: 11px; color: var(--primary-light); font-weight: 700;"></span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Những điều hai đứa cùng nhau thực hiện trong đời</p>
+            
+            <div class="input-with-btn" style="margin-bottom: 12px;">
+              <input type="text" id="new-bucket-input" class="app-input" placeholder="Thêm điều muốn làm cùng nhau..." />
+              <button class="app-btn" onclick="window.loveApp.addBucketItem(document.getElementById('new-bucket-input').value); document.getElementById('new-bucket-input').value='';">
+                Thêm
+              </button>
+            </div>
+
+            <div class="bucket-list" id="bucket-list-container"></div>
+          </div>
+
+          <!-- 100 Reasons Why I Love You -->
+          <div class="glass-card">
+            <div class="card-title"><i class="fa-solid fa-heart-circle-check"></i> 100 Lý Do Anh Yêu Em</div>
+            <div class="input-with-btn" style="margin-bottom: 12px;">
+              <input type="text" id="new-reason-input" class="app-input" placeholder="Lý do ngọt ngào tiếp theo..." />
+              <button class="app-btn" onclick="window.loveApp.addLoveReason(document.getElementById('new-reason-input').value); document.getElementById('new-reason-input').value='';">
+                Thêm
+              </button>
+            </div>
+            <div id="love-reasons-container"></div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =======================================================
+           TAB 7: MINI GAMES & GÓC CẶP ĐÔI (GAMES)
+           ======================================================= -->
+      <section class="tab-pane" id="tab-games">
+        
+        <!-- Vòng quay định mệnh -->
+        <div class="glass-card">
+          <div class="card-title"><i class="fa-solid fa-circle-radiation"></i> Vòng Quay Hẹn Hò Định Mệnh</div>
+          
+          <div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 12px;">
+            <button class="app-btn secondary" style="padding: 4px 10px; font-size: 11px;" onclick="window.loveGames.setWheelMode('food')">🍲 Ăn gì?</button>
+            <button class="app-btn secondary" style="padding: 4px 10px; font-size: 11px;" onclick="window.loveGames.setWheelMode('date')">🚗 Đi đâu?</button>
+            <button class="app-btn secondary" style="padding: 4px 10px; font-size: 11px;" onclick="window.loveGames.setWheelMode('dare')">💖 Thử thách</button>
+          </div>
+
+          <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheel-canvas" width="260" height="260" onclick="window.loveGames.spinWheel()"></canvas>
+            <button class="app-btn" onclick="window.loveGames.spinWheel()" style="padding: 10px 24px;">
+              <i class="fa-solid fa-rotate"></i> Quay Ngay!
+            </button>
+            <div class="wheel-result" id="wheel-result-text">Bấm nút để quay điều bất ngờ ❤️</div>
+          </div>
+        </div>
+
+        <!-- Hũ điều ước tình yêu -->
+        <div class="glass-card">
+          <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Hũ Điều Ước Tình Yêu</div>
+          <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Rút ngẫu nhiên một điều ngọt ngào cần làm cho đối phương hôm nay</p>
+          <div id="jar-result-card" style="margin-bottom: 12px;"></div>
+          <button class="app-btn" style="width: 100%;" onclick="window.loveGames.drawLoveJar()">
+            💌 Rút Thẻ Ngọt Ngào
+          </button>
+        </div>
+
+        <!-- Love Quiz -->
+        <div class="glass-card">
+          <div class="card-title"><i class="fa-solid fa-puzzle-piece"></i> Trắc Nghiệm Hiểu Nhau (Love Quiz)</div>
+          <div id="quiz-container">
+            <button class="app-btn" style="width: 100%;" onclick="window.loveGames.startQuiz()">
+              Bắt Đầu Trắc Nghiệm 💖
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =======================================================
+           TAB 8: XUẤT THIỆP HD & CÀI ĐẶT (SETTINGS & CARD)
+           ======================================================= -->
+      <section class="tab-pane" id="tab-card">
+        
+        <!-- Card Share Generator -->
+        <div class="glass-card">
+          <div class="card-title"><i class="fa-solid fa-camera-retro"></i> Tạo Thiệp Kỷ Niệm Chia Sẻ (HD)</div>
+          <p style="font-size: 12px; color: var(--text-sub);">Xuất ảnh chất lượng cao để chia sẻ Story Instagram, Facebook, TikTok</p>
+          
+          <div class="card-preview-wrapper">
+            <canvas id="share-card-canvas"></canvas>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="app-btn" onclick="window.loveCard.render()">
+              <i class="fa-solid fa-arrows-rotate"></i> Làm Mới Ảnh
+            </button>
+            <button class="app-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);" onclick="window.loveCard.downloadCard()">
+              <i class="fa-solid fa-download"></i> Tải Ảnh Về Máy
+            </button>
+          </div>
+        </div>
+
+        <!-- App Settings & Themes -->
+        <div class="glass-card">
+          <div class="card-title"><i class="fa-solid fa-palette"></i> Giao Diện & Hiệu Ứng Nền</div>
+          
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Chọn chủ đề màu sắc:</div>
+          <div class="theme-options-grid" style="margin-bottom: 14px;">
+            <div class="theme-pill" onclick="window.loveApp.setTheme('pink')">🌸 Hồng Sweet</div>
+            <div class="theme-pill" onclick="window.loveApp.setTheme('starry')">🌌 Trời Sao</div>
+            <div class="theme-pill" onclick="window.loveApp.setTheme('peach')">🍑 Trà Đào</div>
+            <div class="theme-pill" onclick="window.loveApp.setTheme('sunset')">🌅 Hoàng Hôn</div>
+            <div class="theme-pill" onclick="window.loveApp.setTheme('lavender')">💜 Lavender</div>
+            <div class="theme-pill" onclick="window.loveApp.setTheme('wine')">🍷 Rượu Vang</div>
+          </div>
+
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Hiệu ứng hạt bay nền:</div>
+          <div class="theme-options-grid" style="margin-bottom: 14px;">
+            <div class="theme-pill" onclick="window.loveApp.setParticleEffect('hearts')">💖 Trái Tim</div>
+            <div class="theme-pill" onclick="window.loveApp.setParticleEffect('petals')">🌸 Cánh Hoa</div>
+            <div class="theme-pill" onclick="window.loveApp.setParticleEffect('stars')">✨ Sao Băng</div>
+            <div class="theme-pill" onclick="window.loveApp.setParticleEffect('snow')">❄️ Tuyết Rơi</div>
+            <div class="theme-pill" onclick="window.loveApp.setParticleEffect('none')">🚫 Tắt</div>
+          </div>
+
+          <div class="card-title" style="margin-top: 14px;"><i class="fa-solid fa-database"></i> Sao Lưu & Khôi Phục Dữ Liệu</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+            <button class="app-btn secondary" onclick="window.loveStorage.exportJSON()">
+              <i class="fa-solid fa-file-export"></i> Xuất File Backup
+            </button>
+            <button class="app-btn secondary" onclick="document.getElementById('import-file-input').click()">
+              <i class="fa-solid fa-file-import"></i> Nhập Dữ Liệu
+            </button>
+            <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="handleImportFile(event)" />
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar (Mobile Native Style) -->
+    <nav class="bottom-nav">
+      <div class="nav-item active" data-tab="home">
+        <i class="fa-solid fa-heart"></i>
+        <span>Đếm Ngày</span>
+      </div>
+      <div class="nav-item" data-tab="map">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>Vị Trí</span>
+      </div>
+      <div class="nav-item" data-tab="pair">
+        <i class="fa-solid fa-link"></i>
+        <span>Kết Nối</span>
+      </div>
+      <div class="nav-item" data-tab="milestones">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Cột Mốc</span>
+      </div>
+      <div class="nav-item" data-tab="diary">
+        <i class="fa-solid fa-book-open"></i>
+        <span>Nhật Ký</span>
+      </div>
+      <div class="nav-item" data-tab="letters">
+        <i class="fa-solid fa-envelope"></i>
+        <span>Thư Tình</span>
+      </div>
+      <div class="nav-item" data-tab="games">
+        <i class="fa-solid fa-gamepad"></i>
+        <span>Mini-Game</span>
+      </div>
+      <div class="nav-item" data-tab="card">
+        <i class="fa-solid fa-gear"></i>
+        <span>Tạo Thiệp</span>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- =======================================================
+       MODALS FOR EDITING & CREATING ITEMS
+       ======================================================= -->
+
+  <!-- Modal 1: Edit Profile & Start Date -->
+  <div class="modal-backdrop" id="modal-edit-profile">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Cập Nhật Thông Tin Đôi</div>
+        <button class="modal-close" onclick="closeModal('modal-edit-profile')">&times;</button>
+      </div>
+
+      <div>
+        <label style="font-size: 12px; color: var(--text-sub); font-weight: 700;">Ngày Bắt Đầu Yêu:</label>
+        <input type="date" id="edit-start-date" class="app-input" style="width: 100%; margin-top: 4px;" />
+      </div>
+
+      <div style="border-top: 1px solid var(--border-glass); padding-top: 10px;">
+        <h4 style="font-size: 13px; color: var(--primary-light); margin-bottom: 6px;">Thông Tin Bạn (Bạn Nam):</h4>
+        <input type="text" id="edit-user-name" class="app-input" placeholder="Tên của bạn" style="width: 100%; margin-bottom: 6px;" />
+        <input type="date" id="edit-user-birthday" class="app-input" style="width: 100%; margin-bottom: 6px;" title="Ngày sinh" />
+        <input type="text" id="edit-user-avatar" class="app-input" placeholder="URL ảnh đại diện của bạn" style="width: 100%;" />
+      </div>
+
+      <div style="border-top: 1px solid var(--border-glass); padding-top: 10px;">
+        <h4 style="font-size: 13px; color: var(--secondary); margin-bottom: 6px;">Thông Tin Người Yêu (Bạn Nữ):</h4>
+        <input type="text" id="edit-partner-name" class="app-input" placeholder="Tên người yêu" style="width: 100%; margin-bottom: 6px;" />
+        <input type="date" id="edit-partner-birthday" class="app-input" style="width: 100%; margin-bottom: 6px;" title="Ngày sinh" />
+        <input type="text" id="edit-partner-avatar" class="app-input" placeholder="URL ảnh đại diện người yêu" style="width: 100%;" />
+      </div>
+
+      <div>
+        <label style="font-size: 12px; color: var(--text-sub); font-weight: 700;">Lời Nhắn Yêu Thương (Bio):</label>
+        <textarea id="edit-bio" class="app-input" rows="2" style="width: 100%; margin-top: 4px; resize: none;"></textarea>
+      </div>
+
+      <button class="app-btn" onclick="saveProfileChanges()">Lưu Thay Đổi</button>
+    </div>
+  </div>
+
+  <!-- Modal 2: Add Diary Memory -->
+  <div class="modal-backdrop" id="modal-add-memory">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Viết Kỷ Niệm Tình Yêu Mới</div>
+        <button class="modal-close" onclick="closeModal('modal-add-memory')">&times;</button>
+      </div>
+
+      <input type="text" id="mem-title-input" class="app-input" placeholder="Tiêu đề kỷ niệm..." />
+      <input type="date" id="mem-date-input" class="app-input" />
+      
+      <select id="mem-mood-select" class="app-input">
+        <option value="🥰 Hạnh phúc ngập tràn">🥰 Hạnh phúc ngập tràn</option>
+        <option value="💖 Say đắm ngọt ngào">💖 Say đắm ngọt ngào</option>
+        <option value="🏖️ Chuyến du lịch lãng mạn">🏖️ Chuyến du lịch lãng mạn</option>
+        <option value="🍰 Ăn uống hẹn hò">🍰 Ăn uống hẹn hò</option>
+        <option value="🎁 Món quà bất ngờ">🎁 Món quà bất ngờ</option>
+        <option value="🥺 Nhớ nhung da diết">🥺 Nhớ nhung da diết</option>
+      </select>
+
+      <textarea id="mem-content-input" class="app-input" rows="4" placeholder="Viết những cảm xúc ngọt ngào hôm nay..."></textarea>
+      
+      <div>
+        <label style="font-size: 12px; color: var(--text-sub);">Đính kèm hình ảnh:</label>
+        <input type="file" id="mem-image-file" class="app-input" accept="image/*" style="margin-top: 4px;" />
+      </div>
+
+      <button class="app-btn" onclick="saveNewMemory()">Lưu Kỷ Niệm</button>
+    </div>
+  </div>
+
+  <!-- Modal 3: Add Secret Letter -->
+  <div class="modal-backdrop" id="modal-add-letter">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Viết Bức Thư Tình Bí Mật</div>
+        <button class="modal-close" onclick="closeModal('modal-add-letter')">&times;</button>
+      </div>
+      <input type="text" id="letter-title-input" class="app-input" placeholder="Tiêu đề bức thư..." />
+      <textarea id="letter-content-input" class="app-input" rows="6" placeholder="Gửi gắm những tâm tư sâu kín nhất đến người bạn yêu thương..."></textarea>
+      <button class="app-btn" onclick="saveNewLetter()">Gửi Thư Vào Hộp Bí Mật</button>
+    </div>
+  </div>
+
+  <!-- Modal 4: Add Custom Milestone -->
+  <div class="modal-backdrop" id="modal-add-milestone">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Thêm Cột Mốc Mới</div>
+        <button class="modal-close" onclick="closeModal('modal-add-milestone')">&times;</button>
+      </div>
+      <input type="text" id="ms-title-input" class="app-input" placeholder="Tên cột mốc (VD: Chuyến đi Đà Lạt)" />
+      <input type="date" id="ms-date-input" class="app-input" />
+      <input type="text" id="ms-icon-input" class="app-input" placeholder="Icon Emoji (VD: 🏕️, 💍, 🌸)" value="💖" />
+      <button class="app-btn" onclick="saveNewMilestone()">Thêm Cột Mốc</button>
+    </div>
+  </div>
+
+  <!-- Modal 5: Quick Message Modal -->
+  <div class="modal-backdrop" id="modal-quick-msg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Gửi Lời Nhắn Nhanh</div>
+        <button class="modal-close" onclick="closeModal('modal-quick-msg')">&times;</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="app-btn secondary" onclick="sendQuickText('Em nhớ anh nhiều lắm! ❤️')">"Em nhớ anh nhiều lắm! ❤️"</button>
+        <button class="app-btn secondary" onclick="sendQuickText('Anh đang trên đường về với em nè 🚗💨')">"Anh đang trên đường về với em nè 🚗💨"</button>
+        <button class="app-btn secondary" onclick="sendQuickText('Hôm nay em ăn cơm chưa? Nhớ ăn uống đầy đủ nha! 🍲')">"Hôm nay em ăn cơm chưa? Nhớ ăn uống đầy đủ nha! 🍲"</button>
+        <button class="app-btn secondary" onclick="sendQuickText('Chúc em ngủ ngon và mơ về anh nhé! 😴🌙')">"Chúc em ngủ ngon và mơ về anh nhé! 😴🌙"</button>
+        <input type="text" id="custom-quick-text" class="app-input" placeholder="Hoặc tự nhập lời nhắn..." />
+        <button class="app-btn" onclick="sendQuickText(document.getElementById('custom-quick-text').value)">Gửi Lời Nhắn</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       SCRIPTS & DEPENDENCIES
+       ======================================================= -->
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- PeerJS for WebRTC P2P Room Connection -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- App Core Modules -->
+  <script src="js/storage.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/love-counter.js"></script>
+  <script src="js/connection.js"></script>
+  <script src="js/map-tracker.js"></script>
+  <script src="js/diary.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/card-export.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- UI Modal & Input Helpers -->
+  <script>
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add('active');
+
+      if (id === 'modal-edit-profile') {
+        const data = window.loveStorage.get();
+        document.getElementById('edit-start-date').value = data.startDate;
+        document.getElementById('edit-user-name').value = data.user.name;
+        document.getElementById('edit-user-birthday').value = data.user.birthday || '';
+        document.getElementById('edit-user-avatar').value = data.user.avatar;
+        document.getElementById('edit-partner-name').value = data.partner.name;
+        document.getElementById('edit-partner-birthday').value = data.partner.birthday || '';
+        document.getElementById('edit-partner-avatar').value = data.partner.avatar;
+        document.getElementById('edit-bio').value = data.bio;
+      }
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('active');
+    }
+
+    function saveProfileChanges() {
+      const startDate = document.getElementById('edit-start-date').value;
+      const userName = document.getElementById('edit-user-name').value;
+      const userBday = document.getElementById('edit-user-birthday').value;
+      const userAvatar = document.getElementById('edit-user-avatar').value;
+      const partnerName = document.getElementById('edit-partner-name').value;
+      const partnerBday = document.getElementById('edit-partner-birthday').value;
+      const partnerAvatar = document.getElementById('edit-partner-avatar').value;
+      const bio = document.getElementById('edit-bio').value;
+
+      window.loveStorage.update({
+        startDate: startDate || window.loveStorage.get().startDate,
+        bio: bio || window.loveStorage.get().bio,
+        user: {
+          ...window.loveStorage.get().user,
+          name: userName,
+          birthday: userBday,
+          avatar: userAvatar || window.loveStorage.get().user.avatar,
+          zodiac: window.loveCounter.getZodiac(userBday)
+        },
+        partner: {
+          ...window.loveStorage.get().partner,
+          name: partnerName,
+          birthday: partnerBday,
+          avatar: partnerAvatar || window.loveStorage.get().partner.avatar,
+          zodiac: window.loveCounter.getZodiac(partnerBday)
+        }
+      });
+
+      closeModal('modal-edit-profile');
+      window.loveApp.showToast('✅ Đã cập nhật thông tin thành công!');
+    }
+
+    function saveNewMemory() {
+      const title = document.getElementById('mem-title-input').value;
+      const date = document.getElementById('mem-date-input').value;
+      const mood = document.getElementById('mem-mood-select').value;
+      const content = document.getElementById('mem-content-input').value;
+      const fileInput = document.getElementById('mem-image-file');
+
+      if (!title.trim()) {
+        window.loveApp.showToast('⚠️ Vui lòng nhập tiêu đề kỷ niệm!');
+        return;
+      }
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          window.loveDiary.addMemory(title, date, mood, content, e.target.result);
+          closeModal('modal-add-memory');
+          window.loveApp.showToast('✨ Đã lưu kỷ niệm mới!');
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        window.loveDiary.addMemory(title, date, mood, content, '');
+        closeModal('modal-add-memory');
+        window.loveApp.showToast('✨ Đã lưu kỷ niệm mới!');
+      }
+    }
+
+    function saveNewLetter() {
+      const title = document.getElementById('letter-title-input').value;
+      const content = document.getElementById('letter-content-input').value;
+      if (!title.trim() || !content.trim()) {
+        window.loveApp.showToast('⚠️ Vui lòng điền đủ tiêu đề và nội dung thư!');
+        return;
+      }
+      window.loveApp.addSecretLetter(title, content);
+      closeModal('modal-add-letter');
+    }
+
+    function saveNewMilestone() {
+      const title = document.getElementById('ms-title-input').value;
+      const date = document.getElementById('ms-date-input').value;
+      const icon = document.getElementById('ms-icon-input').value;
+
+      if (!title.trim() || !date) {
+        window.loveApp.showToast('⚠️ Vui lòng nhập tên và ngày cột mốc!');
+        return;
+      }
+
+      const data = window.loveStorage.get();
+      const newMs = {
+        id: 'ms-' + Date.now(),
+        title: title.trim(),
+        date: date,
+        icon: icon || '📌'
+      };
+      const customMilestones = [...(data.customMilestones || []), newMs];
+      window.loveStorage.update({ customMilestones });
+      window.loveApp.renderMilestonesUI();
+      closeModal('modal-add-milestone');
+      window.loveApp.showToast('🎉 Đã thêm cột mốc mới!');
+    }
+
+    function sendQuickText(text) {
+      if (!text || !text.trim()) return;
+      if (window.loveConnection && window.loveConnection.isConnected) {
+        window.loveConnection.sendQuickMsg(text.trim());
+        window.loveApp.showToast('💌 Đã gửi lời nhắn đến người yêu!');
+      } else {
+        window.loveApp.showToast('⚠️ Chưa kết nối trực tuyến với người yêu!');
+      }
+      closeModal('modal-quick-msg');
+    }
+
+    function handleImportFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const success = window.loveStorage.importJSON(e.target.result);
+        if (success) {
+          window.loveApp.showToast('🎉 Đã khôi phục dữ liệu thành công!');
+          setTimeout(() => location.reload(), 1000);
+        } else {
+          window.loveApp.showToast('❌ File backup không hợp lệ!');
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script>
+
+</body>
+</html>

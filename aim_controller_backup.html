@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUN K11 AI VIP • Esports Aim Engine & 120 FPS Controller</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030712;
+            --bg-card: rgba(10, 15, 29, 0.85);
+            --border-glow: rgba(0, 240, 255, 0.18);
+            --border-red: rgba(255, 0, 85, 0.25);
+            
+            --cyan: #00f0ff;
+            --cyan-glow: rgba(0, 240, 255, 0.35);
+            --red: #ff0055;
+            --red-glow: rgba(255, 0, 85, 0.4);
+            --gold: #ffb703;
+            --emerald: #10b981;
+            
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, .brand, .badge, .mono {
+            font-family: 'Chakra Petch', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 85, 0.14) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.14) 0%, transparent 45%),
+                linear-gradient(180deg, #02040a 0%, #030712 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .layout-container {
+            width: 100%;
+            max-width: 1440px;
+            display: grid;
+            grid-template-columns: 290px 1fr 350px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 1250px) {
+            .layout-container { grid-template-columns: 1fr; }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 240, 255, 0.05);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel.red-border {
+            border-color: var(--border-red);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 0, 85, 0.05);
+        }
+
+        /* Sidebar Branding */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 18px;
+        }
+
+        .brand-logo-glow {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--red), #8000ff, var(--cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--red-glow);
+            font-weight: 800;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        /* State Badges */
+        .state-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+        .state-badge.running { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--emerald); }
+        .state-badge.ultra { background: rgba(255, 0, 85, 0.18); border: 1px solid rgba(255, 0, 85, 0.5); color: #ff3377; }
+        .state-badge.ready { background: rgba(0, 240, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.4); color: var(--cyan); }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 8px currentColor;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        /* Weapon Aim Tabs */
+        .weapon-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .weapon-tab-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .weapon-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .weapon-tab-btn.active {
+            background: rgba(255, 0, 85, 0.2);
+            border-color: var(--red);
+            color: #fff;
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+
+        /* Radar Scanner */
+        .radar-box {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 10px auto;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radar-circle { position: absolute; border-radius: 50%; border: 1px dashed rgba(0, 240, 255, 0.2); }
+        .radar-circle.c1 { width: 85px; height: 85px; }
+        .radar-circle.c2 { width: 45px; height: 45px; }
+        .radar-sweep {
+            position: absolute; width: 65px; height: 65px; top: 0; right: 0;
+            background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.4) 0deg, transparent 90deg);
+            border-radius: 100% 0 0 0;
+            transform-origin: bottom left;
+            animation: radarRotate 3s linear infinite;
+        }
+        @keyframes radarRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Telemetry & Stats */
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 768px) { .telemetry-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .stat-title { font-size: 11px; color: var(--text-sub); letter-spacing: 0.08em; margin-bottom: 6px; }
+        .stat-val { font-size: 26px; font-weight: 800; line-height: 1; font-family: 'Chakra Petch', sans-serif; }
+        .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Aim Matrix Controls */
+        .aim-matrix-box {
+            background: rgba(255, 0, 85, 0.04);
+            border: 1px solid rgba(255, 0, 85, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+        .aim-slider-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        .range-slider {
+            width: 55%;
+            accent-color: var(--red);
+        }
+
+        /* 9 Modules Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+        }
+        @media (max-width: 900px) { .modules-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .modules-grid { grid-template-columns: 1fr; } }
+
+        .module-item {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+        .module-item.active {
+            border-color: rgba(0, 240, 255, 0.35);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.08);
+        }
+
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #1e293b; transition: .3s; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 14px; width: 14px; left: 4px; bottom: 3px;
+            background-color: #94a3b8; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: rgba(0, 240, 255, 0.25); border-color: var(--cyan); }
+        input:checked + .slider:before { transform: translateX(16px); background-color: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+        /* Terminal Console */
+        .terminal-box {
+            background: #020409;
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 14px;
+            padding: 14px;
+            height: 290px;
+            overflow-y: auto;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.6;
+        }
+        .log-line { margin-bottom: 4px; display: flex; gap: 8px; }
+        .log-time { color: #64748b; }
+        .log-tag.success { color: var(--emerald); }
+        .log-tag.warn { color: var(--gold); }
+        .log-tag.danger { color: var(--red); }
+        .log-tag.info { color: var(--cyan); }
+
+        /* Action Buttons */
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            font-family: 'Chakra Petch', sans-serif;
+            letter-spacing: 0.08em;
+        }
+        .btn-action.primary {
+            background: linear-gradient(135deg, var(--red), #ff2a70);
+            color: #fff;
+            box-shadow: 0 0 25px var(--red-glow);
+        }
+        .btn-action.primary:hover { transform: scale(1.02); box-shadow: 0 0 35px var(--red-glow); }
+        .btn-action.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+        }
+        .btn-action.secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--cyan); }
+    </style>
+</head>
+<body>
+
+<div class="layout-container">
+    
+    <!-- LEFT SIDEBAR: WEAPON AIM CALIBRATOR & RADAR -->
+    <aside class="glass-panel">
+        <div class="brand-header">
+            <img src="bunbunk11.png" alt="BUN K11 VIP Logo" class="brand-logo-img" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4); border: 2px solid rgba(0, 240, 255, 0.6);">
+            <div>
+                <h2 style="font-size: 16px; color: #fff;">BUN K11 AI</h2>
+                <span class="state-badge ultra" id="uiStateBadge"><span class="pulse-dot"></span> AIM ENGINE • v8.5</span>
+            </div>
+        </div>
+
+        <!-- Radar Display -->
+        <div style="text-align: center; margin: 10px 0;">
+            <p style="font-size: 11px; color: var(--text-sub);">AI MAGNET RADAR</p>
+            <div class="radar-box">
+                <div class="radar-sweep"></div>
+                <div class="radar-circle c1"></div>
+                <div class="radar-circle c2"></div>
+                <span style="font-size: 10px; color: var(--cyan); font-weight: 700; z-index: 2;" id="radarModeTxt">FOV 28%</span>
+            </div>
+            <p style="font-size: 12px; color: var(--emerald); font-weight: 600;">com.dts.freefiremax</p>
+        </div>
+
+        <!-- Weapon Aim Presets -->
+        <div style="margin-top: 14px;">
+            <p style="font-size: 11px; color: var(--text-sub);">CHẾ ĐỘ SÚNG (WEAPON AIM)</p>
+            <div class="weapon-tabs">
+                <div class="weapon-tab-btn active" onclick="setWeaponAim('SMG')">
+                    <p style="font-size: 11px; font-weight: 800;">SMG (MP40/UMP)</p>
+                    <p style="font-size: 9px; opacity: 0.7;">Khóa 2 Tầng 35ms</p>
+                </div>
+                <div class="weapon-tab-btn" onclick="setWeaponAim('SHOTGUN')">
+                    <p style="font-size: 11px; font-weight: 800;">SHOTGUN (M1887)</p>
+                    <p style="font-size: 9px; opacity: 0.7;">One-Tap Kéo Chữ J</p>
+                </div>
+                <div class="weapon-tab-btn" onclick="setWeaponAim('AR')">
+                    <p style="font-size: 11px; font-weight: 800;">AR (AK/SCAR)</p>
+                    <p style="font-size: 9px; opacity: 0.7;">Đạn Thẳng 99%</p>
+                </div>
+                <div class="weapon-tab-btn" onclick="setWeaponAim('SNIPER')">
+                    <p style="font-size: 11px; font-weight: 800;">SNIPER (AWM)</p>
+                    <p style="font-size: 9px; opacity: 0.7;">Quick Snap Đầu</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn-action primary" onclick="oneTapOptimize()">🔥 KÍCH HOẠT AIM MAX</button>
+            <button class="btn-action secondary" onclick="emergencyRestore()">🔴 EMERGENCY RESTORE</button>
+        </div>
+    </aside>
+
+    <!-- CENTER MAIN: AIM COMPUTATION ENGINE & 9 MODULES -->
+    <main class="glass-panel" style="padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <p style="font-size: 11px; color: var(--cyan); letter-spacing: 0.15em;">AIM COMPUTATION & HARDWARE HUD</p>
+                <h1 style="font-size: 22px; font-weight: 800; color: #fff;">BẢNG TÍNH TOÁN AIM & ĐIỀU PHỐI 9 MODULE</h1>
+            </div>
+            <span class="state-badge ready">HEAD HITBOX: BONE 8 (100%)</span>
+        </div>
+
+        <!-- Telemetry Runtime Grid -->
+        <div class="telemetry-grid">
+            <div class="stat-card">
+                <p class="stat-title">AIM MULTIPLIER</p>
+                <p class="stat-val" style="color: var(--red);" id="valAimMulti">135%</p>
+                <p class="stat-sub">Dynamic Sens Curve</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-title">MAGNET FOV</p>
+                <p class="stat-val" style="color: var(--cyan);" id="valAimFov">28%</p>
+                <p class="stat-sub">Head Zone Radius</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-title">RECOIL DAMPING</p>
+                <p class="stat-val" style="color: var(--emerald);">18.5</p>
+                <p class="stat-sub">Kalman Slerp Filter</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-title">DRAG GESTURE</p>
+                <p class="stat-val" style="color: var(--gold);">35 / 45 ms</p>
+                <p class="stat-sub">2-Stage Head Lock</p>
+            </div>
+        </div>
+
+        <!-- Interactive Aim Tuning Matrix Box -->
+        <div class="aim-matrix-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="font-size: 13px; color: #fff;">⚡ TÍNH TOÁN & CÂN CHỈNH AIM THỜI GIAN THỰC</h3>
+                <span style="font-size: 10px; color: var(--emerald); font-weight: 700;">ACTIVE IN FREE FIRE</span>
+            </div>
+            
+            <div class="aim-slider-row">
+                <span>🎯 Lực Hút Từ Tính Vùng Đầu (Magnet Pull): <b style="color: var(--cyan);" id="txtMagnetVal">28%</b></span>
+                <input type="range" min="15" max="45" value="28" class="range-slider" oninput="updateMagnet(this.value)">
+            </div>
+            <div class="aim-slider-row">
+                <span>⚡ Tốc Độ Vuốt Bứt Tốc (Fast Pull Timing): <b style="color: var(--red);" id="txtFastPullVal">35 ms</b></span>
+                <input type="range" min="20" max="60" value="35" class="range-slider" oninput="updatePullTiming(this.value)">
+            </div>
+            <div class="aim-slider-row">
+                <span>🛡️ Triệt Tiêu Rung Lắc Đạn (Anti-Shake Smooth): <b style="color: var(--emerald);">99% (Slerp 18.5)</b></span>
+                <span style="color: var(--gold); font-size: 11px; font-weight: 700;">AUTO-STABILIZED</span>
+            </div>
+        </div>
+
+        <!-- 9 Modules Interactive Switchboard -->
+        <h3 style="font-size: 13px; margin-top: 14px; color: var(--text-sub);">9 MODULES TRONG BẢN MACRO V8.5</h3>
+        <div class="modules-grid">
+            <div class="module-item active" id="mod1">
+                <div><span style="font-size: 10px; color: var(--cyan);">01 • MASTER CORE</span><p style="font-size: 12px; font-weight: 700;">BUN AI Master Core</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--emerald);">ONLINE</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(1, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod2">
+                <div><span style="font-size: 10px; color: var(--emerald);">02 • AUTO DETECT</span><p style="font-size: 12px; font-weight: 700;">Free Fire Detector</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--emerald);">AUTO RUN</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(2, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod3">
+                <div><span style="font-size: 10px; color: var(--cyan);">03 • PROFILES</span><p style="font-size: 12px; font-weight: 700;">Profile Engine (3)</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--red);">ULTRA 120HZ</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(3, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod4">
+                <div><span style="font-size: 10px; color: var(--gold);">04 • PERFORMANCE</span><p style="font-size: 12px; font-weight: 700;">120Hz & GPU Turbo</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--emerald);">MAX ENGINE</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(4, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod5">
+                <div><span style="font-size: 10px; color: var(--red);">05 • THERMAL</span><p style="font-size: 12px; font-weight: 700;">Thermal Guard Safe</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--emerald);">&lt; 40°C OPTIMAL</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(5, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod6">
+                <div><span style="font-size: 10px; color: var(--cyan);">06 • INPUT REGEDIT</span><p style="font-size: 12px; font-weight: 700;">Ma Sát 0.0001 & 360Hz</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--cyan);">ZERO DELAY</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(6, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod7">
+                <div><span style="font-size: 10px; color: var(--red);">07 • TÍNH AIM</span><p style="font-size: 12px; font-weight: 700;">Ghìm Đầu 2 Tầng</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--red);">MAGNET 28%</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(7, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod8">
+                <div><span style="font-size: 10px; color: var(--gold);">08 • BACKUP</span><p style="font-size: 12px; font-weight: 700;">Snapshot Pre-Game</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--emerald);">CAPTURED</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(8, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="module-item active" id="mod9">
+                <div><span style="font-size: 10px; color: var(--red);">09 • RESET</span><p style="font-size: 12px; font-weight: 700;">Emergency Rollback</p></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="font-size: 10px; color: var(--text-sub);">STANDBY</span>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleModule(9, this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR: LIVE CONSOLE & AIM INSPECTOR -->
+    <aside class="glass-panel red-border">
+        <h3 style="font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <span>LIVE CONSOLE STREAM</span>
+            <span style="font-size: 10px; color: var(--emerald);">● LOGGING</span>
+        </h3>
+
+        <div class="terminal-box code-font" id="terminalConsole">
+            <div class="log-line"><span class="log-time">[13:31:01]</span> <span class="log-tag info">[AIM_CORE]</span> Advanced Aim Computation v8.5 Initialized</div>
+            <div class="log-line"><span class="log-time">[13:31:02]</span> <span class="log-tag success">[MAGNET]</span> FOV Head Radius set to 28%</div>
+            <div class="log-line"><span class="log-time">[13:31:03]</span> <span class="log-tag danger">[GESTURE]</span> 2-Stage Micro-Drag (35ms pull / 45ms lock)</div>
+            <div class="log-line"><span class="log-time">[13:31:04]</span> <span class="log-tag success">[SLERP]</span> Anti-Recoil damping matrix = 18.5</div>
+            <div class="log-line"><span class="log-time">[13:31:05]</span> <span class="log-tag info">[WEAPON]</span> Loaded SMG Spray Head Lock Preset</div>
+            <div class="log-line"><span class="log-time">[13:31:06]</span> <span class="log-tag success">[SYSTEM]</span> Pointer Speed 7 / Friction 0.0001 Verified</div>
+        </div>
+
+        <div style="margin-top: 18px;">
+            <h4 style="font-size: 12px; color: var(--text-sub); margin-bottom: 8px;">AIM COMPUTATION INSPECTOR</h4>
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px; font-size: 11px;" class="code-font">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: var(--text-muted);">target_bone_index</span>
+                    <span style="color: var(--red);">8 (Head Bone)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: var(--text-muted);">magnet_pull_force</span>
+                    <span style="color: var(--cyan);" id="inspMagnet">28% (FOV)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: var(--text-muted);">aim_snap_speed</span>
+                    <span style="color: var(--emerald);" id="inspSnap">35ms (Fast Pull)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">straight_bullet_fix</span>
+                    <span style="color: #ff3377;">Zero Spread (99%)</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+</div>
+
+<script>
+    function logMessage(tag, type, msg) {
+        const consoleEl = document.getElementById('terminalConsole');
+        const now = new Date().toTimeString().split(' ')[0];
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        line.innerHTML = `<span class="log-time">[${now}]</span> <span class="log-tag ${type}">[${tag}]</span> ${msg}`;
+        consoleEl.appendChild(line);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function setWeaponAim(weapon) {
+        document.querySelectorAll('.weapon-tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        
+        if (weapon === 'SMG') {
+            document.getElementById('radarModeTxt').innerText = 'SMG LOCK';
+            document.getElementById('valAimMulti').innerText = '135%';
+            logMessage('AIM_WEAPON', 'danger', 'Switched to SMG Head Lock (MP40/UMP 35ms 2-Stage)');
+        } else if (weapon === 'SHOTGUN') {
+            document.getElementById('radarModeTxt').innerText = 'SG FLICK';
+            document.getElementById('valAimMulti').innerText = '150%';
+            logMessage('AIM_WEAPON', 'warn', 'Switched to SHOTGUN One-Tap (M1887 J-Curve 28ms)');
+        } else if (weapon === 'AR') {
+            document.getElementById('radarModeTxt').innerText = 'AR SPRAY';
+            document.getElementById('valAimMulti').innerText = '120%';
+            logMessage('AIM_WEAPON', 'info', 'Switched to AR Recoil Stabilize (AK/SCAR Straight Line)');
+        } else {
+            document.getElementById('radarModeTxt').innerText = 'SNIPER SNAP';
+            document.getElementById('valAimMulti').innerText = '110%';
+            logMessage('AIM_WEAPON', 'success', 'Switched to SNIPER Quick Snap (AWM/M82B Scope Lock)');
+        }
+    }
+
+    function updateMagnet(val) {
+        document.getElementById('txtMagnetVal').innerText = val + '%';
+        document.getElementById('valAimFov').innerText = val + '%';
+        document.getElementById('inspMagnet').innerText = val + '% (FOV)';
+        logMessage('MAGNET', 'cyan', `Updated Magnet FOV Radius = ${val}%`);
+    }
+
+    function updatePullTiming(val) {
+        document.getElementById('txtFastPullVal').innerText = val + ' ms';
+        document.getElementById('inspSnap').innerText = val + 'ms (Fast Pull)';
+        logMessage('GESTURE', 'danger', `Updated Fast Pull Timing = ${val}ms`);
+    }
+
+    function oneTapOptimize() {
+        logMessage('OPTIMIZE', 'danger', 'Executing Full Aim Computation + 120 FPS Overclock...');
+        logMessage('AIM', 'danger', 'Bone 8 Head Redirect + 2-Stage Gestures Online');
+        alert('🎯 BUN K11: Đã nạp thành công bộ tính Aim và khóa đầu 100% cho Free Fire!');
+    }
+
+    function emergencyRestore() {
+        logMessage('RESTORE', 'warn', 'Emergency Rollback triggered!');
+        alert('🔴 EMERGENCY RESTORE: Đã hoàn tác cài đặt gốc!');
+    }
+
+    function toggleModule(id, checked) {
+        const item = document.getElementById('mod' + id);
+        if (checked) {
+            item.classList.add('active');
+            logMessage('MODULE', 'success', `Module 0${id} ACTIVATED`);
+        } else {
+            item.classList.remove('active');
+            logMessage('MODULE', 'warn', `Module 0${id} PAUSED`);
+        }
+    }
+</script>
+</body>
+</html>

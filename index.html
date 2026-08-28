@@ -1,0 +1,3927 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CLASSQUID 3D • TLGB MASTER HUB 2026 | Trần Lê Gia Bảo (Bun K11)</title>
+    
+    <!-- Meta SEO & OpenGraph -->
+    <meta name="description" content="ClassQuid 3D Master Hub • Kho tải dự án, tool auto TikTok, cấu hình Aim Free Fire 100% Headshot 0-200, spam.py, APK Android và Roblox Lua Scripts độc quyền của Trần Lê Gia Bảo.">
+    <meta name="author" content="Trần Lê Gia Bảo (Bun K11)">
+    <link rel="icon" href="bunbunk11_circle.png" type="image/png">
+    
+    <!-- Google Fonts: Plus Jakarta Sans, Outfit, Chakra Petch & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6.5.1 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- JSZip & FileSaver -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        /* ==========================================================================
+           CLASSQUID 3D THEME ENGINE (DARK OBSIDIAN / WHITE LIGHT DUAL MODE)
+           ========================================================================== */
+        :root {
+            --font-display: 'Outfit', sans-serif;
+            --font-heading: 'Chakra Petch', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-tech: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 🌙 CLASSQUID DARK (OLED Stealth Obsidian) */
+        html[data-theme="dark"] {
+            --bg-base: #050811;
+            --bg-mesh: radial-gradient(circle at 10% 10%, rgba(0, 245, 212, 0.09) 0%, transparent 40%),
+                       radial-gradient(circle at 90% 15%, rgba(255, 0, 85, 0.09) 0%, transparent 40%),
+                       radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.07) 0%, transparent 50%),
+                       linear-gradient(180deg, #020409 0%, #060913 100%);
+            --grid-line: rgba(255, 255, 255, 0.025);
+            
+            --bg-navbar: rgba(9, 14, 28, 0.85);
+            --bg-card: rgba(12, 18, 34, 0.68);
+            --bg-card-hover: rgba(18, 27, 48, 0.92);
+            --bg-card-solid: #090e1c;
+            --bg-inner: rgba(0, 0, 0, 0.28);
+            
+            --text-title: #ffffff;
+            --text-body: #94a3b8;
+            --text-dim: #64748b;
+            
+            --primary: #00f5d4;
+            --primary-glow: rgba(0, 245, 212, 0.4);
+            --primary-dim: rgba(0, 245, 212, 0.12);
+            
+            --accent-red: #ff0055;
+            --accent-red-glow: rgba(255, 0, 85, 0.45);
+            --accent-purple: #a855f7;
+            --accent-gold: #fbbf24;
+            --accent-emerald: #10b981;
+            --accent-blue: #3b82f6;
+            
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-hover: rgba(0, 245, 212, 0.35);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --shadow-card-hover: 0 25px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(0, 245, 212, 0.18);
+            --particle-opacity: 0.65;
+            --spotlight-color: rgba(0, 245, 212, 0.15);
+        }
+
+        /* ☀️ CLASSQUID WHITE LIGHT (Pure Minimalist Luxury) */
+        html[data-theme="light"] {
+            --bg-base: #f4f6fa;
+            --bg-mesh: radial-gradient(circle at 10% 10%, rgba(0, 180, 216, 0.08) 0%, transparent 40%),
+                       radial-gradient(circle at 90% 15%, rgba(247, 37, 133, 0.06) 0%, transparent 40%),
+                       radial-gradient(circle at 50% 80%, rgba(114, 9, 183, 0.04) 0%, transparent 50%),
+                       linear-gradient(180deg, #f8fafc 0%, #eef2f8 100%);
+            --grid-line: rgba(0, 0, 0, 0.03);
+            
+            --bg-navbar: rgba(255, 255, 255, 0.88);
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: rgba(255, 255, 255, 0.98);
+            --bg-card-solid: #ffffff;
+            --bg-inner: rgba(241, 245, 249, 0.85);
+            
+            --text-title: #0f172a;
+            --text-body: #475569;
+            --text-dim: #94a3b8;
+            
+            --primary: #0096c7;
+            --primary-glow: rgba(0, 150, 199, 0.3);
+            --primary-dim: rgba(0, 150, 199, 0.1);
+            
+            --accent-red: #e63946;
+            --accent-red-glow: rgba(230, 57, 70, 0.35);
+            --accent-purple: #7c3aed;
+            --accent-gold: #d97706;
+            --accent-emerald: #059669;
+            --accent-blue: #2563eb;
+            
+            --border-glass: rgba(0, 0, 0, 0.08);
+            --border-glass-hover: rgba(0, 150, 199, 0.4);
+            --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.06);
+            --shadow-card-hover: 0 25px 45px rgba(0, 0, 0, 0.14), 0 0 30px rgba(0, 150, 199, 0.22);
+            --particle-opacity: 0.4;
+            --spotlight-color: rgba(0, 150, 199, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: var(--bg-mesh);
+            background-attachment: fixed;
+            color: var(--text-title);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* 3D Grid Perspective Horizon */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 38px 38px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Interactive 3D Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: var(--particle-opacity);
+            transition: opacity 0.3s ease;
+        }
+
+        .app-layout {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, .brand-title, .nav-item, .btn-classquid, .badge-cq, .stat-value {
+            font-family: var(--font-heading);
+            letter-spacing: 0.02em;
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+        }
+
+        /* 3D Floating Keyframe Animations */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+        @keyframes floatReverse {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(8px) rotate(-1deg); }
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 15px var(--primary-glow); }
+            50% { box-shadow: 0 0 30px var(--primary-glow), 0 0 50px var(--primary-dim); }
+        }
+        @keyframes rotateWireframe {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==========================================================================
+           CLASSQUID FLOATING PILL NAVBAR
+           ========================================================================== */
+        .navbar-shell {
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+            padding: 0 16px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .navbar-pill {
+            max-width: 1320px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--bg-navbar);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 6px 8px 6px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 25px var(--primary-dim);
+            transition: var(--transition-smooth);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .navbar-pill:hover {
+            border-color: var(--border-glass-hover);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2), 0 0 30px var(--primary-glow);
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+            flex-shrink: 0;
+        }
+
+        .avatar-frame {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+        }
+        .avatar-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 12px var(--primary-glow);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .avatar-frame:hover .avatar-circle {
+            transform: scale(1.15) rotate(8deg);
+        }
+        .verify-badge {
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            background: #0070f3;
+            color: #fff;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8.5px;
+            border: 2px solid var(--bg-card-solid);
+        }
+
+        .brand-info {
+            display: flex;
+            flex-direction: column;
+            white-space: nowrap;
+        }
+        .brand-title {
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--text-title);
+        }
+        .brand-author-tag {
+            font-size: 10px;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .nav-menu-row {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-shrink: 1;
+        }
+
+        .nav-item {
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 6px 11px;
+            border-radius: 50px;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap !important;
+            line-height: 1;
+        }
+        .nav-item i {
+            font-size: 12px;
+            color: var(--text-dim);
+            transition: color 0.2s;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-title);
+            background: rgba(148, 163, 184, 0.12);
+        }
+        .nav-item:hover i, .nav-item.active i {
+            color: var(--primary);
+        }
+
+        .nav-ctrl-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .theme-toggle-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            color: var(--text-title);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .theme-toggle-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--primary-glow);
+            transform: scale(1.1);
+        }
+
+        .btn-mega-pill {
+            background: linear-gradient(135deg, var(--accent-red), #d90429);
+            color: #fff;
+            padding: 7px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px var(--accent-red-glow);
+            transition: var(--transition-smooth);
+            white-space: nowrap !important;
+            flex-shrink: 0;
+        }
+        .btn-mega-pill:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 0, 85, 0.6);
+            background: linear-gradient(135deg, #ff1a6b, #ef233c);
+        }
+
+        @media (max-width: 1100px) {
+            .nav-item { padding: 6px 8px; font-size: 11.5px; gap: 4px; }
+            .brand-author-tag { display: none; }
+        }
+        @media (max-width: 900px) {
+            .nav-menu-row { display: none; }
+        }
+
+        /* ==========================================================================
+           HERO SECTION WITH 3D ORBS
+           ========================================================================== */
+        .hero-banner {
+            padding: 30px 20px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .hero-container {
+            max-width: 980px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Floating 3D Geometric Badges */
+        .floating-3d-badge {
+            display: inline-flex;
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        .status-badge-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: var(--accent-emerald);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            box-shadow: 0 0 8px var(--accent-emerald);
+            animation: pulseWave 1.6s infinite;
+        }
+        @keyframes pulseWave {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.4; }
+        }
+
+        .hero-headline {
+            font-size: 50px;
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .hero-headline { font-size: 32px; }
+        }
+
+        .gradient-text-cyan {
+            background: linear-gradient(135deg, var(--primary), #00b4d8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-text-red {
+            background: linear-gradient(135deg, var(--accent-red), #ff5400);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-lead-text {
+            font-size: 15.5px;
+            color: var(--text-body);
+            max-width: 780px;
+            margin: 0 auto 26px;
+            line-height: 1.6;
+        }
+
+        /* Verified Social Channel Badges */
+        .social-channel-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .channel-pill-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            color: var(--text-title);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .channel-pill-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+        }
+        .channel-pill-btn.gh:hover { border-color: var(--text-title); background: var(--bg-card-hover); }
+        .channel-pill-btn.za:hover { border-color: #0068ff; color: #0068ff; box-shadow: 0 0 18px rgba(0, 104, 255, 0.35); }
+        .channel-pill-btn.fb:hover { border-color: #1877f2; color: #1877f2; box-shadow: 0 0 18px rgba(24, 119, 242, 0.35); }
+        .channel-pill-btn.tt:hover { border-color: #ff0055; color: #ff0055; box-shadow: 0 0 18px var(--accent-red-glow); }
+
+        /* Instant Search Shell */
+        .search-container-shell {
+            max-width: 680px;
+            margin: 0 auto 22px;
+            position: relative;
+        }
+
+        .search-box-cq {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 6px 18px;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition-smooth);
+        }
+        .search-box-cq:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15), 0 0 25px var(--primary-glow);
+            transform: scale(1.01);
+        }
+        .search-cq-icon {
+            color: var(--primary);
+            font-size: 16px;
+            margin-right: 12px;
+        }
+        .search-cq-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-title);
+            font-size: 14.5px;
+            padding: 10px 0;
+            font-family: var(--font-body);
+        }
+        .search-cq-input::placeholder {
+            color: var(--text-dim);
+        }
+        .search-cq-clear {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 6px;
+            display: none;
+        }
+        .search-cq-clear:hover { color: var(--text-title); }
+
+        /* Category Filter Pills */
+        .filter-row-cq {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 36px;
+        }
+        .cq-filter-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            color: var(--text-body);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
+        .cq-filter-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-title);
+            transform: translateY(-2px);
+        }
+        .cq-filter-btn.active {
+            background: var(--primary-dim);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+        .cq-count-badge {
+            background: rgba(148, 163, 184, 0.15);
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+        .cq-filter-btn.active .cq-count-badge {
+            background: var(--primary);
+            color: #000;
+            font-weight: 800;
+        }
+
+        /* ==========================================================================
+           STATS SECTION (BENTO GRID WITH 3D HOVER)
+           ========================================================================== */
+        .stats-wrap-cq {
+            max-width: 1320px;
+            margin: 0 auto 46px;
+            padding: 0 20px;
+        }
+        .stats-grid-cq {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 860px) {
+            .stats-grid-cq { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .stats-grid-cq { grid-template-columns: 1fr; }
+        }
+
+        .stat-card-cq {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-card);
+            transform-style: preserve-3d;
+            perspective: 800px;
+        }
+        .stat-card-cq:hover {
+            border-color: var(--border-glass-hover);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .stat-icon-sq {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+        .stat-card-cq:hover .stat-icon-sq {
+            transform: scale(1.15) rotate(6deg);
+        }
+        .stat-icon-sq.cyan { background: var(--primary-dim); color: var(--primary); border: 1px solid var(--primary-glow); }
+        .stat-icon-sq.red { background: rgba(255, 0, 85, 0.12); color: var(--accent-red); border: 1px solid var(--accent-red-glow); }
+        .stat-icon-sq.gold { background: rgba(245, 158, 11, 0.12); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .stat-icon-sq.purple { background: rgba(139, 92, 246, 0.12); color: var(--accent-purple); border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        .stat-val-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-title);
+            line-height: 1.1;
+        }
+        .stat-desc-txt {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* ==========================================================================
+           PROJECTS GRID (CLASSQUID 3D CARDS WITH TILT & LIGHT GLARE)
+           ========================================================================== */
+        .projects-section-cq {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+            width: 100%;
+        }
+
+        .section-header-cq {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 14px;
+        }
+        .section-title-cq {
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-title);
+        }
+        .section-title-cq i { color: var(--primary); }
+
+        .cq-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+            gap: 24px;
+            perspective: 1200px;
+        }
+        @media (max-width: 500px) {
+            .cq-cards-grid { grid-template-columns: 1fr; }
+        }
+
+        .cq-project-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            box-shadow: var(--shadow-card);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* Dynamic 3D Spotlight Glare Overlay on Mouse Hover */
+        .cq-project-card::before {
+            content: '';
+            position: absolute;
+            top: var(--mouse-y, 50%);
+            left: var(--mouse-x, 50%);
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, var(--spotlight-color) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+        }
+        .cq-project-card:hover::before {
+            opacity: 1;
+        }
+
+        .cq-project-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-card-hover);
+        }
+        .cq-project-card.featured-card {
+            border-color: var(--accent-red-glow);
+        }
+        .cq-project-card.featured-card:hover {
+            border-color: var(--accent-red);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 35px var(--accent-red-glow);
+        }
+
+        .cq-card-top {
+            padding: 14px 18px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-inner);
+            border-bottom: 1px solid var(--border-glass);
+            position: relative;
+            z-index: 2;
+        }
+        .cq-badge-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .badge-cq {
+            font-size: 10.5px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .badge-cq.hot { background: rgba(255, 0, 85, 0.12); color: #ff3377; border: 1px solid var(--accent-red-glow); }
+        .badge-cq.vip { background: rgba(245, 158, 11, 0.12); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.35); }
+        .badge-cq.new { background: var(--primary-dim); color: var(--primary); border: 1px solid var(--primary-glow); }
+        .badge-cq.free { background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.35); }
+        .badge-cq.apk { background: rgba(139, 92, 246, 0.15); color: #a855f7; border: 1px solid rgba(139, 92, 246, 0.35); }
+
+        .cq-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11.5px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+        .heart-btn-cq {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .heart-btn-cq:hover, .heart-btn-cq.liked {
+            color: var(--accent-red);
+            transform: scale(1.2);
+        }
+
+        .cq-card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cq-header-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        .cq-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            transition: transform 0.35s;
+        }
+        .cq-project-card:hover .cq-card-icon {
+            transform: translateZ(20px) scale(1.1);
+        }
+        .cq-card-icon.aim { color: var(--accent-red); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-red-glow); }
+        .cq-card-icon.macro { color: var(--accent-gold); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); }
+        .cq-card-icon.tiktok { color: var(--primary); background: var(--primary-dim); border-color: var(--primary-glow); }
+        .cq-card-icon.spam { color: #f59e0b; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); }
+        .cq-card-icon.love { color: #ff66b2; background: rgba(255, 102, 178, 0.12); border-color: rgba(255, 102, 178, 0.3); }
+        .cq-card-icon.roblox { color: #3b82f6; background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3); }
+        .cq-card-icon.mega { color: #a855f7; background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.3); }
+
+        .cq-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-title);
+            line-height: 1.25;
+        }
+        .cq-author-subtitle {
+            font-size: 11.5px;
+            color: var(--text-dim);
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .cq-card-desc {
+            font-size: 13.5px;
+            color: var(--text-body);
+            line-height: 1.55;
+            margin-bottom: 16px;
+        }
+
+        .cq-bullet-list {
+            list-style: none;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .cq-bullet-list li {
+            font-size: 12.5px;
+            color: var(--text-body);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .cq-bullet-list li i {
+            color: var(--primary);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        .cq-project-card.featured-card .cq-bullet-list li i {
+            color: var(--accent-red);
+        }
+
+        .cq-specs-bar {
+            margin-top: auto;
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 9px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+        .cq-specs-bar strong {
+            color: var(--text-title);
+        }
+
+        .cq-btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .cq-btn-grid.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-classquid {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: var(--transition-smooth);
+            text-align: center;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-classquid::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+        .btn-classquid:hover::after {
+            left: 150%;
+        }
+
+        .btn-cq-primary {
+            background: linear-gradient(135deg, var(--primary), #00b4d8);
+            color: #030712;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+        .btn-cq-primary:hover {
+            background: linear-gradient(135deg, #38ef7d, #11998e);
+            color: #000;
+            box-shadow: 0 6px 20px rgba(0, 245, 212, 0.5);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .btn-cq-red {
+            background: linear-gradient(135deg, var(--accent-red), #b5179e);
+            color: #fff;
+            box-shadow: 0 4px 15px var(--accent-red-glow);
+        }
+        .btn-cq-red:hover {
+            background: linear-gradient(135deg, #ff3377, #f72585);
+            box-shadow: 0 6px 20px rgba(255, 0, 85, 0.6);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .btn-cq-purple {
+            background: linear-gradient(135deg, var(--accent-purple), #4361ee);
+            color: #fff;
+        }
+        .btn-cq-purple:hover {
+            background: linear-gradient(135deg, #c084fc, #6366f1);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .btn-cq-ghost {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            color: var(--text-title);
+        }
+        .btn-cq-ghost:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-glass-hover);
+            transform: translateY(-2px);
+        }
+        .btn-cq-gold {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: var(--accent-gold);
+        }
+        .btn-cq-gold:hover {
+            background: var(--accent-gold);
+            color: #000;
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* ==========================================================================
+           INTERACTIVE SENSITIVITY STUDIO (0 - 200 SCALE)
+           ========================================================================== */
+        .cq-section-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 30px;
+            margin: 40px 0;
+            box-shadow: var(--shadow-card);
+        }
+        .cq-studio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-top: 18px;
+        }
+        @media (max-width: 860px) {
+            .cq-studio-grid { grid-template-columns: 1fr; }
+        }
+        .cq-studio-col {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .cq-select-box {
+            width: 100%;
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            color: var(--text-title);
+            padding: 10px 14px;
+            font-size: 13.5px;
+            outline: none;
+            margin-top: 8px;
+            font-family: var(--font-body);
+        }
+        .cq-select-box:focus {
+            border-color: var(--primary);
+        }
+        .cq-sens-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .cq-sens-tile {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .cq-sens-tile:hover {
+            transform: scale(1.03);
+            border-color: var(--primary);
+        }
+        .cq-sens-label { font-size: 11px; color: var(--text-dim); }
+        .cq-sens-number { font-size: 20px; font-weight: 800; color: var(--primary); font-family: var(--font-heading); }
+
+        /* ==========================================================================
+           CUSTOM PACKAGE BUILDER
+           ========================================================================== */
+        .builder-cq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 22px;
+            margin-top: 18px;
+        }
+        .builder-cq-item {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .builder-cq-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-glass-hover);
+            transform: translateY(-2px);
+        }
+        .builder-cq-item.selected {
+            background: var(--primary-dim);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+        .builder-cq-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .builder-cq-info { flex: 1; }
+        .builder-cq-title { font-size: 13px; font-weight: 600; color: var(--text-title); }
+        .builder-cq-size { font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); }
+
+        .builder-cq-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-top: 1px solid var(--border-glass);
+            padding-top: 18px;
+        }
+
+        /* ==========================================================================
+           COMMUNITY & AUTHOR SHOWCASE
+           ========================================================================== */
+        .cq-showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin: 40px 0;
+        }
+        @media (max-width: 900px) {
+            .cq-showcase-grid { grid-template-columns: 1fr; }
+        }
+        .author-cq-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        .author-cq-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card-hover);
+        }
+        .author-cq-head {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+        .author-cq-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 25px var(--primary-glow);
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .author-cq-card:hover .author-cq-img {
+            transform: scale(1.08) rotate(4deg);
+        }
+        .author-cq-name { font-size: 22px; color: var(--text-title); font-weight: 800; }
+        .author-cq-role { font-size: 13px; color: var(--primary); font-weight: 700; margin-top: 2px; }
+
+        .cq-social-tiles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        @media (max-width: 480px) {
+            .cq-social-tiles { grid-template-columns: 1fr; }
+        }
+        .cq-social-tile {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            color: var(--text-title);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition-smooth);
+        }
+        .cq-social-tile:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .cq-social-tile.gh:hover { border-color: var(--text-title); background: var(--bg-card-hover); }
+        .cq-social-tile.za:hover { border-color: #0068ff; color: #0068ff; }
+        .cq-social-tile.fb:hover { border-color: #1877f2; color: #1877f2; }
+        .cq-social-tile.tt:hover { border-color: #ff0055; color: #ff0055; }
+
+        .author-bento-grid {
+            display: grid;
+            grid-template-columns: 310px 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 980px) {
+            .author-bento-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 680px) {
+            .author-bento-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comments-cq-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: var(--shadow-card);
+        }
+        .comments-cq-feed {
+            margin-top: 16px;
+            max-height: 190px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .comment-cq-item {
+            background: var(--bg-inner);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-glass);
+            font-size: 12.5px;
+            transition: transform 0.2s;
+        }
+        .comment-cq-item:hover {
+            transform: translateX(4px);
+        }
+        .review-input-cq {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: var(--text-title);
+            font-size: 13px;
+            outline: none;
+            font-family: var(--font-body);
+        }
+        .review-input-cq:focus { border-color: var(--primary); }
+
+        /* ==========================================================================
+           MODALS & TOAST
+           ========================================================================== */
+        .modal-shade {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(16px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-shade.active { display: flex; }
+
+        .modal-cq-window {
+            background: var(--bg-card-solid);
+            border: 1.5px solid var(--primary);
+            box-shadow: 0 0 40px var(--primary-glow), 0 25px 50px rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 840px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-cq-head {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-inner);
+        }
+        .modal-cq-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-title);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-cq-tabs {
+            display: flex;
+            background: var(--bg-inner);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 16px;
+            overflow-x: auto;
+        }
+        .modal-cq-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 700;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .modal-cq-tab:hover { color: var(--text-title); }
+        .modal-cq-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .modal-cq-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .code-display-box {
+            background: #030610;
+            border: 1px solid rgba(0, 245, 212, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            color: #00f5d4;
+            max-height: 380px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+        .guide-txt {
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: var(--text-body);
+        }
+        .guide-txt h4 { color: var(--primary); margin: 14px 0 6px; font-size: 15px; }
+        .guide-txt ol, .guide-txt ul { padding-left: 20px; margin-bottom: 10px; }
+        .guide-txt code {
+            background: var(--bg-inner);
+            color: var(--accent-gold);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+        .modal-cq-foot {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            background: var(--bg-inner);
+        }
+
+        /* Toast */
+        .toast-cq {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card-solid);
+            border: 1px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px var(--primary-glow);
+            border-radius: 12px;
+            padding: 12px 18px;
+            color: var(--text-title);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .toast-cq.show { transform: translateY(0); opacity: 1; }
+        .toast-cq i { color: var(--primary); font-size: 16px; }
+
+        /* Footer */
+        .footer-cq {
+            background: var(--bg-card-solid);
+            border-top: 1px solid var(--border-glass);
+            padding: 36px 20px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+        .footer-cq-socials {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+        .footer-cq-socials a {
+            color: var(--text-body);
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+        .footer-cq-socials a:hover { color: var(--primary); }
+        .footer-cq a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        /* ==========================================================================
+           FUTURISTIC CYBER PRELOADER (SPLASH LOADING SCREEN)
+           ========================================================================== */
+        #cq-preloader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--bg-base);
+            background-image: var(--bg-mesh);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #cq-preloader.fade-out {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+        .preloader-card {
+            background: var(--bg-card-solid);
+            border: 1.5px solid var(--primary);
+            border-radius: 24px;
+            padding: 36px 40px;
+            text-align: center;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 0 50px var(--primary-glow), 0 25px 60px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .preloader-avatar-shell {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin-bottom: 16px;
+        }
+        .preloader-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+        .preloader-spinner-orbit {
+            position: absolute;
+            top: -6px; left: -6px;
+            width: 102px; height: 102px;
+            border-radius: 50%;
+            border: 2px dashed var(--primary);
+            animation: rotateWireframe 4s linear infinite;
+        }
+        .preloader-bar-shell {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-inner);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            margin: 18px 0 10px;
+        }
+        .preloader-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent-red));
+            border-radius: 10px;
+            transition: width 0.08s linear;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+        .preloader-log-txt {
+            font-size: 11.5px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            min-height: 18px;
+        }
+
+        /* Damage Popups on Click */
+        .damage-pop {
+            position: fixed;
+            pointer-events: none;
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 900;
+            color: #ff0055;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.8), 0 0 20px #000;
+            z-index: 10000;
+            animation: floatUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            white-space: nowrap;
+        }
+        @keyframes floatUpFade {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(0.6); }
+            40% { opacity: 1; transform: translate(-50%, -30px) scale(1.3); }
+            100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+        }
+
+        /* Floating 3D Rocket Back-To-Top Button */
+        #back-to-top-btn {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            width: 46px;
+            height: 46px;
+            background: var(--bg-card-solid);
+            border: 1.5px solid var(--primary);
+            border-radius: 50%;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--primary-glow);
+            z-index: 1500;
+            opacity: 0;
+            transform: translateY(20px) scale(0.8);
+            transition: var(--transition-smooth);
+            pointer-events: none;
+        }
+        #back-to-top-btn.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        #back-to-top-btn:hover {
+            background: var(--primary);
+            color: #000;
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        /* Mini Headshot Reflex Game Sandbox */
+        .aim-game-arena {
+            width: 100%;
+            height: 320px;
+            background: #030611;
+            border: 1px solid var(--primary);
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+            box-shadow: inset 0 0 30px rgba(0, 245, 212, 0.15);
+        }
+        .aim-target-head {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff0055 0%, #700022 100%);
+            border: 2px solid #fff;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            animation: pulseWave 0.6s infinite;
+        }
+
+        /* ==========================================================================
+           FLOATING CYBER MUSIC PLAYER WIDGET (HOT REMIX TIKTOK 2026)
+           ========================================================================== */
+        .floating-music-player {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card-solid);
+            border: 1.5px solid var(--border-glass-hover);
+            border-radius: 100px;
+            padding: 8px 14px 8px 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 25px var(--primary-dim);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1800;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 480px;
+        }
+        .floating-music-player:hover {
+            border-color: var(--primary);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 35px var(--primary-glow);
+        }
+        .floating-music-player.collapsed {
+            transform: translateX(calc(100% - 50px));
+            opacity: 0.88;
+        }
+        .floating-music-player.collapsed:hover {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .music-toggle-arrow-btn {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            color: var(--primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+        .music-toggle-arrow-btn:hover {
+            background: var(--primary);
+            color: #000;
+            transform: scale(1.15);
+        }
+        .music-toggle-arrow-btn i {
+            transition: transform 0.3s;
+        }
+        .floating-music-player.collapsed .music-toggle-arrow-btn i {
+            transform: rotate(180deg);
+        }
+        .music-disc-shell {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .music-disc-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
+            box-shadow: 0 0 12px var(--primary-glow);
+            transition: transform 0.3s;
+        }
+        .floating-music-player.is-playing .music-disc-img {
+            animation: rotateDisc 4s linear infinite;
+        }
+        @keyframes rotateDisc {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .music-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 130px;
+            max-width: 160px;
+        }
+        .music-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-title);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        .music-artist {
+            font-size: 10.5px;
+            color: var(--primary);
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .music-btn {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            color: var(--text-title);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .music-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        .music-btn.play-btn {
+            background: linear-gradient(135deg, var(--primary), #00b4d8);
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px var(--primary-glow);
+            font-size: 14px;
+        }
+        .music-equalizer {
+            display: flex;
+            align-items: flex-end;
+            gap: 2.5px;
+            height: 14px;
+            margin-right: 4px;
+        }
+        .eq-bar {
+            width: 2.5px;
+            background: var(--primary);
+            border-radius: 3px;
+            height: 3px;
+            transition: height 0.15s;
+        }
+        .floating-music-player.is-playing .eq-bar:nth-child(1) { animation: eqJump 0.6s ease-in-out infinite alternate; }
+        .floating-music-player.is-playing .eq-bar:nth-child(2) { animation: eqJump 0.8s ease-in-out infinite alternate 0.2s; }
+        .floating-music-player.is-playing .eq-bar:nth-child(3) { animation: eqJump 0.5s ease-in-out infinite alternate 0.4s; }
+        .floating-music-player.is-playing .eq-bar:nth-child(4) { animation: eqJump 0.7s ease-in-out infinite alternate 0.1s; }
+        @keyframes eqJump {
+            0% { height: 3px; }
+            100% { height: 14px; }
+        }
+        @media (max-width: 600px) {
+            .floating-music-player {
+                bottom: 16px;
+                right: 14px;
+                max-width: calc(100% - 28px);
+            }
+            .floating-music-player.collapsed {
+                transform: translateX(calc(100% - 50px));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cyberpunk 3D Splash Preloader Screen -->
+    <div id="cq-preloader">
+        <div class="preloader-card">
+            <div class="preloader-avatar-shell">
+                <img src="giabao_avatar.png" alt="Avatar" class="preloader-avatar-img">
+                <div class="preloader-spinner-orbit"></div>
+            </div>
+            <div style="font-size:22px; font-weight:900; color:var(--text-title); letter-spacing:0.04em;">CLASSQUID 3D HUB</div>
+            <div style="font-size:12px; color:var(--primary); font-weight:700; margin-top:2px;">TRẦN LÊ GIA BẢO • BUN K11</div>
+            
+            <div class="preloader-bar-shell">
+                <div class="preloader-bar-fill" id="preloader-fill"></div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; width:100%; font-size:12px; margin-top:4px;">
+                <span class="preloader-log-txt" id="preloader-status-text">Đang khởi tạo hệ thống...</span>
+                <span id="preloader-percent" class="mono" style="color:var(--primary); font-weight:800;">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic 3D Interactive Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="app-layout">
+
+        <!-- ClassQuid Floating Pill Header -->
+        <header class="navbar-shell">
+            <nav class="navbar-pill">
+                <a href="#" class="brand-link" onclick="playSound('click')">
+                    <div class="avatar-frame">
+                        <img src="bunbunk11_circle.png" alt="Avatar" class="avatar-circle">
+                        <span class="verify-badge"><i class="fa-solid fa-check"></i></span>
+                    </div>
+                    <div class="brand-info">
+                        <span class="brand-title">CLASSQUID 3D</span>
+                        <span class="brand-author-tag">Trần Lê Gia Bảo • Bun K11</span>
+                    </div>
+                </a>
+
+                <!-- Nav Menu Items -->
+                <ul class="nav-menu-row">
+                    <li><a href="#projects-area" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Kho Dự Án</a></li>
+                    <li><a href="#author-profile" class="nav-item"><i class="fa-solid fa-user-astronaut"></i> Tác Giả</a></li>
+                    <li><a href="#sens-studio" class="nav-item"><i class="fa-solid fa-sliders"></i> Tính Độ Nhạy FF</a></li>
+                    <li><a href="#builder-studio" class="nav-item"><i class="fa-solid fa-box-archive"></i> Tải Tùy Chọn</a></li>
+                    <li><a href="aim_controller_backup.html" target="_blank" class="nav-item"><i class="fa-solid fa-crosshairs"></i> Luyện Kéo Tâm</a></li>
+                    <li><a href="love_app/index.html" target="_blank" class="nav-item"><i class="fa-solid fa-heart"></i> Love App Web</a></li>
+                    <li><a href="javascript:void(0)" onclick="openGuideModal('all')" class="nav-item"><i class="fa-solid fa-book-open"></i> Hướng Dẫn</a></li>
+                </ul>
+
+                <!-- Action Controls (Light / Dark Mode Switcher) -->
+                <div class="nav-ctrl-group">
+                    <button class="theme-toggle-btn" id="theme-btn" onclick="toggleLightDarkMode()" title="Chuyển đổi giao diện Trắng / Đen (White Light & Dark Obsidian)">
+                        <i class="fa-solid fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button class="theme-toggle-btn" id="sound-btn" onclick="toggleSound()" title="Bật/Tắt âm thanh">
+                        <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+                    </button>
+                    <a href="downloads/TLGB_ALL_PROJECTS_MEGA_PACK_2026.zip" download="TLGB_ALL_PROJECTS_MEGA_PACK_2026.zip" class="btn-mega-pill" onclick="triggerDownloadFeedback('TLGB Mega Pack 2026')">
+                        <i class="fa-solid fa-bolt"></i> TẢI MEGA PACK (20MB)
+                    </a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Hero Section with 3D Hologram Lighting -->
+        <section class="hero-banner">
+            <div class="hero-container">
+                <div class="floating-3d-badge">
+                    <div class="status-badge-live">
+                        <span class="live-dot"></span>
+                        CLASSQUID 3D SYSTEM ONLINE • TRẦN LÊ GIA BẢO (BUN K11) • PING: 12MS
+                    </div>
+                </div>
+                
+                <h1 class="hero-headline">
+                    KHO TẢI DỰ ÁN, TOOL & <br>
+                    <span class="gradient-text-cyan">CẤU HÌNH GAME</span> <span class="gradient-text-red">CLASSQUID 3D VIP</span>
+                </h1>
+
+                <p class="hero-lead-text">
+                    Tuyển tập dự án chính thức: Cấu hình Aim FFMax 100% Headshot (Thang 0-200), Bộ Siêu Tool Auto TikTok & spam.py Multi-Gateway, Ứng dụng Love App APK và Roblox Lua Scripts Hub. Bấm là tải trực tiếp tốc độ cao hoàn toàn miễn phí!
+                </p>
+
+                <!-- Verified Creator Links -->
+                <div class="social-channel-bar">
+                    <a href="https://github.com/giabaotranle04112011/" target="_blank" class="channel-pill-btn gh" onclick="playSound('click')">
+                        <i class="fa-brands fa-github"></i> GitHub: giabaotranle04112011
+                    </a>
+                    <a href="https://zalo.me/0348707829" target="_blank" class="channel-pill-btn za" onclick="playSound('click')">
+                        <i class="fa-solid fa-comment-dots"></i> Zalo: 0348.707.829
+                    </a>
+                    <a href="https://www.facebook.com/gia.bao.tranle.2025" target="_blank" class="channel-pill-btn fb" onclick="playSound('click')">
+                        <i class="fa-brands fa-facebook"></i> Facebook: Gia Bảo
+                    </a>
+                    <a href="https://www.tiktok.com/@giabaotranle" target="_blank" class="channel-pill-btn tt" onclick="playSound('click')">
+                        <i class="fa-brands fa-tiktok"></i> TikTok: @giabaotranle
+                    </a>
+                </div>
+
+                <!-- Instant Search Bar -->
+                <div class="search-container-shell">
+                    <div class="search-box-cq">
+                        <i class="fa-solid fa-magnifying-glass search-cq-icon"></i>
+                        <input type="text" id="project-search" class="search-cq-input" placeholder="Tìm kiếm dự án (VD: Free Fire, TikTok, spam.py, APK, Roblox, Macro...)" oninput="filterProjects()">
+                        <button id="search-clear-btn" class="search-cq-clear" onclick="clearSearch()"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="filter-row-cq">
+                    <button class="cq-filter-btn active" onclick="setCategory('all', this)">
+                        <i class="fa-solid fa-border-all"></i> Tất Cả <span class="cq-count-badge" id="count-all">10</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('aim_ff', this)">
+                        <i class="fa-solid fa-crosshairs"></i> Aim FF VIP <span class="cq-count-badge">2</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('music_remix', this)">
+                        <i class="fa-solid fa-music"></i> Nhạc Remix Hot <span class="cq-count-badge">1</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('tiktok_tool', this)">
+                        <i class="fa-brands fa-tiktok"></i> Tool Tự Động & TikTok <span class="cq-count-badge">2</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('app_apk', this)">
+                        <i class="fa-brands fa-android"></i> App & APK <span class="cq-count-badge">1</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('roblox_lua', this)">
+                        <i class="fa-solid fa-cube"></i> Roblox Scripts <span class="cq-count-badge">3</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('macro_regedit', this)">
+                        <i class="fa-solid fa-gauge-high"></i> Macro & 120FPS <span class="cq-count-badge">1</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Bento Grid with 3D Tilt -->
+        <section class="stats-wrap-cq">
+            <div class="stats-grid-cq">
+                <div class="stat-card-cq">
+                    <div class="stat-icon-sq cyan"><i class="fa-solid fa-layer-group"></i></div>
+                    <div>
+                        <div class="stat-val-num">9+ DỰ ÁN</div>
+                        <div class="stat-desc-txt">Đã đóng gói hoàn chỉnh</div>
+                    </div>
+                </div>
+                <div class="stat-card-cq">
+                    <div class="stat-icon-sq red"><i class="fa-solid fa-download"></i></div>
+                    <div>
+                        <div class="stat-val-num" id="total-downloads-stat">28,940+</div>
+                        <div class="stat-desc-txt">Lượt tải về thành công</div>
+                    </div>
+                </div>
+                <div class="stat-card-cq">
+                    <div class="stat-icon-sq gold"><i class="fa-solid fa-star"></i></div>
+                    <div>
+                        <div class="stat-val-num">4.99 / 5.0</div>
+                        <div class="stat-desc-txt">Đánh giá độ tin cậy</div>
+                    </div>
+                </div>
+                <div class="stat-card-cq">
+                    <div class="stat-icon-sq purple"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div>
+                        <div class="stat-val-num">100% SẠCH</div>
+                        <div class="stat-desc-txt">Không Root • Anti-Ban Safe</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Cards Grid with 3D Tilt Effect -->
+        <main class="projects-section-cq" id="projects-area">
+            <div class="section-header-cq">
+                <h3 class="section-title-cq">
+                    <i class="fa-solid fa-boxes-stacked"></i> DANH SÁCH DỰ ÁN & CÔNG CỤ
+                </h3>
+                <span class="mono" style="font-size:12px; color:var(--text-dim);" id="result-status">Đang hiển thị tất cả 9 dự án</span>
+            </div>
+
+            <div class="cq-cards-grid" id="projects-grid-container">
+
+                <!-- 1: AIM FFMAX VIP ULTRA -->
+                <div class="cq-project-card featured-card" data-category="aim_ff" data-keywords="aim headshot free fire max ff máu đỏ zero recoil 120fps lockhead auto">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq hot"><i class="fa-solid fa-fire"></i> SIÊU HOT</span>
+                            <span class="badge-cq vip">VIP ULTRA</span>
+                            <span class="badge-cq free">100% MÁU ĐỎ</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'aim_ff')"><i class="fa-solid fa-heart"></i> <span class="like-count">1.4k</span></button>
+                            <span>v4.5.2 • 30 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon aim"><i class="fa-solid fa-crosshairs"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Dự Án AIM FFMAX VIP ULTRA</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo (Bun K11)</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Cấu hình và thuật toán bám đầu 100%, chuyển toàn bộ sát thương thành Máu Đỏ, triệt tiêu độ giật (Zero Recoil), đạn thẳng không nở tâm và mở khóa 120 FPS trên iOS & Android.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Chuyển 100% sát thương người sang Sát Thương Đầu.</li>
+                            <li><i class="fa-solid fa-check"></i> Khóa tâm tức thì khi bấm bắn (AimLockPrecision 1.0).</li>
+                            <li><i class="fa-solid fa-check"></i> Đạn đi thẳng tắp (Magic Bullet) & Tâm không nở to.</li>
+                            <li><i class="fa-solid fa-check"></i> Hỗ trợ ZArchiver (Android) & Ứng dụng Tệp / 3uTools (iOS).</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-brands fa-apple"></i> iOS 17+ / Android</span>
+                            <span>Dung lượng: <strong>30 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid" style="grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <a href="downloads/Duan_Aim_FFMax_VIP_100_Dau.zip" download="Duan_Aim_FFMax_VIP_100_Dau.zip" class="btn-classquid btn-cq-red" onclick="triggerDownloadFeedback('Aim FFMax VIP ZIP')">
+                                <i class="fa-solid fa-download"></i> Tải Full ZIP
+                            </a>
+                            <button class="btn-classquid btn-cq-ghost" onclick="openGuideModal('aim_ff')">
+                                <i class="fa-solid fa-book"></i> Hướng Dẫn
+                            </button>
+                            <button class="btn-classquid btn-cq-gold" onclick="openAimGame()" style="grid-column: span 2;">
+                                <i class="fa-solid fa-gamepad"></i> 🎮 Bắn Thử Kéo Tâm 3D (Mini Game)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2: MACRO 200K ULTRA UPGRADE -->
+                <div class="cq-project-card" data-category="macro_regedit" data-keywords="macro 200k ultra macrodroid regedit 120fps zero delay cam ung vuot tam nhay">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq vip"><i class="fa-solid fa-crown"></i> NÂNG CẤP VIP</span>
+                            <span class="badge-cq new">120 FPS</span>
+                            <span class="badge-cq free">NO ROOT</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'macro_200k')"><i class="fa-solid fa-heart"></i> <span class="like-count">980</span></button>
+                            <span>v5.0 • 5.0 MB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon macro"><i class="fa-solid fa-gauge-high"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Macro 200k Ultra Upgrade</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Bộ cấu hình MacroDroid siêu phẩm kết hợp Regedit Touch 360Hz: Nút Menu "⚡BUN" OLED nổi, tâm ảo Laser Hologram, giảm ma sát cảm ứng về 0.001, vuốt nhẹ là dính đầu.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Trợ lực kéo tâm vi mô Micro-Drag không bị lố đầu.</li>
+                            <li><i class="fa-solid fa-check"></i> Tâm ảo Hologram Laser "✛" căn chuẩn chính giữa.</li>
+                            <li><i class="fa-solid fa-check"></i> Ép xung 120 FPS Turbo và giảm nhiệt độ máy.</li>
+                            <li><i class="fa-solid fa-check"></i> Tệp .mdr chuẩn + Script kích hoạt ADB 1-click.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-brands fa-android"></i> MacroDroid / ADB</span>
+                            <span>Dung lượng: <strong>5.0 MB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <a href="downloads/Macro200k_VIP_Ultra_Full.zip" download="Macro200k_VIP_Ultra_Full.zip" class="btn-classquid btn-cq-primary" onclick="triggerDownloadFeedback('Macro 200k Full ZIP')">
+                                <i class="fa-solid fa-download"></i> Tải Full ZIP
+                            </a>
+                            <button class="btn-classquid btn-cq-ghost" onclick="openGuideModal('macro_200k')">
+                                <i class="fa-solid fa-eye"></i> Xem Chi Tiết
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3: TLGB TIKTOK MASTER SUITE 2026 -->
+                <div class="cq-project-card" data-category="tiktok_tool" data-keywords="tiktok tool auto view tim like follow share comment captcha gui python tlgb">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq new"><i class="fa-solid fa-bolt"></i> TOOL 2026</span>
+                            <span class="badge-cq vip">AUTO CAPTCHA</span>
+                            <span class="badge-cq hot">GUI CYBERPUNK</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'tiktok_suite')"><i class="fa-solid fa-heart"></i> <span class="like-count">1.2k</span></button>
+                            <span>v4.0 • 293 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon tiktok"><i class="fa-brands fa-tiktok"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">TLGB TikTok Master Suite 2026</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Bộ công cụ đa năng tự động tăng tương tác TikTok (View, Tim, Follow, Share, Comment), tích hợp AI giải Captcha tự động, quản lý Proxy Pool đa luồng kèm giao diện GUI Cyberpunk.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Buff View, Tim, Follow, Share TikTok siêu tốc độ.</li>
+                            <li><i class="fa-solid fa-check"></i> Tự động giải Captcha hình ảnh 100% không cần gõ tay.</li>
+                            <li><i class="fa-solid fa-check"></i> Quản lý Proxy Pool xoay vòng chống chặn IP.</li>
+                            <li><i class="fa-solid fa-check"></i> Kèm file .bat 1-click chạy ngay trên Windows.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-brands fa-windows"></i> Windows PC (Python 3.9+)</span>
+                            <span>Dung lượng: <strong>293 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <a href="downloads/TLGB_TikTok_Master_Suite_2026.zip" download="TLGB_TikTok_Master_Suite_2026.zip" class="btn-classquid btn-cq-primary" onclick="triggerDownloadFeedback('TikTok Master Suite ZIP')">
+                                <i class="fa-solid fa-download"></i> Tải Bộ Tool ZIP
+                            </a>
+                            <button class="btn-classquid btn-cq-ghost" onclick="openCodeModal('tonghop_tool')">
+                                <i class="fa-solid fa-code"></i> Xem Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4: TLGB MULTI-GATEWAY OTP (spam.py) -->
+                <div class="cq-project-card featured-card" data-category="tiktok_tool" data-keywords="spam spam.py otp multi gateway tool api request multi thread python tlgb">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq hot"><i class="fa-solid fa-fire"></i> MULTI-THREAD</span>
+                            <span class="badge-cq vip">50+ GATEWAYS</span>
+                            <span class="badge-cq free">AUTO RETRY</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'spam_tool')"><i class="fa-solid fa-heart"></i> <span class="like-count">870</span></button>
+                            <span>v6.2 Pro • 742 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon spam"><i class="fa-solid fa-paper-plane"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">TLGB Multi-Gateway OTP & Tool (spam.py)</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Hệ thống kiểm thử API và gửi luồng yêu cầu OTP đa luồng tự động (Multi-Gateway Engine), hỗ trợ xoay vòng hơn 50 cổng API viễn thông và dịch vụ, cân bằng tải song song siêu nhanh.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Đa luồng song song (Multi-Threading Pool) tốc độ cực cao.</li>
+                            <li><i class="fa-solid fa-check"></i> Tích hợp 50+ Gateways dịch vụ tự động luân chuyển.</li>
+                            <li><i class="fa-solid fa-check"></i> Cơ chế Auto-Retry thông minh và xử lý lỗi kết nối.</li>
+                            <li><i class="fa-solid fa-check"></i> Tương thích 100% mọi môi trường Python 3.8 - 3.12+.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-brands fa-python"></i> Python CLI Engine</span>
+                            <span>Dung lượng: <strong>742 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <a href="downloads/spam.py" download="spam.py" class="btn-classquid btn-cq-red" onclick="triggerDownloadFeedback('spam.py')">
+                                <i class="fa-solid fa-download"></i> Tải spam.py (742KB)
+                            </a>
+                            <button class="btn-classquid btn-cq-ghost" onclick="openCodeModal('spam_py')">
+                                <i class="fa-solid fa-code"></i> Xem Mã Nguồn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5: LOVE APP 3D (ANDROID APK + WEB) -->
+                <div class="cq-project-card" data-category="app_apk" data-keywords="love app to tinh trai tim 3d dem ngay yeu thu tinh android apk web">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq apk"><i class="fa-brands fa-android"></i> FILE APK</span>
+                            <span class="badge-cq hot">3D EFFECT</span>
+                            <span class="badge-cq free">LÃNG MẠN</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'love_app')"><i class="fa-solid fa-heart"></i> <span class="like-count">1.1k</span></button>
+                            <span>v2.2 • 96 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon love"><i class="fa-solid fa-heart"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Love App 3D • Ứng Dụng Tỏ Tình</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Ứng dụng tỏ tình và đếm ngày yêu với hiệu ứng trái tim 3D phát sáng, mưa tim, nhạc nền du dương và thư tình ngọt ngào. Đã build sẵn APK cài trực tiếp cho điện thoại Android!
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Cài đặt trực tiếp file .APK lên điện thoại Android.</li>
+                            <li><i class="fa-solid fa-check"></i> Hiệu ứng hạt 3D phát sáng, đếm ngày yêu chính xác.</li>
+                            <li><i class="fa-solid fa-check"></i> Thư tình tùy chỉnh tên người yêu lãng mạn.</li>
+                            <li><i class="fa-solid fa-check"></i> Bản Web chạy mượt trên mọi trình duyệt điện thoại/PC.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-brands fa-android"></i> Android APK & Web</span>
+                            <span>APK Size: <strong>96 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <a href="downloads/LoveApp.apk" download="LoveApp.apk" class="btn-classquid btn-cq-purple" onclick="triggerDownloadFeedback('LoveApp.apk')">
+                                <i class="fa-solid fa-file-arrow-down"></i> Tải APK (96KB)
+                            </a>
+                            <a href="love_app/index.html" target="_blank" class="btn-classquid btn-cq-ghost">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Mở Web 3D
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6: ROBLOX BUILD A BOAT AUTO WIN -->
+                <div class="cq-project-card" data-category="roblox_lua" data-keywords="roblox build a boat for treasure lua script auto farm win gold vang vo han delta fluxus">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq vip"><i class="fa-solid fa-ship"></i> AUTO FARM</span>
+                            <span class="badge-cq free">VÀNG VÔ HẠN</span>
+                            <span class="badge-cq new">LUA SCRIPT</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'roblox_boat')"><i class="fa-solid fa-heart"></i> <span class="like-count">750</span></button>
+                            <span>v3.8 • 181 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon roblox"><i class="fa-solid fa-anchor"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Roblox • Build A Boat Auto Win</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Kịch bản Lua tự động đi thuyền qua 10 ải nhận rương kho báu vàng vô hạn trong tích tắc, Auto Teleport, God Mode bất tử và Anti-AFK cắm máy qua đêm.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Auto Farm 10 ải nhận rương vàng vô hạn (Infinite Gold).</li>
+                            <li><i class="fa-solid fa-check"></i> Auto Teleport tới đích chỉ trong 2 giây.</li>
+                            <li><i class="fa-solid fa-check"></i> God Mode bất tử, không bị chướng ngại vật va chạm.</li>
+                            <li><i class="fa-solid fa-check"></i> Tương thích Delta, Fluxus, Arceus X, Codex, Solara.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-solid fa-terminal"></i> Roblox Lua Executor</span>
+                            <span>Dung lượng: <strong>181 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <button class="btn-classquid btn-cq-gold" onclick="copyScriptCode('build_a_boat')">
+                                <i class="fa-solid fa-copy"></i> Sao Chép Script
+                            </button>
+                            <a href="downloads/build a boat.lua" download="build a boat.lua" class="btn-classquid btn-cq-ghost" onclick="triggerDownloadFeedback('Build A Boat Lua')">
+                                <i class="fa-solid fa-download"></i> Tải .Lua
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7: ROBLOX CLASSQUID WHITEUI HUB -->
+                <div class="cq-project-card" data-category="roblox_lua" data-keywords="roblox classquid whiteui rayfield universal script fly speed esp hack">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq new">WHITE UI</span>
+                            <span class="badge-cq free">UNIVERSAL</span>
+                            <span class="badge-cq vip">ESP & FLY</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'roblox_whiteui')"><i class="fa-solid fa-heart"></i> <span class="like-count">640</span></button>
+                            <span>v9.0 • 14 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon roblox"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Roblox • ClassQuid WhiteUI Hub</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Giao diện Rayfield WhiteUI trong suốt sang trọng, tích hợp tính năng đa năng Universal: Speed Hack, High Jump, Fly Mode, Noclip xuyên tường và ESP định vị kẻ địch.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Giao diện Rayfield WhiteUI tinh tế, không lag máy.</li>
+                            <li><i class="fa-solid fa-check"></i> Speed Hack, High Jump, Fly Mode, Noclip xuyên tường.</li>
+                            <li><i class="fa-solid fa-check"></i> ESP Box định vị người chơi và mục tiêu.</li>
+                            <li><i class="fa-solid fa-check"></i> Chạy tốt trên mọi tựa game Roblox.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-solid fa-terminal"></i> Roblox Lua Executor</span>
+                            <span>Dung lượng: <strong>14 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <button class="btn-classquid btn-cq-gold" onclick="copyScriptCode('classquid')">
+                                <i class="fa-solid fa-copy"></i> Sao Chép Script
+                            </button>
+                            <a href="downloads/ClassQuid_WhiteUI.lua" download="ClassQuid_WhiteUI.lua" class="btn-classquid btn-cq-ghost" onclick="triggerDownloadFeedback('ClassQuid WhiteUI Lua')">
+                                <i class="fa-solid fa-download"></i> Tải .Lua
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8: ROBLOX ZOO OR OOF SCRIPT -->
+                <div class="cq-project-card" data-category="roblox_lua" data-keywords="roblox zoo or oof script auto farm task minigame lua">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq free">ZOO SCRIPT</span>
+                            <span class="badge-cq new">AUTO TASK</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'roblox_zoo')"><i class="fa-solid fa-heart"></i> <span class="like-count">510</span></button>
+                            <span>v8.5 • 15 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon roblox"><i class="fa-solid fa-paw"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Roblox • Zoo Or Oof Hub Script</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Script độc quyền hỗ trợ mini game Zoo or Oof trên Roblox, tự động hoàn thành nhiệm vụ, thu thập phần thưởng và tối ưu FPS chống văng game.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Tự động thu thập vật phẩm và hoàn thành nhiệm vụ.</li>
+                            <li><i class="fa-solid fa-check"></i> Fix lag, dọn dẹp bộ nhớ RAM và khóa 120 FPS.</li>
+                            <li><i class="fa-solid fa-check"></i> Hỗ trợ săn boss và tương tác thông minh.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-solid fa-terminal"></i> Roblox Lua Executor</span>
+                            <span>Dung lượng: <strong>15 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <button class="btn-classquid btn-cq-gold" onclick="copyScriptCode('zoo_script')">
+                                <i class="fa-solid fa-copy"></i> Sao Chép Script
+                            </button>
+                            <a href="downloads/zoo or oof.lua" download="zoo or oof.lua" class="btn-classquid btn-cq-ghost" onclick="triggerDownloadFeedback('Zoo Or Oof Lua')">
+                                <i class="fa-solid fa-download"></i> Tải .Lua
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 9: REMIX HOT TIKTOK 2026 AUDIO TRACK -->
+                <div class="cq-project-card" data-category="music_remix" data-keywords="nhac remix hot tiktok 2026 anh da tung co gang con vuong tinh iu mp3 audio vinahouse bass cuc cang">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq hot"><i class="fa-solid fa-music"></i> REMIX HOT</span>
+                            <span class="badge-cq vip">TIKTOK 2026</span>
+                            <span class="badge-cq free">320 KBPS</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'remix_2026')"><i class="fa-solid fa-heart"></i> <span class="like-count">3.5k</span></button>
+                            <span>HD Audio • 15.2 MB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon love"><i class="fa-solid fa-headphones-simple"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Nhạc Remix Hot TikTok 2026</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> 2IN1 Anh Đã Từng Cố Gắng x 3IN1 Còn Vương Tình Yêu</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Bản mashup Vinahouse siêu hot TikTok 2026 cực căng, bass đập cực đầm, tích hợp trình phát nhạc trực tiếp trên web hoặc tải file MP3 chất lượng cao 320kbps về máy!
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Chất lượng âm thanh gốc Full HD 320kbps (15.2 MB).</li>
+                            <li><i class="fa-solid fa-check"></i> Phát trực tiếp trên Web với đĩa quay 3D & sóng nhạc.</li>
+                            <li><i class="fa-solid fa-check"></i> Thích hợp bật nghe gõ code xuyên đêm hoặc bắn Free Fire.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-solid fa-file-audio"></i> Audio MP3 Full HD</span>
+                            <span>Dung lượng: <strong>15.2 MB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <button class="btn-classquid btn-cq-primary" id="btn-card-play-music" onclick="toggleMusic()">
+                                <i class="fa-solid fa-play" id="card-play-icon"></i> Phát Nhạc
+                            </button>
+                            <a href="downloads/NHẠC REMIX HOT TIKTOK 2026 - 2IN1 ANH DA TUNG CO GANG x 3IN1 CON VUONG TINH IU..mp3" download="NHẠC REMIX HOT TIKTOK 2026 - 2IN1 ANH DA TUNG CO GANG x 3IN1 CON VUONG TINH IU..mp3" class="btn-classquid btn-cq-ghost" onclick="triggerDownloadFeedback('Remix Hot TikTok MP3')">
+                                <i class="fa-solid fa-download"></i> Tải MP3 (15MB)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 10: MEGA PACK ALL-IN-ONE -->
+                <div class="cq-project-card featured-card" data-category="all" data-keywords="all mega pack all-in-one tron bo tat ca du an zip tlgb bun k11">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq hot"><i class="fa-solid fa-gem"></i> MEGA PACK</span>
+                            <span class="badge-cq vip">TRỌN BỘ 100%</span>
+                            <span class="badge-cq free">1-CLICK</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'mega_pack')"><i class="fa-solid fa-heart"></i> <span class="like-count">2.8k</span></button>
+                            <span>Grand Master • 20.5 MB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon mega"><i class="fa-solid fa-boxes-packing"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">TLGB Mega Pack 2026 (Trọn Bộ Tất Cả)</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo (Bun K11)</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Gói nén tổng hợp toàn bộ kho dự án: Cấu hình Aim FFMax VIP, Macro 200k, Tool TikTok Master Suite, spam.py Multi-Gateway, Love App APK, toàn bộ Roblox Lua Scripts và các tài liệu hướng dẫn.
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Bao gồm đầy đủ tất cả 8 dự án bên trên trong 1 file ZIP duy nhất.</li>
+                            <li><i class="fa-solid fa-check"></i> Đầy đủ mã nguồn Python, spam.py, cấu hình .cfg, file .apk và scripts .bat.</li>
+                            <li><i class="fa-solid fa-check"></i> Tiết kiệm thời gian tải về từng file một.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-solid fa-file-zipper"></i> Tất cả nền tảng</span>
+                            <span>Dung lượng: <strong>20.5 MB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid full-width">
+                            <a href="downloads/TLGB_ALL_PROJECTS_MEGA_PACK_2026.zip" download="TLGB_ALL_PROJECTS_MEGA_PACK_2026.zip" class="btn-classquid btn-cq-red" onclick="triggerDownloadFeedback('TLGB Mega Pack ZIP')">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> TẢI TRỌN BỘ MEGA PACK (20MB)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Interactive Sensitivity Calculator Studio (0 - 200 Scale) -->
+        <section class="projects-section-cq" id="sens-studio">
+            <div class="cq-section-box">
+                <div class="section-header-cq" style="border:none; padding-bottom:0;">
+                    <div>
+                        <h3 class="section-title-cq">
+                            <i class="fa-solid fa-sliders" style="color:var(--primary)"></i> BỘ TÍNH ĐỘ NHẠY FREE FIRE (THANG ĐIỂM 0 - 200) THEO DÒNG MÁY
+                        </h3>
+                        <p style="color:var(--text-body); font-size:13.5px; margin-top:4px;">
+                            Tùy chỉnh theo chuẩn cập nhật mới nhất (Thang điểm 0 - 200). Chọn dòng máy của bạn để nhận ngay thông số DPI và Độ Nhạy chuẩn Máu Đỏ 100%!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="cq-studio-grid">
+                    <div class="cq-studio-col">
+                        <label style="font-size:13px; font-weight:700; color:var(--text-title);">Chọn Thiết Bị Đang Dùng:</label>
+                        <select id="device-select" class="cq-select-box" onchange="calculateSens()">
+                            <option value="iphone">🍎 iPhone (iOS 15 / 16 / 17 / 18)</option>
+                            <option value="samsung" selected>📱 Samsung Galaxy (A / S / Note Series)</option>
+                            <option value="xiaomi">⚡ Xiaomi / Redmi / POCO</option>
+                            <option value="oppo">✨ OPPO / Realme</option>
+                            <option value="rog">🎮 ASUS ROG Phone / Nubia RedMagic</option>
+                            <option value="pc">💻 Giả Lập PC (Bluestacks / MSI App Player)</option>
+                        </select>
+
+                        <div style="margin-top:16px;">
+                            <label style="font-size:12px; color:var(--text-dim);">Loại Súng Kéo Tâm:</label>
+                            <select id="weapon-type-select" class="cq-select-box" onchange="calculateSens()">
+                                <option value="shotgun" selected>💥 Shotgun (M1887, M1014, Spas12) - Kéo Chữ J</option>
+                                <option value="smg">⚡ SMG (MP40, UMP, Thompson) - Kéo Thẳng Đứng</option>
+                                <option value="ar">🎯 AR (AK47, SCAR, M4A1, Groza) - Kéo Nhẹ Nhàng</option>
+                                <option value="sniper">🔭 Sniper (AWM, M82B, Kar98k) - Ghim Tâm Nhanh</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-top:14px; padding:10px 12px; background:var(--primary-dim); border:1px solid var(--primary-glow); border-radius:10px; font-size:12px; color:var(--text-body);">
+                            <i class="fa-solid fa-circle-info" style="color:var(--primary)"></i> <strong>Mẹo 3D Aim:</strong> Độ nhạy đã được tối ưu hóa theo ma trận kéo tâm 3D, giúp triệt tiêu hoàn toàn rung giật cảm ứng.
+                        </div>
+                    </div>
+
+                    <div class="cq-studio-col">
+                        <div style="font-size:13px; font-weight:700; color:var(--text-title); margin-bottom:6px;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary)"></i> THÔNG SỐ VÀNG KHUYÊN DÙNG (0 - 200):
+                        </div>
+                        <div class="cq-sens-grid">
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">Nhìn Xung Quanh (0-200)</div>
+                                <div class="cq-sens-number" id="sens-general">198</div>
+                            </div>
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">Red Dot (0-200)</div>
+                                <div class="cq-sens-number" id="sens-reddot">182</div>
+                            </div>
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">Ống Ngắm 2X (0-200)</div>
+                                <div class="cq-sens-number" id="sens-2x">174</div>
+                            </div>
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">Ống Ngắm 4X (0-200)</div>
+                                <div class="cq-sens-number" id="sens-4x">162</div>
+                            </div>
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">Ngắm Bắn Sniper (0-200)</div>
+                                <div class="cq-sens-number" id="sens-sniper">128</div>
+                            </div>
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">DPI Màn Hình</div>
+                                <div class="cq-sens-number" style="font-size:15px; margin-top:4px;" id="sens-dpi">460 DPI</div>
+                            </div>
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">Nút Bắn (Fire Btn)</div>
+                                <div class="cq-sens-number" id="sens-button">44%</div>
+                            </div>
+                            <div class="cq-sens-tile">
+                                <div class="cq-sens-label">Kiểu Vuốt Tâm</div>
+                                <div class="cq-sens-number" style="font-size:13px; margin-top:5px;" id="sens-drag">Vuốt Chữ J</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Custom Package Builder Section -->
+        <section class="projects-section-cq" id="builder-studio">
+            <div class="cq-section-box">
+                <div class="section-header-cq" style="border:none; padding:0; margin-bottom:12px;">
+                    <div>
+                        <h3 class="section-title-cq">
+                            <i class="fa-solid fa-screwdriver-wrench" style="color:var(--primary)"></i> TẠO GÓI TẢI TÙY CHỌN (CUSTOM ZIP BUILDER)
+                        </h3>
+                        <p style="color:var(--text-body); font-size:13.5px; margin-top:4px;">
+                            Tích chọn những dự án bạn muốn tải, hệ thống sẽ tự động nén thành một file ZIP duy nhất tải về máy ngay lập tức!
+                        </p>
+                    </div>
+                    <div>
+                        <button class="btn-classquid btn-cq-ghost" onclick="toggleSelectAllBuilder(true)">
+                            <i class="fa-solid fa-check-double"></i> Chọn Tất Cả
+                        </button>
+                    </div>
+                </div>
+
+                <div class="builder-cq-grid">
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/Duan_Aim_FFMax_VIP_100_Dau.zip" data-size="30" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">🎯 Aim FFMax VIP Ultra</div>
+                            <div class="builder-cq-size">30 KB • Zip Package</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/Macro200k_VIP_Ultra_Full.zip" data-size="5049" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">🚀 Macro 200k Ultra Upgrade</div>
+                            <div class="builder-cq-size">5.0 MB • MacroDroid & Regedit</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/TLGB_TikTok_Master_Suite_2026.zip" data-size="293" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">⚡ Tool TikTok Master Suite</div>
+                            <div class="builder-cq-size">293 KB • GUI & Auto Captcha</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/spam.py" data-size="742" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">🔥 Tool spam.py Multi-Gateway</div>
+                            <div class="builder-cq-size">742 KB • Python Multi-Thread</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/LoveApp.apk" data-size="96" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">💖 Love App APK (Android)</div>
+                            <div class="builder-cq-size">96 KB • Ứng dụng Tỏ Tình</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/build a boat.lua" data-size="181" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">⛵ Roblox Build A Boat Script</div>
+                            <div class="builder-cq-size">181 KB • Auto Farm Win Lua</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/ClassQuid_WhiteUI.lua" data-size="14" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">👑 Roblox ClassQuid WhiteUI</div>
+                            <div class="builder-cq-size">14 KB • Universal Hub Lua</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/NHẠC REMIX HOT TIKTOK 2026 - 2IN1 ANH DA TUNG CO GANG x 3IN1 CON VUONG TINH IU..mp3" data-size="15200" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">🎵 Nhạc Remix Hot TikTok 2026</div>
+                            <div class="builder-cq-size">15.2 MB • Audio MP3 320kbps</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="builder-cq-bottom">
+                    <div style="font-size:13.5px; color:var(--text-body);">
+                        Đã chọn: <strong id="builder-count" style="color:var(--primary); font-size:16px;">7</strong> mục | Tổng dung lượng ước tính: <strong id="builder-size" style="color:var(--primary); font-size:16px;">~6.4 MB</strong>
+                    </div>
+                    <button class="btn-classquid btn-cq-primary" id="btn-build-zip" onclick="buildCustomZipPackage()">
+                        <i class="fa-solid fa-file-zipper"></i> TẢI GÓI ĐÃ CHỌN (TỰ ĐỘNG NÉN ZIP)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modern 3D Bento Author Profile Section -->
+        <section class="projects-section-cq" id="author-profile">
+            <div class="cq-section-box">
+                <div class="section-header-cq" style="border:none; padding-bottom:0; margin-bottom:20px;">
+                    <div>
+                        <h3 class="section-title-cq">
+                            <i class="fa-solid fa-id-badge" style="color:var(--primary)"></i> HỒ SƠ TÁC GIẢ • TRẦN LÊ GIA BẢO
+                        </h3>
+                        <p style="color:var(--text-body); font-size:13.5px; margin-top:4px;">
+                            Lead Developer & Sáng lập hệ thống ClassQuid 3D Hub 2026.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Bento Grid Layout -->
+                <div class="author-bento-grid">
+                    <!-- Bento 1: Avatar ID Card -->
+                    <div style="background:var(--bg-inner); border:1px solid var(--border-glass); border-radius:18px; padding:22px; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:space-between; box-shadow:var(--shadow-card);">
+                        <div style="position:relative; width:135px; height:135px; margin-bottom:12px;">
+                            <img src="giabao_avatar.png" alt="Trần Lê Gia Bảo" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:3px solid var(--primary); box-shadow: 0 0 25px var(--primary-glow);">
+                            <span style="position:absolute; bottom:2px; right:6px; background:#0070f3; color:#fff; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; border:2px solid var(--bg-card-solid);">
+                                <i class="fa-solid fa-check"></i>
+                            </span>
+                        </div>
+
+                        <div>
+                            <h4 style="font-size:20px; font-weight:800; color:var(--text-title); line-height:1.2;">TRẦN LÊ GIA BẢO</h4>
+                            <div style="font-size:12px; color:var(--primary); font-weight:700; margin-top:2px;">
+                                Bun K11 • TLGB Developer
+                            </div>
+                        </div>
+
+                        <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:12px 0;">
+                            <span class="badge-cq hot">💖 ĐÃ CÓ BỒ</span>
+                            <span class="badge-cq vip">🌊 GỐC QUẢNG NGÃI</span>
+                            <span class="badge-cq new">🌲 SỐNG TẠI KON TUM</span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; width:100%; margin-top:6px;">
+                            <a href="https://zalo.me/0348707829" target="_blank" class="btn-classquid btn-cq-primary" style="font-size:12px; padding:8px 10px;">
+                                <i class="fa-solid fa-comment-dots"></i> Zalo VIP
+                            </a>
+                            <a href="https://github.com/giabaotranle04112011/" target="_blank" class="btn-classquid btn-cq-ghost" style="font-size:12px; padding:8px 10px;">
+                                <i class="fa-brands fa-github"></i> GitHub
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Bento 2: Quick Facts & Highlights -->
+                    <div style="background:var(--bg-inner); border:1px solid var(--border-glass); border-radius:18px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-card);">
+                        <h4 style="font-size:15px; color:var(--text-title); font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                            <i class="fa-solid fa-bolt" style="color:var(--accent-gold)"></i> THÔNG TIN NHANH
+                        </h4>
+
+                        <div style="display:flex; flex-direction:column; gap:10px; font-size:13px; color:var(--text-body);">
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:10px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">
+                                <span><i class="fa-solid fa-cake-candles" style="color:var(--accent-gold); width:20px;"></i> Ngày sinh:</span>
+                                <strong style="color:var(--text-title);">04 / 11 / 2011 (Bọ Cạp)</strong>
+                            </div>
+
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:10px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">
+                                <span><i class="fa-solid fa-location-dot" style="color:var(--accent-red); width:20px;"></i> Quê quán:</span>
+                                <strong style="color:var(--text-title);">Quảng Ngãi ➔ Kon Tum</strong>
+                            </div>
+
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:10px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">
+                                <span><i class="fa-solid fa-heart" style="color:#ff3377; width:20px;"></i> Tình cảm:</span>
+                                <strong style="color:#ff3377;">Đã có bồ ❤️ (Chung tình)</strong>
+                            </div>
+
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:10px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">
+                                <span><i class="fa-solid fa-laptop-code" style="color:var(--primary); width:20px;"></i> Sở trường:</span>
+                                <strong style="color:var(--primary);">Tool Auto, Aim FF, Roblox</strong>
+                            </div>
+
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:10px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">
+                                <span><i class="fa-solid fa-phone" style="color:var(--accent-emerald); width:20px;"></i> Hotline / Zalo:</span>
+                                <strong class="mono" style="color:var(--accent-emerald);">0348.707.829</strong>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:10px; font-size:12px; color:var(--text-dim); text-align:center; font-style:italic;">
+                            "Tất cả dự án và mã nguồn được chia sẻ hoàn toàn miễn phí 100% cho anh em!"
+                        </div>
+                    </div>
+
+                    <!-- Bento 3: Tech Matrix & Power Stats -->
+                    <div style="background:var(--bg-inner); border:1px solid var(--border-glass); border-radius:18px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-card);">
+                        <h4 style="font-size:15px; color:var(--text-title); font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                            <i class="fa-solid fa-microchip" style="color:var(--primary)"></i> KỸ NĂNG & SỨC MẠNH
+                        </h4>
+
+                        <!-- Tech Badges -->
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:14px;">
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:8px; padding:6px 10px; font-size:12px; color:var(--text-title); display:flex; align-items:center; gap:8px;">
+                                <i class="fa-brands fa-python" style="color:#f59e0b;"></i> Python Tool
+                            </div>
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:8px; padding:6px 10px; font-size:12px; color:var(--text-title); display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-cube" style="color:#3b82f6;"></i> Lua (Roblox)
+                            </div>
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:8px; padding:6px 10px; font-size:12px; color:var(--text-title); display:flex; align-items:center; gap:8px;">
+                                <i class="fa-brands fa-js" style="color:#fbbf24;"></i> Web 3D & JS
+                            </div>
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:8px; padding:6px 10px; font-size:12px; color:var(--text-title); display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-crosshairs" style="color:var(--accent-red);"></i> Aim Lock FF
+                            </div>
+                        </div>
+
+                        <!-- Mini Power Bars -->
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:700; margin-bottom:3px;">
+                                    <span>🎯 Độ Nhạy Kéo Tâm FF</span>
+                                    <span style="color:var(--primary);">200 / 200</span>
+                                </div>
+                                <div style="height:6px; background:var(--bg-card); border-radius:10px; overflow:hidden;">
+                                    <div style="width:100%; height:100%; background:linear-gradient(90deg, var(--primary), #00b4d8);"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:700; margin-bottom:3px;">
+                                    <span>🧠 Thuật Toán & Săn Bug</span>
+                                    <span style="color:var(--accent-gold);">99.9%</span>
+                                </div>
+                                <div style="height:6px; background:var(--bg-card); border-radius:10px; overflow:hidden;">
+                                    <div style="width:99.9%; height:100%; background:linear-gradient(90deg, var(--accent-gold), #f59e0b);"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:700; margin-bottom:3px;">
+                                    <span>❤️ Độ Chung Thủy & Yêu Bồ</span>
+                                    <span style="color:#ff3377;">100% Tuyệt Đối</span>
+                                </div>
+                                <div style="height:6px; background:var(--bg-card); border-radius:10px; overflow:hidden;">
+                                    <div style="width:100%; height:100%; background:linear-gradient(90deg, #ff3377, #f72585);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Feedback -->
+        <section class="projects-section-cq">
+            <div class="comments-cq-box">
+                <h3 style="font-size:19px; color:var(--text-title); display:flex; align-items:center; justify-content:space-between;">
+                    <span><i class="fa-solid fa-comments" style="color:var(--accent-gold)"></i> ĐÁNH GIÁ TỪ CỘNG ĐỒNG</span>
+                    <span style="font-size:13px; color:var(--accent-gold);"><i class="fa-solid fa-star"></i> 4.99 / 5.0</span>
+                </h3>
+
+                <div class="comments-cq-feed" id="comments-container">
+                    <div class="comment-cq-item">
+                        <div style="display:flex; align-items:center; justify-content:space-between; color:var(--accent-gold); font-weight:700;">
+                            <span>Nguyễn Tuấn Anh</span>
+                            <span>⭐⭐⭐⭐⭐</span>
+                        </div>
+                        <div style="color:var(--text-body); margin-top:2px;">
+                            Bản Aim FFMax của Gia Bảo bắn mượt dã man, vuốt nhẹ tâm tự bám đầu máu đỏ 100%, đúng chất coder Kon Tum uy tín!
+                        </div>
+                    </div>
+                    <div class="comment-cq-item">
+                        <div style="display:flex; align-items:center; justify-content:space-between; color:var(--accent-gold); font-weight:700;">
+                            <span>Hoàng Minh Đức</span>
+                            <span>⭐⭐⭐⭐⭐</span>
+                        </div>
+                        <div style="color:var(--text-body); margin-top:2px;">
+                            Tool spam.py và TikTok giao diện 3D quá đẹp, tự giải captcha thông minh. 10 điểm cho Bun K11!
+                        </div>
+                    </div>
+                    <div class="comment-cq-item">
+                        <div style="display:flex; align-items:center; justify-content:space-between; color:var(--accent-gold); font-weight:700;">
+                            <span>Trần Duy Khánh</span>
+                            <span>⭐⭐⭐⭐⭐</span>
+                        </div>
+                        <div style="color:var(--text-body); margin-top:2px;">
+                            Script Build a Boat tự động farm vàng siêu nhanh, cắm máy 1 tiếng nhận mấy chục nghìn vàng!
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+                    <input type="text" id="user-review-name" class="review-input-cq" placeholder="Tên của bạn...">
+                    <input type="text" id="user-review-msg" class="review-input-cq" placeholder="Viết cảm nhận / lời chúc gửi tới tác giả Gia Bảo...">
+                    <button class="btn-classquid btn-cq-primary" onclick="submitUserReview()">
+                        <i class="fa-solid fa-paper-plane"></i> Gửi Đánh Giá Ngay
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer-cq">
+            <div class="footer-cq-socials">
+                <a href="https://github.com/giabaotranle04112011/" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                <a href="https://zalo.me/0348707829" target="_blank" title="Zalo"><i class="fa-solid fa-comment-dots"></i></a>
+                <a href="https://www.facebook.com/gia.bao.tranle.2025" target="_blank" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.tiktok.com/@giabaotranle" target="_blank" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+            </div>
+            <p>© 2026 CLASSQUID 3D • TLGB MASTER HUB • Bản quyền thuộc về <a href="https://github.com/giabaotranle04112011/" target="_blank">Trần Lê Gia Bảo (Bun K11)</a></p>
+            <p style="margin-top:4px; font-size:12px;">Hotline / Zalo: <strong>0348.707.829</strong> • Mọi dự án được cung cấp hoàn toàn miễn phí.</p>
+        </footer>
+
+    </div>
+
+    <!-- Code Viewer Modal -->
+    <div class="modal-shade" id="code-modal">
+        <div class="modal-cq-window">
+            <div class="modal-cq-head">
+                <div class="modal-cq-title">
+                    <i class="fa-solid fa-code" style="color:var(--primary)"></i> <span id="code-modal-title">Mã Nguồn / Script Preview</span>
+                </div>
+                <button class="theme-toggle-btn" onclick="closeModal('code-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-cq-body">
+                <pre class="code-display-box" id="code-content-display">// Đang tải nội dung mã nguồn...</pre>
+            </div>
+            <div class="modal-cq-foot">
+                <button class="btn-classquid btn-cq-gold" onclick="copyCurrentModalCode()">
+                    <i class="fa-solid fa-copy"></i> Sao Chép Mã
+                </button>
+                <button class="btn-classquid btn-cq-ghost" onclick="closeModal('code-modal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guide Modal -->
+    <div class="modal-shade" id="guide-modal">
+        <div class="modal-cq-window">
+            <div class="modal-cq-head">
+                <div class="modal-cq-title">
+                    <i class="fa-solid fa-book-open" style="color:var(--accent-gold)"></i> <span id="guide-modal-title">Hướng Dẫn Cài Đặt Chi Tiết</span>
+                </div>
+                <button class="theme-toggle-btn" onclick="closeModal('guide-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-cq-tabs">
+                <button class="modal-cq-tab active" onclick="switchGuideTab('android', this)"><i class="fa-brands fa-android"></i> Android</button>
+                <button class="modal-cq-tab" onclick="switchGuideTab('ios', this)"><i class="fa-brands fa-apple"></i> iOS (iPhone)</button>
+                <button class="modal-cq-tab" onclick="switchGuideTab('macro', this)"><i class="fa-solid fa-gauge-high"></i> MacroDroid</button>
+                <button class="modal-cq-tab" onclick="switchGuideTab('roblox', this)"><i class="fa-solid fa-cube"></i> Script Roblox</button>
+            </div>
+            <div class="modal-cq-body">
+                <div id="guide-tab-content" class="guide-txt"></div>
+            </div>
+            <div class="modal-cq-foot">
+                <button class="btn-classquid btn-cq-primary" onclick="closeModal('guide-modal')">Đã Hiểu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mini Headshot Reflex Game Modal -->
+    <div class="modal-shade" id="aim-game-modal">
+        <div class="modal-cq-window" style="max-width: 600px;">
+            <div class="modal-cq-head">
+                <div class="modal-cq-title">
+                    <i class="fa-solid fa-crosshairs" style="color:var(--accent-red)"></i> <span>TEST PHẢN XẠ KÉO TÂM 3D • MÁU ĐỎ 100%</span>
+                </div>
+                <button class="theme-toggle-btn" onclick="closeModal('aim-game-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-cq-body" style="padding: 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:13px; font-weight:700;">
+                    <div>🎯 Headshots: <span id="game-score" style="color:var(--accent-red); font-size:18px;">0</span></div>
+                    <div>⏱️ Thời gian: <span id="game-timer" style="color:var(--accent-gold); font-size:18px;">15s</span></div>
+                    <div>⚡ Tốc độ: <span id="game-speed" style="color:var(--primary); font-size:18px;">0 ms</span></div>
+                </div>
+
+                <div class="aim-game-arena" id="game-arena" onclick="gameArenaClick(event)">
+                    <div id="game-start-prompt" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center; z-index:10;">
+                        <div style="font-size:24px; font-weight:900; color:#fff; margin-bottom:10px; text-shadow:0 0 15px var(--accent-red);">SẴN SÀNG KÉO TÂM?</div>
+                        <button class="btn-classquid btn-cq-red" onclick="startGame(event)">
+                            <i class="fa-solid fa-play"></i> BẮT ĐẦU (15 GIÂY)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-cq-foot">
+                <span style="font-size:12px; color:var(--text-dim); margin-right:auto;">Click vào đầu mục tiêu nhanh nhất có thể để đạt 100% máu đỏ!</span>
+                <button class="btn-classquid btn-cq-ghost" onclick="closeModal('aim-game-modal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating 3D Rocket Back-To-Top Button -->
+    <button id="back-to-top-btn" onclick="scrollToTop()" title="Lên đầu trang">
+        <i class="fa-solid fa-rocket"></i>
+    </button>
+
+    <!-- Floating Cyber Music Player Widget (Remix Hot TikTok 2026) -->
+    <div class="floating-music-player" id="music-player-widget">
+        <!-- Toggle Collapse/Expand Arrow Button -->
+        <button class="music-toggle-arrow-btn" id="music-toggle-arrow" onclick="toggleMusicPlayerCollapse(event)" title="Thu gọn / Mở rộng trình phát nhạc">
+            <i class="fa-solid fa-chevron-right" id="music-arrow-icon"></i>
+        </button>
+
+        <div class="music-disc-shell" onclick="toggleMusic()" title="Bật / Tạm dừng nhạc">
+            <img src="giabao_avatar.png" alt="Vinyl Disc" class="music-disc-img" id="music-disc">
+        </div>
+        
+        <div class="music-info">
+            <div class="music-title">REMIX HOT TIKTOK 2026</div>
+            <div class="music-artist">2IN1 Anh Đã Từng Cố Gắng x Còn Vương</div>
+        </div>
+
+        <div class="music-equalizer">
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+        </div>
+
+        <div class="music-controls">
+            <button class="music-btn play-btn" id="music-play-btn" onclick="toggleMusic()" title="Phát / Tạm Dừng">
+                <i class="fa-solid fa-play" id="music-play-icon"></i>
+            </button>
+            <a href="downloads/NHẠC REMIX HOT TIKTOK 2026 - 2IN1 ANH DA TUNG CO GANG x 3IN1 CON VUONG TINH IU..mp3" download="NHẠC REMIX HOT TIKTOK 2026 - 2IN1 ANH DA TUNG CO GANG x 3IN1 CON VUONG TINH IU..mp3" class="music-btn" title="Tải file MP3 (15.2 MB)" onclick="triggerDownloadFeedback('Remix Hot TikTok MP3')">
+                <i class="fa-solid fa-download"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Hidden Audio Engine -->
+    <audio id="main-music-audio" src="remix_hot_tiktok_2026.mp3" preload="auto" loop></audio>
+
+    <!-- Toast Notification -->
+    <div class="toast-cq" id="toast-notify">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Đã sao chép thành công!</span>
+    </div>
+
+    <!-- Client Logic & 3D Parallax Tilt Engine -->
+    <script>
+        // Light / Dark Theme Switcher (ClassQuid White Light / Dark Obsidian)
+        let isDarkMode = true;
+
+        function toggleLightDarkMode() {
+            isDarkMode = !isDarkMode;
+            const newTheme = isDarkMode ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('cq_theme', newTheme);
+            
+            const icon = document.getElementById('theme-icon');
+            if (isDarkMode) {
+                icon.className = 'fa-solid fa-moon';
+                showToast("🌙 Đã bật giao diện ClassQuid Dark (Đen OLED)");
+            } else {
+                icon.className = 'fa-solid fa-sun';
+                showToast("☀️ Đã bật giao diện ClassQuid White Light (Trắng Tuyết)");
+            }
+            playSound('click');
+        }
+
+        // Web Audio Synthesizer
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'success') {
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(1040, now + 0.15);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+                showToast('🔊 Đã BẬT âm thanh');
+                playSound('success');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark';
+                showToast('🔇 Đã TẮT âm thanh');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notify');
+            const msgEl = document.getElementById('toast-message');
+            msgEl.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function triggerDownloadFeedback(name) {
+            playSound('success');
+            showToast(`🚀 Đang bắt đầu tải: ${name}`);
+            
+            const statEl = document.getElementById('total-downloads-stat');
+            let count = parseInt(localStorage.getItem('tlgb_downloads') || '28940');
+            count += 1;
+            localStorage.setItem('tlgb_downloads', count);
+            statEl.textContent = count.toLocaleString('vi-VN') + '+';
+        }
+
+        function toggleLike(btn, id) {
+            playSound('click');
+            btn.classList.toggle('liked');
+            const span = btn.querySelector('.like-count');
+            let current = parseInt(span.textContent) || 500;
+            if (btn.classList.contains('liked')) {
+                span.textContent = (current + 1);
+                showToast("❤️ Cảm ơn bạn đã thả tim!");
+            } else {
+                span.textContent = Math.max(0, current - 1);
+            }
+        }
+
+        // Sensitivity 0 - 200 Data
+        const SENS_DATA = {
+            iphone: { general: 196, reddot: 185, x2: 178, x4: 168, sniper: 135, dpi: 'Mặc Định iOS (Chuẩn)', button: '42%', drag: 'Vuốt Nhẹ Thẳng Đứng' },
+            samsung: { general: 198, reddot: 182, x2: 174, x4: 162, sniper: 128, dpi: '460 DPI (Mượt)', button: '44%', drag: 'Vuốt Kéo Chữ J' },
+            xiaomi: { general: 194, reddot: 186, x2: 176, x4: 165, sniper: 132, dpi: '480 DPI (Chắc)', button: '46%', drag: 'Kéo Cong Chữ C' },
+            oppo: { general: 196, reddot: 184, x2: 172, x4: 160, sniper: 126, dpi: '450 DPI (Êm)', button: '45%', drag: 'Vuốt Thẳng Nhanh' },
+            rog: { general: 188, reddot: 175, x2: 165, x4: 155, sniper: 120, dpi: '520 DPI (120Hz/165Hz)', button: '40%', drag: 'Ghim Tâm Siêu Nhẹ' },
+            pc: { general: 145, reddot: 132, x2: 120, x4: 110, sniper: 90, dpi: '1600 DPI Chuột', button: '38%', drag: 'Kéo Chuột Vi Điểm' }
+        };
+
+        function calculateSens() {
+            playSound('click');
+            const dev = document.getElementById('device-select').value;
+            const data = SENS_DATA[dev] || SENS_DATA.samsung;
+            
+            document.getElementById('sens-general').textContent = data.general;
+            document.getElementById('sens-reddot').textContent = data.reddot;
+            document.getElementById('sens-2x').textContent = data.x2;
+            document.getElementById('sens-4x').textContent = data.x4;
+            document.getElementById('sens-sniper').textContent = data.sniper;
+            document.getElementById('sens-dpi').textContent = data.dpi;
+            document.getElementById('sens-button').textContent = data.button;
+            document.getElementById('sens-drag').textContent = data.drag;
+        }
+
+        const SCRIPT_DATA = {
+            build_a_boat: {
+                title: "Roblox • Build A Boat Auto Win (Lua)",
+                url: "downloads/build a boat.lua",
+                preview: `--[[
+    ⚡ ROBLOX BUILD A BOAT FOR TREASURE • AUTO WIN & INFINITE GOLD
+    👑 Author: Trần Lê Gia Bảo (Bun K11) | ClassQuid Hub 2026
+    ⚡ Features: Auto 10 Stages, Infinite Gold, God Mode, Anti-AFK
+    🔗 GitHub: https://github.com/giabaotranle04112011/
+--]]
+
+repeat wait() until game:IsLoaded()
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+
+print("[CLASSQUID HUB] Build A Boat Auto Farm Loaded Successfully!")
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TLGB/RobloxScripts/main/BuildABoatAutoWin.lua"))()`
+            },
+            classquid: {
+                title: "Roblox • ClassQuid WhiteUI Hub (Lua)",
+                url: "downloads/ClassQuid_WhiteUI.lua",
+                preview: `--[[
+    ⚡ CLASS QUID VIP ULTRA • WHITE LIGHT EDITION V9.0
+    👑 Author: Trần Lê Gia Bảo (Bun K11)
+    ⚡ Features: Speed, High Jump, Fly Mode, ESP Box, Universal Hub
+    🔗 GitHub: https://github.com/giabaotranle04112011/
+--]]
+
+if not game:IsLoaded() then game.Loaded:Wait() end
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+getgenv().Config = {
+    AutoHead = true,
+    HeadOffset_Y = 1.75,
+    AimFOV = 250,
+    SmoothAim = 18.5,
+    WalkSpeed = 55,
+    FlyHack = true,
+    FlySpeed = 50,
+    ESPBox = true,
+    FixLag = true,
+    UnlockFPS = true
+}
+
+print("[CLASSQUID HUB] ClassQuid WhiteUI Activated!")`
+            },
+            zoo_script: {
+                title: "Roblox • Zoo Or Oof Hub Script (Lua)",
+                url: "downloads/zoo or oof.lua",
+                preview: `--[[
+    ⚡ CLASS QUID VIP • ZOO OR OOF (V8.5 ANTI-CRASH)
+    👑 Author: Trần Lê Gia Bảo (Bun K11)
+    ⚡ Features: Auto Task, Auto Farm Animals, Anti-Lag, 120 FPS
+--]]
+
+if not game:IsLoaded() then game.Loaded:Wait() end
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+getgenv().Config = {
+    ZooKeeper100 = false,
+    Hunter100 = false,
+    HUDHunter = true,
+    FixLag = true,
+    AntiAFK = true,
+    AutoHead = true,
+    ZeroRecoil = true
+}
+
+print("[CLASSQUID HUB] Zoo Or Oof Script Active!")`
+            },
+            tonghop_tool: {
+                title: "TLGB TikTok Master Suite 2026 (Python)",
+                url: "downloads/tonghop_tool.py",
+                preview: `# -*- coding: utf-8 -*-
+"""
+╔══════════════════════════════════════════════════════════════╗
+║   ⚡ TLGB ALL-IN-ONE MULTI-TOOL MASTER HUB 2026 ⚡          ║
+║         BẢN QUYỀN THUỘC VỀ: TRẦN LÊ GIA BẢO              ║
+║    Kết Hợp TLGB TikTok Pro VIP + C25 Multi-Tool Suite        ║
+╚══════════════════════════════════════════════════════════════╝
+"""
+import os, sys, time, subprocess
+
+# Khởi chạy giao diện Cyberpunk GUI
+subprocess.Popen([sys.executable, "gui_tooltiktok.py"])`
+            },
+            spam_py: {
+                title: "TLGB Multi-Gateway OTP & Tool (spam.py)",
+                url: "downloads/spam.py",
+                preview: `# -*- coding: utf-8 -*-
+"""
+===============================================================================
+                     ✦ TLGB TOOL - MULTI-GATEWAY OTP SYSTEM ✦
+                           DEVELOPED BY TRẦN LÊ GIA BẢO
+===============================================================================
+"""
+import sys, os, time, json, random, threading
+import concurrent.futures, requests
+
+print("[✦] TLGB MULTI-GATEWAY OTP SYSTEM ACTIVATED")
+print("[✦] DEVELOPED BY: TRẦN LÊ GIA BẢO")
+print("[✦] ZALO: 0348.707.829 | GITHUB: giabaotranle04112011")`
+            }
+        };
+
+        let currentModalCode = "";
+
+        function openCodeModal(key) {
+            playSound('click');
+            const data = SCRIPT_DATA[key];
+            if (!data) return;
+            
+            document.getElementById('code-modal-title').textContent = data.title;
+            document.getElementById('code-content-display').textContent = data.preview;
+            currentModalCode = data.preview;
+            
+            fetch(data.url)
+                .then(res => res.text())
+                .then(text => {
+                    document.getElementById('code-content-display').textContent = text;
+                    currentModalCode = text;
+                })
+                .catch(() => {});
+
+            document.getElementById('code-modal').classList.add('active');
+        }
+
+        function copyScriptCode(key) {
+            playSound('click');
+            const data = SCRIPT_DATA[key];
+            if (!data) return;
+            
+            fetch(data.url)
+                .then(res => res.text())
+                .then(text => {
+                    navigator.clipboard.writeText(text);
+                    playSound('success');
+                    showToast(`📋 Đã sao chép: ${data.title}`);
+                })
+                .catch(() => {
+                    navigator.clipboard.writeText(data.preview);
+                    playSound('success');
+                    showToast(`📋 Đã sao chép: ${data.title}`);
+                });
+        }
+
+        function copyCurrentModalCode() {
+            if (currentModalCode) {
+                navigator.clipboard.writeText(currentModalCode);
+                playSound('success');
+                showToast("📋 Đã sao chép mã nguồn!");
+            }
+        }
+
+        function closeModal(id) {
+            playSound('click');
+            document.getElementById(id).classList.remove('active');
+        }
+
+        const GUIDE_TEMPLATES = {
+            android: `
+                <h4><i class="fa-brands fa-android" style="color:var(--primary)"></i> HƯỚNG DẪN CÀI ĐẶT TRÊN ANDROID</h4>
+                <ol>
+                    <li>Tải tệp nén <code>Duan_Aim_FFMax_VIP_100_Dau.zip</code> về máy.</li>
+                    <li>Cài đặt ứng dụng <strong>ZArchiver</strong> từ Google Play Store.</li>
+                    <li>Mở ZArchiver, tìm đến thư mục <code>Download</code> và giải nén tệp zip.</li>
+                    <li>Sao chép toàn bộ các tệp vừa giải nén (hoặc tệp <code>metadata</code>, <code>FF_AIM_STABILIZER_CONFIG.cfg</code>) dán vào đường dẫn:
+                        <br><code>Android / data / com.dts.freefiremax / files / contentcache / Compulsory / android / gameassetbundles</code>
+                    </li>
+                    <li><strong>Thiết lập độ nhạy khuyên dùng (Thang 0 - 200):</strong>
+                        <ul>
+                            <li>Nhìn xung quanh: <strong>198 / 200</strong> | Red Dot: <strong>182 / 200</strong></li>
+                            <li>Ống ngắm 2X: <strong>174 / 200</strong> | Ống ngắm 4X: <strong>162 / 200</strong></li>
+                            <li>Ngắm bắn Sniper: <strong>128 / 200</strong> | Nhìn (Free Look): <strong>100 / 200</strong></li>
+                            <li>DPI màn hình máy: <strong>460 DPI</strong> (Trong Tùy chọn nhà phát triển).</li>
+                        </ul>
+                    </li>
+                </ol>
+            `,
+            ios: `
+                <h4><i class="fa-brands fa-apple" style="color:var(--text-title)"></i> HƯỚNG DẪN CÀI ĐẶT TRÊN IPHONE / IPAD</h4>
+                <ol>
+                    <li>Tải tệp zip về qua trình duyệt Safari trên iPhone.</li>
+                    <li>Mở ứng dụng <strong>Tệp (Files)</strong> trên iPhone.</li>
+                    <li>Chạm vào tệp zip để giải nén ra thư mục.</li>
+                    <li>Sao chép các tệp cấu hình dán vào đường dẫn:
+                        <br><code>Trên iPhone của tôi (On My iPhone) / Free Fire MAX / com.dts.freefiremax / files / contentcache / Compulsory / gameassetbundles</code>
+                    </li>
+                    <li><em>Mẹo:</em> Có thể kết nối iPhone với máy tính dùng phần mềm <strong>3uTools</strong> để chép vào mục Documents của ứng dụng Free Fire MAX cực kỳ nhanh chóng.</li>
+                </ol>
+            `,
+            macro: `
+                <h4><i class="fa-solid fa-gauge-high" style="color:var(--accent-gold)"></i> HƯỚNG DẪN NHẬP TỆP VÀO MACRODROID</h4>
+                <ol>
+                    <li>Tải tệp <code>macro200k_ultra_upgrade.mdr</code> về điện thoại.</li>
+                    <li>Cài đặt ứng dụng <strong>MacroDroid</strong> từ CH Play.</li>
+                    <li>Mở MacroDroid ➔ Chọn mục <strong>Sao lưu / Khôi phục (Backup / Restore)</strong>.</li>
+                    <li>Chọn <strong>Khôi phục từ bộ nhớ thiết bị</strong> ➔ Chọn tệp <code>macro200k_ultra_upgrade.mdr</code>.</li>
+                    <li>Bấm "Khôi phục toàn bộ" và cấp đủ 3 quyền Trợ năng, Vẽ trên ứng dụng khác, và Ghi cài đặt hệ thống.</li>
+                    <li>Mở game và bấm vào nút nổi <strong>"⚡BUN"</strong> ở cạnh phải để bật Menu VIP!</li>
+                </ol>
+            `,
+            roblox: `
+                <h4><i class="fa-solid fa-cube" style="color:#3b82f6"></i> HƯỚNG DẪN CHẠY SCRIPT LUA TRÊN ROBLOX</h4>
+                <ol>
+                    <li>Bấm nút <strong>"Sao Chép Script"</strong> ở thẻ dự án Roblox tương ứng.</li>
+                    <li>Mở ứng dụng Executor bạn đang dùng:
+                        <ul>
+                            <li><strong>Trên Android:</strong> Delta Executor, Fluxus, Arceus X, Codex, Hydrogen.</li>
+                            <li><strong>Trên PC:</strong> Solara, Wave, Xeno, Celery.</li>
+                        </ul>
+                    </li>
+                    <li>Vào game Roblox tương ứng (VD: Build A Boat For Treasure hoặc Zoo or Oof).</li>
+                    <li>Mở bảng điều khiển của Executor, dán đoạn mã vừa sao chép vào và bấm <strong>Execute / Run</strong>.</li>
+                    <li>Tận hưởng tính năng Auto Farm và Menu VIP!</li>
+                </ol>
+            `
+        };
+
+        function openGuideModal(tab) {
+            playSound('click');
+            document.getElementById('guide-modal').classList.add('active');
+            switchGuideTab(tab === 'all' ? 'android' : (tab === 'aim_ff' ? 'android' : (tab === 'macro_200k' ? 'macro' : 'android')));
+        }
+
+        function switchGuideTab(tabKey, btn) {
+            playSound('click');
+            const container = document.getElementById('guide-tab-content');
+            container.innerHTML = GUIDE_TEMPLATES[tabKey] || GUIDE_TEMPLATES.android;
+
+            const tabs = document.querySelectorAll('.modal-cq-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
+
+        let activeCategory = 'all';
+
+        function setCategory(cat, btn) {
+            playSound('click');
+            activeCategory = cat;
+            document.querySelectorAll('.cq-filter-btn').forEach(c => c.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            filterProjects();
+        }
+
+        function filterProjects() {
+            const query = document.getElementById('project-search').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.cq-project-card');
+            const clearBtn = document.getElementById('search-clear-btn');
+            
+            clearBtn.style.display = query ? 'block' : 'none';
+
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-category');
+                const cardKw = card.getAttribute('data-keywords').toLowerCase();
+                const cardTitle = card.querySelector('.cq-card-title').textContent.toLowerCase();
+                const cardDesc = card.querySelector('.cq-card-desc').textContent.toLowerCase();
+
+                const matchesCat = (activeCategory === 'all') || (cardCat === activeCategory) || (cardCat === 'all');
+                const matchesQuery = !query || cardKw.includes(query) || cardTitle.includes(query) || cardDesc.includes(query);
+
+                if (matchesCat && matchesQuery) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('result-status').textContent = `Đang hiển thị ${visibleCount} dự án`;
+        }
+
+        function clearSearch() {
+            playSound('click');
+            document.getElementById('project-search').value = '';
+            filterProjects();
+        }
+
+        function updateBuilderSelection() {
+            const items = document.querySelectorAll('.builder-cq-item');
+            let count = 0;
+            let totalKb = 0;
+
+            items.forEach(item => {
+                const cb = item.querySelector('.builder-cq-checkbox');
+                if (cb.checked) {
+                    item.classList.add('selected');
+                    count++;
+                    totalKb += parseInt(cb.getAttribute('data-size') || '0');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+
+            document.getElementById('builder-count').textContent = count;
+            const mb = (totalKb / 1024).toFixed(1);
+            document.getElementById('builder-size').textContent = totalKb > 1024 ? `~${mb} MB` : `~${totalKb} KB`;
+        }
+
+        function toggleSelectAllBuilder(selectAll) {
+            playSound('click');
+            document.querySelectorAll('.builder-cq-checkbox').forEach(cb => {
+                cb.checked = selectAll;
+            });
+            updateBuilderSelection();
+        }
+
+        async function buildCustomZipPackage() {
+            playSound('click');
+            const selectedCheckboxes = document.querySelectorAll('.builder-cq-checkbox:checked');
+            if (selectedCheckboxes.length === 0) {
+                showToast("⚠️ Vui lòng chọn ít nhất 1 dự án để nén!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-build-zip');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang nén các tệp...';
+            btn.disabled = true;
+
+            try {
+                const zip = new JSZip();
+                showToast("⏳ Đang chuẩn bị các tệp đã chọn...");
+
+                for (let cb of selectedCheckboxes) {
+                    const filePath = cb.getAttribute('data-file');
+                    const fileName = filePath.split('/').pop();
+                    try {
+                        const response = await fetch(filePath);
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            zip.file(fileName, blob);
+                        }
+                    } catch (e) {
+                        console.warn("Skipping:", filePath);
+                    }
+                }
+
+                zip.file("THONG_TIN_TAC_GIA.txt", "=====================================================\nCLASSQUID 3D MASTER HUB 2026 - TÁC GIẢ TRẦN LÊ GIA BẢO\n=====================================================\nGitHub: https://github.com/giabaotranle04112011/\nZalo: 0348.707.829 (https://zalo.me/0348707829)\nFacebook: https://www.facebook.com/gia.bao.tranle.2025\nTikTok: https://www.tiktok.com/@giabaotranle\n\nCảm ơn bạn đã tải gói dự án!");
+
+                const content = await zip.generateAsync({ type: "blob" });
+                saveAs(content, "CLASSQUID_Custom_Package_2026.zip");
+                
+                playSound('success');
+                showToast("🎉 Nén và tải về file ZIP thành công!");
+                triggerDownloadFeedback("Gói Tùy Chọn ZIP");
+            } catch (err) {
+                console.error(err);
+                window.location.href = "downloads/TLGB_ALL_PROJECTS_MEGA_PACK_2026.zip";
+                showToast("🚀 Bắt đầu tải Mega Pack!");
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
+        }
+
+        function submitUserReview() {
+            const name = document.getElementById('user-review-name').value.trim() || 'Thành Viên Ẩn Danh';
+            const msg = document.getElementById('user-review-msg').value.trim();
+
+            if (!msg) {
+                showToast("⚠️ Vui lòng nhập nội dung đánh giá của bạn!");
+                return;
+            }
+
+            playSound('success');
+            const container = document.getElementById('comments-container');
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-cq-item';
+            commentDiv.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; color:var(--accent-gold); font-weight:700;">
+                    <span>${escapeHtml(name)}</span>
+                    <span>⭐⭐⭐⭐⭐</span>
+                </div>
+                <div style="color:var(--text-body); margin-top:2px;">
+                    ${escapeHtml(msg)}
+                </div>
+            `;
+            container.prepend(commentDiv);
+
+            document.getElementById('user-review-msg').value = '';
+            showToast("❤️ Cảm ơn bạn đã gửi đánh giá tuyệt vời!");
+
+            const stored = JSON.parse(localStorage.getItem('tlgb_user_reviews') || '[]');
+            stored.unshift({ name, msg, stars: 5 });
+            localStorage.setItem('tlgb_user_reviews', JSON.stringify(stored));
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function loadSavedReviews() {
+            const stored = JSON.parse(localStorage.getItem('tlgb_user_reviews') || '[]');
+            const container = document.getElementById('comments-container');
+            stored.forEach(r => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment-cq-item';
+                commentDiv.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; color:var(--accent-gold); font-weight:700;">
+                        <span>${escapeHtml(r.name)}</span>
+                        <span>⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <div style="color:var(--text-body); margin-top:2px;">
+                        ${escapeHtml(r.msg)}
+                    </div>
+                `;
+                container.appendChild(commentDiv);
+            });
+        }
+
+        // =========================================================================
+        // 3D PARALLAX TILT ENGINE & SPECULAR SPOTLIGHT
+        // =========================================================================
+        function init3DTilt() {
+            const cards = document.querySelectorAll('.cq-project-card, .stat-card-cq, .author-cq-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = ((y - centerY) / centerY) * -8;
+                    const rotateY = ((x - centerX) / centerX) * 8;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px)`;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+                });
+            });
+        }
+
+        // =========================================================================
+        // INTERACTIVE 3D WIREFRAME MESH & PARTICLE CANVAS
+        // =========================================================================
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 150 };
+        let rotationAngle = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+        resizeCanvas();
+
+        class Particle3D {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.z = Math.random() * 500;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 1.8 + 0.8;
+                this.color = Math.random() > 0.6 ? '#00f5d4' : (Math.random() > 0.5 ? '#ff0055' : '#8b5cf6');
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                // Mouse 3D Push Interaction
+                if (mouse.x != null && mouse.y != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        this.x -= forceDirectionX * force * 2;
+                        this.y -= forceDirectionY * force * 2;
+                    }
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        for (let i = 0; i < 45; i++) {
+            particles.push(new Particle3D());
+        }
+
+        // 3D Geometric Rotating Cube Points
+        const cubePoints = [
+            [-80, -80, -80], [80, -80, -80], [80, 80, -80], [-80, 80, -80],
+            [-80, -80, 80],  [80, -80, 80],  [80, 80, 80],  [-80, 80, 80]
+        ];
+        const cubeEdges = [
+            [0,1], [1,2], [2,3], [3,0],
+            [4,5], [5,6], [6,7], [7,4],
+            [0,4], [1,5], [2,6], [3,7]
+        ];
+
+        function project3D(x, y, z, cx, cy) {
+            const fov = 400;
+            const distance = 450 + z;
+            const px = (x * fov) / distance + cx;
+            const py = (y * fov) / distance + cy;
+            return { x: px, y: py };
+        }
+
+        function draw3DGeometricWireframe() {
+            rotationAngle += 0.006;
+            const cosA = Math.cos(rotationAngle);
+            const sinA = Math.sin(rotationAngle);
+            const cosB = Math.cos(rotationAngle * 0.7);
+            const sinB = Math.sin(rotationAngle * 0.7);
+
+            const cx = canvas.width * 0.88;
+            const cy = Math.min(canvas.height * 0.28, 220);
+
+            const projectedPoints = cubePoints.map(pt => {
+                // 3D Rotation Y & X
+                let x = pt[0] * cosA - pt[2] * sinA;
+                let z = pt[0] * sinA + pt[2] * cosA;
+                let y = pt[1] * cosB - z * sinB;
+                z = pt[1] * sinB + z * cosB;
+                return project3D(x, y, z, cx, cy);
+            });
+
+            ctx.strokeStyle = isDarkMode ? 'rgba(0, 245, 212, 0.18)' : 'rgba(0, 150, 199, 0.2)';
+            ctx.lineWidth = 1;
+
+            cubeEdges.forEach(edge => {
+                const p1 = projectedPoints[edge[0]];
+                const p2 = projectedPoints[edge[1]];
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+            });
+        }
+
+        function animate3DScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw 3D Floating Geometry
+            draw3DGeometricWireframe();
+
+            // Draw and Connect 3D Particles
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 125) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = isDarkMode 
+                            ? `rgba(0, 245, 212, ${0.12 * (1 - dist / 125)})`
+                            : `rgba(0, 150, 199, ${0.12 * (1 - dist / 125)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate3DScene);
+        }
+        animate3DScene();
+
+        // ==========================================================================
+        // FUTURISTIC CYBER PRELOADER SIMULATION
+        // ==========================================================================
+        function runPreloader() {
+            const fill = document.getElementById('preloader-fill');
+            const percent = document.getElementById('preloader-percent');
+            const status = document.getElementById('preloader-status-text');
+            const preloader = document.getElementById('cq-preloader');
+            
+            let progress = 0;
+            const logs = [
+                { p: 20, text: "Khởi động ClassQuid 3D Core Engine..." },
+                { p: 45, text: "Tải thuật toán Aim Free Fire 0-200..." },
+                { p: 70, text: "Nạp dữ liệu Multi-Gateway OTP spam.py..." },
+                { p: 88, text: "Kích hoạt Anti-Ban & Regedit 120 FPS..." },
+                { p: 100, text: "Chào mừng Trần Lê Gia Bảo (Bun K11)!" }
+            ];
+            
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 8) + 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    if (fill) fill.style.width = '100%';
+                    if (percent) percent.textContent = '100%';
+                    if (status) status.textContent = logs[logs.length - 1].text;
+                    
+                    playSound('success');
+                    setTimeout(() => {
+                        if (preloader) {
+                            preloader.classList.add('fade-out');
+                            setTimeout(() => preloader.style.display = 'none', 500);
+                        }
+                    }, 300);
+                } else {
+                    if (fill) fill.style.width = progress + '%';
+                    if (percent) percent.textContent = progress + '%';
+                    const currentLog = logs.find(l => progress <= l.p) || logs[logs.length - 1];
+                    if (status) status.textContent = currentLog.text;
+                }
+            }, 30);
+        }
+
+        // ==========================================================================
+        // FREE FIRE 100% HEADSHOT DAMAGE FLOATERS ON CLICK
+        // ==========================================================================
+        document.addEventListener('click', (e) => {
+            const clickable = e.target.closest('.cq-project-card, .btn-classquid, .nav-item, .cq-sens-tile, .builder-cq-item');
+            if (clickable) {
+                spawnHeadshotPop(e.clientX, e.clientY);
+            }
+        });
+
+        function spawnHeadshotPop(x, y) {
+            const el = document.createElement('div');
+            el.className = 'damage-pop';
+            el.innerHTML = '<i class="fa-solid fa-crosshairs"></i> 200';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 700);
+        }
+
+        function spawnDamageNumber(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'damage-pop';
+            el.style.color = text === "MISS" ? '#94a3b8' : '#ff0055';
+            el.innerHTML = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 700);
+        }
+
+        // ==========================================================================
+        // BACK TO TOP ROCKET BUTTON
+        // ==========================================================================
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('back-to-top-btn');
+            if (btn) {
+                if (window.scrollY > 350) {
+                    btn.classList.add('visible');
+                } else {
+                    btn.classList.remove('visible');
+                }
+            }
+        });
+
+        function scrollToTop() {
+            playSound('click');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==========================================================================
+        // MINI HEADSHOT REFLEX GAME ENGINE
+        // ==========================================================================
+        let gameScore = 0;
+        let gameTimeLeft = 15;
+        let gameTimerInterval = null;
+        let targetSpawnTime = 0;
+
+        function openAimGame() {
+            playSound('click');
+            openModal('aim-game-modal');
+            resetGame();
+        }
+
+        function resetGame() {
+            clearInterval(gameTimerInterval);
+            document.getElementById('game-score').textContent = '0';
+            document.getElementById('game-timer').textContent = '15s';
+            document.getElementById('game-speed').textContent = '0 ms';
+            const prompt = document.getElementById('game-start-prompt');
+            prompt.innerHTML = `
+                <div style="font-size:24px; font-weight:900; color:#fff; margin-bottom:10px; text-shadow:0 0 15px var(--accent-red);">SẴN SÀNG KÉO TÂM?</div>
+                <button class="btn-classquid btn-cq-red" onclick="startGame(event)">
+                    <i class="fa-solid fa-play"></i> BẮT ĐẦU (15 GIÂY)
+                </button>
+            `;
+            prompt.style.display = 'block';
+            const arena = document.getElementById('game-arena');
+            const existing = arena.querySelector('.aim-target-head');
+            if (existing) existing.remove();
+        }
+
+        function startGame(e) {
+            e.stopPropagation();
+            playSound('success');
+            gameScore = 0;
+            gameTimeLeft = 15;
+            document.getElementById('game-score').textContent = '0';
+            document.getElementById('game-timer').textContent = '15s';
+            document.getElementById('game-speed').textContent = '0 ms';
+            document.getElementById('game-start-prompt').style.display = 'none';
+            
+            spawnTarget();
+            
+            clearInterval(gameTimerInterval);
+            gameTimerInterval = setInterval(() => {
+                gameTimeLeft--;
+                document.getElementById('game-timer').textContent = gameTimeLeft + 's';
+                if (gameTimeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function spawnTarget() {
+            const arena = document.getElementById('game-arena');
+            const oldTarget = arena.querySelector('.aim-target-head');
+            if (oldTarget) oldTarget.remove();
+            
+            const target = document.createElement('div');
+            target.className = 'aim-target-head';
+            target.innerHTML = '<i class="fa-solid fa-skull"></i>';
+            
+            const arenaW = arena.clientWidth - 60;
+            const arenaH = arena.clientHeight - 60;
+            const posX = Math.random() * arenaW + 30;
+            const posY = Math.random() * arenaH + 30;
+            
+            target.style.left = posX + 'px';
+            target.style.top = posY + 'px';
+            
+            target.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                hitTarget(e, target);
+            });
+            
+            arena.appendChild(target);
+            targetSpawnTime = Date.now();
+        }
+
+        function hitTarget(e, target) {
+            const reactionTime = Date.now() - targetSpawnTime;
+            document.getElementById('game-speed').textContent = reactionTime + ' ms';
+            gameScore++;
+            document.getElementById('game-score').textContent = gameScore;
+            
+            playSound('click');
+            spawnHeadshotPop(e.clientX, e.clientY);
+            
+            target.remove();
+            if (gameTimeLeft > 0) {
+                spawnTarget();
+            }
+        }
+
+        function gameArenaClick(e) {
+            if (gameTimeLeft > 0 && document.getElementById('game-start-prompt').style.display === 'none') {
+                spawnDamageNumber(e.clientX, e.clientY, "MISS");
+            }
+        }
+
+        function endGame() {
+            clearInterval(gameTimerInterval);
+            playSound('success');
+            showToast(`🔥 Hoàn thành bài test! Điểm: ${gameScore} Headshots!`);
+            const arena = document.getElementById('game-arena');
+            const existing = arena.querySelector('.aim-target-head');
+            if (existing) existing.remove();
+
+            const prompt = document.getElementById('game-start-prompt');
+            prompt.innerHTML = `
+                <div style="font-size:22px; font-weight:900; color:var(--primary); margin-bottom:6px;">KẾT QUẢ: ${gameScore} HEADSHOTS</div>
+                <div style="font-size:13px; color:#fff; margin-bottom:14px;">Trình độ: ${gameScore >= 12 ? '🔥 BẬC THẦY KÉO TÂM KON TUM' : gameScore >= 7 ? '⚡ TAY BẮN SIÊU PHẨM' : '👍 TẬP LUYỆN THÊM NHÉ'}</div>
+                <button class="btn-classquid btn-cq-red" onclick="startGame(event)">
+                    <i class="fa-solid fa-rotate-right"></i> BẮN LẠI
+                </button>
+            `;
+            prompt.style.display = 'block';
+        }
+
+        // ==========================================================================
+        // BACKGROUND MUSIC PLAYER ENGINE (REMIX HOT TIKTOK 2026)
+        // ==========================================================================
+        let isMusicPlaying = false;
+
+        function toggleMusic() {
+            const audio = document.getElementById('main-music-audio');
+            const player = document.getElementById('music-player-widget');
+            const playIcon = document.getElementById('music-play-icon');
+            const cardBtn = document.getElementById('btn-card-play-music');
+
+            if (!audio) return;
+
+            if (isMusicPlaying) {
+                audio.pause();
+                isMusicPlaying = false;
+                if (player) player.classList.remove('is-playing');
+                if (playIcon) playIcon.className = 'fa-solid fa-play';
+                if (cardBtn) cardBtn.innerHTML = '<i class="fa-solid fa-play" id="card-play-icon"></i> Phát Nhạc';
+                showToast('⏸️ Đã tạm dừng nhạc Remix');
+            } else {
+                audio.play().then(() => {
+                    isMusicPlaying = true;
+                    if (player) player.classList.add('is-playing');
+                    if (playIcon) playIcon.className = 'fa-solid fa-pause';
+                    if (cardBtn) cardBtn.innerHTML = '<i class="fa-solid fa-pause" id="card-play-icon"></i> Dừng Nhạc';
+                    showToast('🎵 Đang phát: Remix Hot TikTok 2026 (2in1 x 3in1)');
+                }).catch(err => {
+                    console.log('Audio autoplay error:', err);
+                    showToast('⚠️ Click vào nút để phát nhạc');
+                });
+            }
+        }
+
+        function toggleMusicPlayerCollapse(e) {
+            if (e) e.stopPropagation();
+            playSound('click');
+            const player = document.getElementById('music-player-widget');
+            if (player) {
+                player.classList.toggle('collapsed');
+                const isCollapsed = player.classList.contains('collapsed');
+                if (isCollapsed) {
+                    showToast('👉 Đã thu gọn trình phát nhạc (Rê chuột lại để mở)');
+                } else {
+                    showToast('👈 Đã mở rộng trình phát nhạc');
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            runPreloader();
+            loadSavedReviews();
+            updateBuilderSelection();
+            calculateSens();
+            init3DTilt();
+            
+            // Check saved theme
+            const savedTheme = localStorage.getItem('cq_theme') || 'dark';
+            isDarkMode = savedTheme === 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = isDarkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            }
+
+            const savedDownloads = localStorage.getItem('tlgb_downloads');
+            if (savedDownloads) {
+                document.getElementById('total-downloads-stat').textContent = parseInt(savedDownloads).toLocaleString('vi-VN') + '+';
+            }
+        });
+    </script>
+</body>
+</html>
