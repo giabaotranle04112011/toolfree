@@ -2552,39 +2552,15 @@
             transform: scale(0.92);
         }
 
-        /* Floating Scroll to Top FAB */
-        .scroll-top-fab {
-            position: fixed;
-            bottom: 76px;
-            left: 14px;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glass-hover);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px var(--primary-dim);
-            z-index: 9980;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(15px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            -webkit-tap-highlight-color: transparent;
-        }
-        .scroll-top-fab.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        .scroll-top-fab:active {
-            transform: scale(0.9) translateY(0);
+        /* Responsive Floating 3D Rocket Back-To-Top Button for Mobile */
+        @media (max-width: 768px) {
+            #back-to-top-btn {
+                bottom: 80px;
+                left: 16px;
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+            }
         }
 
         /* Bottom Sheet Handle Bar */
@@ -5918,6 +5894,7 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
 
         function scrollToTop() {
             playSound('click');
+            if (typeof triggerHaptic === 'function') triggerHaptic(15);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -6271,11 +6248,6 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
         </button>
     </nav>
 
-    <!-- Floating Scroll-To-Top Button -->
-    <button class="scroll-top-fab" id="scroll-top-fab" onclick="window.scrollTo({top:0, behavior:'smooth'}); triggerHaptic();" title="Cuộn lên đầu trang">
-        <i class="fa-solid fa-arrow-up"></i>
-    </button>
-
     <script>
         // ==========================================================================
         // MOBILE APP INTERACTIONS & SCROLL-SPY ENGINE
@@ -6362,17 +6334,9 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
             }
         }, { passive: true });
 
-        // Scroll Spy & Scroll To Top Visibility
+        // Scroll Spy Active Tab Engine
         window.addEventListener('scroll', () => {
             const scrollPos = window.scrollY;
-            const fab = document.getElementById('scroll-top-fab');
-            if (fab) {
-                if (scrollPos > 320) {
-                    fab.classList.add('visible');
-                } else {
-                    fab.classList.remove('visible');
-                }
-            }
 
             // Update Bottom Tab Active State based on scroll position
             const sections = [
