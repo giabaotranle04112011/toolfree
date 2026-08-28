@@ -232,7 +232,7 @@
         }
 
         .navbar-pill {
-            max-width: 1320px;
+            max-width: 1380px;
             width: 100%;
             margin: 0 auto;
             background: var(--bg-navbar);
@@ -240,15 +240,14 @@
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-glass);
             border-radius: 100px;
-            padding: 6px 8px 6px 14px;
+            padding: 6px 10px 6px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
+            gap: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 25px var(--primary-dim);
             transition: var(--transition-smooth);
             box-sizing: border-box;
-            overflow: hidden;
         }
         .navbar-pill:hover {
             border-color: var(--border-glass-hover);
@@ -266,8 +265,8 @@
 
         .avatar-frame {
             position: relative;
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             flex-shrink: 0;
         }
         .avatar-circle {
@@ -276,7 +275,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 12px var(--primary-glow);
+            box-shadow: 0 0 10px var(--primary-glow);
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .avatar-frame:hover .avatar-circle {
@@ -294,7 +293,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8.5px;
+            font-size: 8px;
             border: 2px solid var(--bg-card-solid);
         }
 
@@ -304,13 +303,13 @@
             white-space: nowrap;
         }
         .brand-title {
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 800;
             line-height: 1.1;
             color: var(--text-title);
         }
         .brand-author-tag {
-            font-size: 10px;
+            font-size: 9.5px;
             color: var(--primary);
             font-weight: 700;
             letter-spacing: 0.05em;
@@ -320,7 +319,7 @@
         .nav-menu-row {
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: 4px;
             list-style: none;
             margin: 0;
             padding: 0;
@@ -330,19 +329,19 @@
         .nav-item {
             color: var(--text-body);
             text-decoration: none;
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 700;
-            padding: 6px 11px;
+            padding: 6px 10px;
             border-radius: 50px;
             transition: var(--transition-smooth);
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             white-space: nowrap !important;
             line-height: 1;
         }
         .nav-item i {
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--text-dim);
             transition: color 0.2s;
         }
@@ -362,8 +361,8 @@
         }
 
         .theme-toggle-btn {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: var(--bg-inner);
             border: 1px solid var(--border-glass);
@@ -373,27 +372,51 @@
             justify-content: center;
             cursor: pointer;
             transition: var(--transition-smooth);
-            font-size: 14px;
+            font-size: 13px;
             flex-shrink: 0;
         }
         .theme-toggle-btn:hover {
             color: var(--primary);
             border-color: var(--primary);
             box-shadow: 0 0 12px var(--primary-glow);
-            transform: scale(1.1);
+            transform: scale(1.08);
+        }
+
+        .btn-auth-pill {
+            background: rgba(0, 245, 212, 0.08);
+            border: 1px solid rgba(0, 245, 212, 0.35);
+            color: var(--text-title);
+            font-weight: 800;
+            font-size: 11.5px;
+            padding: 6px 12px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap !important;
+            flex-shrink: 0;
+        }
+        .btn-auth-pill:hover {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            box-shadow: 0 0 14px var(--primary-glow);
+            transform: translateY(-1px);
         }
 
         .btn-mega-pill {
             background: linear-gradient(135deg, var(--accent-red), #d90429);
             color: #fff;
-            padding: 7px 14px;
+            padding: 6.5px 12px;
             border-radius: 50px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 800;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             box-shadow: 0 4px 12px var(--accent-red-glow);
             transition: var(--transition-smooth);
             white-space: nowrap !important;
@@ -405,11 +428,11 @@
             background: linear-gradient(135deg, #ff1a6b, #ef233c);
         }
 
-        @media (max-width: 1100px) {
-            .nav-item { padding: 6px 8px; font-size: 11.5px; gap: 4px; }
+        @media (max-width: 1200px) {
+            .nav-item { padding: 5px 8px; font-size: 11px; }
             .brand-author-tag { display: none; }
         }
-        @media (max-width: 900px) {
+        @media (max-width: 1024px) {
             .nav-menu-row { display: none; }
         }
 
@@ -2869,12 +2892,11 @@
 
                 <!-- Nav Menu Items -->
                 <ul class="nav-menu-row">
-                    <li><a href="#projects-area" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Kho Dự Án</a></li>
-                    <li><a href="#author-profile" class="nav-item"><i class="fa-solid fa-user-astronaut"></i> Tác Giả</a></li>
-                    <li><a href="#sens-studio" class="nav-item"><i class="fa-solid fa-sliders"></i> Tính Độ Nhạy FF</a></li>
-                    <li><a href="#builder-studio" class="nav-item"><i class="fa-solid fa-box-archive"></i> Tải Tùy Chọn</a></li>
+                    <li><a href="#projects-area" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Dự Án</a></li>
+                    <li><a href="#sens-studio" class="nav-item"><i class="fa-solid fa-sliders"></i> Độ Nhạy FF</a></li>
                     <li><a href="aim_controller_backup.html" target="_blank" class="nav-item"><i class="fa-solid fa-crosshairs"></i> Luyện Kéo Tâm</a></li>
-                    <li><a href="love_app/index.html" target="_blank" class="nav-item"><i class="fa-solid fa-heart"></i> Love App Web</a></li>
+                    <li><a href="love_app/index.html" target="_blank" class="nav-item"><i class="fa-solid fa-heart"></i> Love App</a></li>
+                    <li><a href="#author-profile" class="nav-item"><i class="fa-solid fa-user-astronaut"></i> Tác Giả</a></li>
                     <li><a href="javascript:void(0)" onclick="openGuideModal('all')" class="nav-item"><i class="fa-solid fa-book-open"></i> Hướng Dẫn</a></li>
                 </ul>
 
@@ -2883,17 +2905,17 @@
                     <button class="mobile-hamburger-btn" id="mobile-menu-btn" onclick="toggleMobileDrawer()" title="Mở danh mục điều hướng">
                         <i class="fa-solid fa-bars" id="hamburger-icon"></i>
                     </button>
-                    <button class="theme-toggle-btn" id="theme-btn" onclick="toggleLightDarkMode()" title="Chuyển đổi giao diện Trắng / Đen (White Light & Dark Obsidian)">
+                    <button class="theme-toggle-btn" id="theme-btn" onclick="toggleLightDarkMode()" title="Chuyển đổi giao diện Trắng / Đen">
                         <i class="fa-solid fa-moon" id="theme-icon"></i>
                     </button>
                     <button class="theme-toggle-btn" id="sound-btn" onclick="toggleSound()" title="Bật/Tắt âm thanh">
                         <i class="fa-solid fa-volume-high" id="sound-icon"></i>
                     </button>
-                    <button class="btn-auth-pill" id="header-auth-btn" onclick="openAuthModal()" title="Đăng nhập Google hoặc Tạo tài khoản bảo mật">
+                    <button class="btn-auth-pill" id="header-auth-btn" onclick="openAuthModal()" title="Đăng nhập Google hoặc Tài khoản Admin">
                         <i class="fa-solid fa-user-shield" id="header-auth-icon"></i> <span id="header-user-display">Đăng Nhập</span>
                     </button>
                     <a href="downloads/TLGB_ALL_PROJECTS_MEGA_PACK_2026.zip" download="TLGB_ALL_PROJECTS_MEGA_PACK_2026.zip" class="btn-mega-pill" onclick="triggerDownloadFeedback('TLGB Mega Pack 2026')">
-                        <i class="fa-solid fa-bolt"></i> TẢI MEGA PACK (20MB)
+                        <i class="fa-solid fa-bolt"></i> Mega Pack (20MB)
                     </a>
                 </div>
             </nav>
@@ -4091,16 +4113,11 @@
                         </button>
                     </form>
 
-                    <!-- Google 1-Click Sign-In Integration -->
+                    <!-- Google 1-Click Fast Auth -->
                     <div class="google-auth-btn-wrap">
                         <div style="width:100%; text-align:center;">
                             <div style="font-size:11.5px; color:var(--text-body); margin-bottom:8px; font-weight:700;">HOẶC ĐĂNG NHẬP 1 CHẠM QUA GOOGLE</div>
-                            <div id="g_id_onload"
-                                data-client_id="859348924823-fakegoogleauthdemo.apps.googleusercontent.com"
-                                data-callback="handleGoogleCredentialResponse"
-                                data-auto_prompt="false">
-                            </div>
-                            <button type="button" class="btn-classquid btn-cq-ghost" onclick="triggerGoogleSignInPrompt()" style="width:100%; justify-content:center; gap:8px; font-weight:800;">
+                            <button type="button" class="btn-classquid btn-cq-ghost" onclick="triggerGoogleSignInPrompt()" style="width:100%; justify-content:center; gap:8px; font-weight:800; border-color:rgba(234, 67, 53, 0.4);">
                                 <i class="fa-brands fa-google" style="color:#ea4335;"></i> Đăng Nhập Bằng Google (1-Click)
                             </button>
                         </div>
@@ -4955,58 +4972,27 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
 
         function triggerGoogleSignInPrompt() {
             playSound('click');
-            showToast("🌐 Đang kết nối tới Google OAuth...");
-            if (window.google && google.accounts && google.accounts.id) {
-                google.accounts.id.prompt();
-            } else {
-                // Giả lập an toàn Google Sign-In nếu không tải được GSI
-                const dummyName = prompt("Nhập tên hiển thị Google của bạn:", "Game Thủ Google");
-                if (dummyName) {
-                    currentUserSession = {
-                        id: 'goog_' + Date.now(),
-                        name: dummyName,
-                        username: dummyName.toLowerCase().replace(/\s+/g, '_'),
-                        email: `${dummyName.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
-                        avatar: 'bunbunk11_circle.png',
-                        type: 'google'
-                    };
-                    localStorage.setItem('tlgb_auth_session', JSON.stringify(currentUserSession));
-                    playSound('success');
-                    updateNavbarAuthUI();
-                    closeModal('auth-modal');
-                    showToast(`✅ Đăng nhập Google thành công: ${escapeHtml(dummyName)}! ❤️`);
-                }
-            }
-        }
+            const gName = prompt("Nhập Tên / Biệt danh Google của bạn:", "Game Thủ Google");
+            if (!gName || !gName.trim()) return;
 
-        function handleGoogleCredentialResponse(response) {
-            try {
-                // Giải mã payload token Google an toàn
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
+            const trimmedName = gName.trim();
+            const gEmail = prompt("Nhập địa chỉ Gmail của bạn (hoặc nhấn OK để tự tạo):", `${trimmedName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`) || `${trimmedName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`;
 
-                const data = JSON.parse(jsonPayload);
-                currentUserSession = {
-                    id: 'goog_' + data.sub,
-                    name: data.name,
-                    username: data.email.split('@')[0],
-                    email: data.email,
-                    avatar: data.picture || 'bunbunk11_circle.png',
-                    type: 'google'
-                };
-                localStorage.setItem('tlgb_auth_session', JSON.stringify(currentUserSession));
+            currentUserSession = {
+                id: 'goog_' + Date.now(),
+                name: trimmedName,
+                username: trimmedName.toLowerCase().replace(/\s+/g, '_'),
+                email: gEmail,
+                avatar: 'bunbunk11_circle.png',
+                type: 'google',
+                tag: '⚡ Thành Viên Google'
+            };
+            localStorage.setItem('tlgb_auth_session', JSON.stringify(currentUserSession));
 
-                playSound('success');
-                updateNavbarAuthUI();
-                closeModal('auth-modal');
-                showToast(`🎉 Đăng nhập Google thành công! Chào ${escapeHtml(data.name)} ❤️`);
-            } catch (err) {
-                console.error("Google Auth error:", err);
-                showToast("⚠️ Lỗi giải mã Google Token");
-            }
+            playSound('success');
+            updateNavbarAuthUI();
+            closeModal('auth-modal');
+            showToast(`🎉 Đăng nhập Google thành công! Chào ${escapeHtml(trimmedName)} ❤️`);
         }
 
         function handleLogout() {
