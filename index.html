@@ -2568,10 +2568,13 @@
                 <!-- Category Filters -->
                 <div class="filter-row-cq">
                     <button class="cq-filter-btn active" onclick="setCategory('all', this)">
-                        <i class="fa-solid fa-border-all"></i> Tất Cả <span class="cq-count-badge" id="count-all">10</span>
+                        <i class="fa-solid fa-border-all"></i> Tất Cả <span class="cq-count-badge" id="count-all">11</span>
                     </button>
                     <button class="cq-filter-btn" onclick="setCategory('aim_ff', this)">
                         <i class="fa-solid fa-crosshairs"></i> Aim FF VIP <span class="cq-count-badge">2</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('antivirus_tool', this)">
+                        <i class="fa-solid fa-shield-virus"></i> Diệt Mã Độc <span class="cq-count-badge">1</span>
                     </button>
                     <button class="cq-filter-btn" onclick="setCategory('music_remix', this)">
                         <i class="fa-solid fa-music"></i> Nhạc Remix Hot <span class="cq-count-badge">1</span>
@@ -3042,7 +3045,55 @@
                     </div>
                 </div>
 
-                <!-- 10: MEGA PACK ALL-IN-ONE -->
+                <!-- 10: VIRUS & MALWARE SURGICAL CLEANER GUI 2026 -->
+                <div class="cq-project-card featured-card" data-category="antivirus_tool" data-keywords="virus malware cleaner surgical diet ma doc discord token stealer trojan reverse shell python tkinter gui quet virus bao ve file">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq hot"><i class="fa-solid fa-shield-virus"></i> DIỆT MÃ ĐỘC</span>
+                            <span class="badge-cq vip">2026 PRO GUI</span>
+                            <span class="badge-cq free">BẢO VỆ 100%</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'virus_cleaner')"><i class="fa-solid fa-heart"></i> <span class="like-count">1.9k</span></button>
+                            <span>v3.5 PRO • 66 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon mega" style="background:linear-gradient(135deg, rgba(0,245,212,0.2), rgba(16,185,129,0.2)); color:var(--accent-emerald);"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Virus & Malware Surgical Cleaner GUI</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo (Bun K11)</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Tool giao diện Tkinter cao cấp quét sâu và tự động bóc tách / triệt tiêu mã độc (Discord Token Stealers, Reverse Shell, Trojan, Obfuscated Loaders, Webhook Stealer) khỏi file script & dữ liệu mà vẫn bảo toàn 100% code gốc!
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Quét & Phẫu thuật bóc tách mã độc (Surgical Clean) giữ nguyên code gốc.</li>
+                            <li><i class="fa-solid fa-check"></i> Nhận diện Discord Token Stealer, Reverse Shell, Obfuscated Exec, Keylogger.</li>
+                            <li><i class="fa-solid fa-check"></i> Giao diện Tkinter trực quan, báo cáo chi tiết, tự động sao lưu an toàn.</li>
+                            <li><i class="fa-solid fa-check"></i> Chạy nhanh bằng lệnh: <code>py -3.12 virus_cleaner_gui.py</code> hoặc file .bat 1-click.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-brands fa-python"></i> Python 3.8 - 3.12+ Tkinter</span>
+                            <span>Dung lượng: <strong>66 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <a href="downloads/virus_cleaner_gui.py" download="virus_cleaner_gui.py" class="btn-classquid btn-cq-primary" onclick="triggerDownloadFeedback('virus_cleaner_gui.py')">
+                                <i class="fa-solid fa-download"></i> Tải .PY (66KB)
+                            </a>
+                            <a href="downloads/Virus_Cleaner_2026_Pro.zip" download="Virus_Cleaner_2026_Pro.zip" class="btn-classquid btn-cq-gold" onclick="triggerDownloadFeedback('Virus_Cleaner_2026_Pro.zip')">
+                                <i class="fa-solid fa-file-zipper"></i> Gói ZIP + .BAT
+                            </a>
+                            <button class="btn-classquid btn-cq-ghost" onclick="openCodeModal('virus_cleaner')" style="grid-column: span 2;">
+                                <i class="fa-solid fa-code"></i> Xem Mã Nguồn Tool
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 11: MEGA PACK ALL-IN-ONE -->
                 <div class="cq-project-card featured-card" data-category="all" data-keywords="all mega pack all-in-one tron bo tat ca du an zip tlgb bun k11">
                     <div class="cq-card-top">
                         <div class="cq-badge-group">
@@ -3243,6 +3294,14 @@
                         <div class="builder-cq-info">
                             <div class="builder-cq-title">👑 Roblox ClassQuid WhiteUI</div>
                             <div class="builder-cq-size">14 KB • Universal Hub Lua</div>
+                        </div>
+                    </label>
+
+                    <label class="builder-cq-item selected" onclick="updateBuilderSelection()">
+                        <input type="checkbox" class="builder-cq-checkbox" data-file="downloads/virus_cleaner_gui.py" data-size="66" checked>
+                        <div class="builder-cq-info">
+                            <div class="builder-cq-title">🛡️ Virus & Malware Cleaner GUI</div>
+                            <div class="builder-cq-size">66 KB • Python 3.12 Tkinter</div>
                         </div>
                     </label>
 
@@ -3860,6 +3919,24 @@ import concurrent.futures, requests
 print("[✦] TLGB MULTI-GATEWAY OTP SYSTEM ACTIVATED")
 print("[✦] DEVELOPED BY: TRẦN LÊ GIA BẢO")
 print("[✦] ZALO: 0348.707.829 | GITHUB: giabaotranle04112011")`
+            },
+            virus_cleaner: {
+                title: "All-in-One Virus & Malware Surgical Cleaner GUI 2026",
+                url: "downloads/virus_cleaner_gui.py",
+                preview: `# -*- coding: utf-8 -*-
+"""
+========================================================================================
+   🛡️  ALL-IN-ONE VIRUS & MALWARE SURGICAL CLEANER GUI (2026 PRO)  🛡️
+   ⚡ Tool Giao Diện Quét & Tự Động Xóa Phần Mã Độc Khỏi File (Bảo Tồn Dữ Liệu Gốc) ⚡
+   👑 Tác giả: Trần Lê Gia Bảo (Bun K11)
+========================================================================================
+"""
+import os, re, sys, time, json, shutil, hashlib, threading
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
+
+# Khởi chạy: py -3.12 virus_cleaner_gui.py
+print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
             }
         };
 
