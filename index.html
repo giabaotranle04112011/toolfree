@@ -218,12 +218,11 @@
            ========================================================================== */
         .navbar-shell {
             position: sticky;
-            top: 48px;
+            top: 12px;
             z-index: 100;
             padding: 0 16px;
             margin-bottom: 20px;
             width: 100%;
-            transition: var(--transition-smooth);
         }
 
         .navbar-pill {
@@ -2845,57 +2844,7 @@
 </head>
 <body>
 
-    <!-- ==========================================================================
-         IPHONE 16 PRO DYNAMIC ISLAND COMPONENT
-         ========================================================================== -->
-    <div class="dynamic-island-shell" id="dynamic-island-shell">
-        <div class="dynamic-island" id="dynamic-island" onclick="handleIslandClick(event)" title="Bấm để mở rộng Dynamic Island">
-            <!-- 1. Idle View (Default Compact) -->
-            <div class="island-view-idle">
-                <div class="island-idle-left">
-                    <span class="island-live-dot"></span>
-                    <span class="island-brand-name">TLGB 3D</span>
-                </div>
-                <div class="island-idle-right">
-                    <span>12ms</span>
-                    <i class="fa-solid fa-wifi" style="color:#00f5d4; font-size:9.5px;"></i>
-                </div>
-            </div>
-
-            <!-- 2. Music Live Activity View -->
-            <div class="island-view-music">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <img src="bunbunk11_circle.png" alt="Vinyl" class="island-music-disc" id="island-vinyl-img">
-                    <span class="island-music-title" id="island-music-title">Remix Hot TikTok 2026</span>
-                </div>
-                <div class="island-eq-bars">
-                    <span class="island-eq-bar"></span>
-                    <span class="island-eq-bar"></span>
-                    <span class="island-eq-bar"></span>
-                    <span class="island-eq-bar"></span>
-                </div>
-            </div>
-
-            <!-- 3. Toast / Notification View -->
-            <div class="island-view-toast">
-                <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
-                    <i class="fa-solid fa-bell island-toast-icon" id="island-toast-icon"></i>
-                    <span class="island-toast-msg" id="island-toast-msg">Thông báo hệ thống</span>
-                </div>
-                <span class="island-toast-badge" id="island-toast-badge">OK</span>
-            </div>
-
-            <!-- 4. Expanded Full Control Center View -->
-            <div class="island-view-expanded" onclick="event.stopPropagation()">
-                <!-- Top Brand Header -->
-                <div class="island-exp-top">
-                    <div class="island-exp-brand">
-                        <img src="bunbunk11_circle.png" alt="Avatar" class="island-exp-avatar">
-                        <div>
-                            <div class="island-exp-title">CLASSQUID 3D • ISLAND</div>
-                            <div style="font-size:9.5px; color:var(--primary);">Trần Lê Gia Bảo • Bun K11</div>
-                        </div>
-                    </div>
+    
                     <div style="display:flex; align-items:center; gap:6px;">
                         <span class="island-exp-status-pill"><i class="fa-solid fa-bolt"></i> 120 FPS</span>
                         <button class="island-exp-close" onclick="collapseIsland(event)" title="Thu gọn"><i class="fa-solid fa-xmark"></i></button>
@@ -5465,107 +5414,7 @@ print("[✦] ZALO: 0348.707.829 | GITHUB: giabaotranle04112011")`
 
     </script>
     <script>
-        // ==========================================================================
-        // DYNAMIC ISLAND ENGINE (APPLE MORPHING CAPSULE & LIVE ACTIVITIES)
-        // ==========================================================================
-        let islandState = 'idle'; // 'idle', 'music', 'toast', 'expanded'
-        let islandToastTimeout = null;
-
-        function updateIslandUI() {
-            const island = document.getElementById('dynamic-island');
-            const expPlayIcon = document.getElementById('island-exp-play-icon');
-            const expVinyl = document.getElementById('island-exp-vinyl');
-
-            if (!island) return;
-
-            island.classList.remove('state-music', 'state-toast', 'state-expanded');
-
-            if (islandState === 'expanded') {
-                island.classList.add('state-expanded');
-            } else if (islandState === 'toast') {
-                island.classList.add('state-toast');
-            } else if (isMusicPlaying) {
-                island.classList.add('state-music');
-            }
-
-            if (expPlayIcon) {
-                expPlayIcon.className = isMusicPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play';
-            }
-            if (expVinyl) {
-                if (isMusicPlaying) expVinyl.classList.add('spinning');
-                else expVinyl.classList.remove('spinning');
-            }
-        }
-
-        function triggerIslandNotification(msg, icon = 'fa-bell', badge = 'OK', duration = 3200) {
-            triggerHaptic(15);
-            const island = document.getElementById('dynamic-island');
-            const msgEl = document.getElementById('island-toast-msg');
-            const iconEl = document.getElementById('island-toast-icon');
-            const badgeEl = document.getElementById('island-toast-badge');
-
-            if (!island || !msgEl) return;
-
-            if (iconEl) iconEl.className = 'fa-solid ' + icon + ' island-toast-icon';
-            msgEl.textContent = msg;
-            if (badgeEl) badgeEl.textContent = badge;
-
-            if (islandToastTimeout) clearTimeout(islandToastTimeout);
-
-            if (islandState !== 'expanded') {
-                islandState = 'toast';
-                updateIslandUI();
-
-                islandToastTimeout = setTimeout(() => {
-                    islandState = isMusicPlaying ? 'music' : 'idle';
-                    updateIslandUI();
-                }, duration);
-            }
-        }
-
-        function handleIslandClick(e) {
-            if (islandState === 'expanded') return;
-            playSound('click');
-            triggerHaptic(20);
-            islandState = 'expanded';
-            updateIslandUI();
-        }
-
-        function collapseIsland(e) {
-            if (e) e.stopPropagation();
-            playSound('click');
-            triggerHaptic(10);
-            islandState = isMusicPlaying ? 'music' : 'idle';
-            updateIslandUI();
-        }
-
-        // Close island when clicking outside
-        document.addEventListener('click', (e) => {
-            const shell = document.getElementById('dynamic-island-shell');
-            if (shell && !shell.contains(e.target) && islandState === 'expanded') {
-                collapseIsland();
-            }
-        });
-
-        // Hook into existing showToast to also trigger Dynamic Island
-        const originalShowToast = window.showToast;
-        window.showToast = function(msg) {
-            if (originalShowToast) originalShowToast(msg);
-            let icon = 'fa-bell';
-            let badge = 'OK';
-            if (msg.includes('sao chép') || msg.includes('📋')) { icon = 'fa-clipboard-check'; badge = 'COPY'; }
-            else if (msg.includes('tải') || msg.includes('🚀')) { icon = 'fa-cloud-arrow-down'; badge = 'DL'; }
-            else if (msg.includes('nhạc') || msg.includes('🎵')) { icon = 'fa-music'; badge = 'MUSIC'; }
-            else if (msg.includes('Giao diện') || msg.includes('🌙') || msg.includes('☀️')) { icon = 'fa-circle-half-stroke'; badge = 'THEME'; }
-            triggerIslandNotification(msg, icon, badge);
-        };
-
-        // Hook into toggleMusic to update Dynamic Island
-        const originalToggleMusic = window.toggleMusic;
-        window.toggleMusic = function() {
-            if (originalToggleMusic) originalToggleMusic();
-            setTimeout(updateIslandUI, 100);
-        };
+        
 
     </script>
 </body>
