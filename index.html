@@ -2937,19 +2937,44 @@
         }
 
         // Web Audio Synthesizer
+        // Web Audio Synthesizer (Compliant with Chrome Autoplay Policy)
         let soundEnabled = true;
         let audioCtx = null;
+        let audioUnlocked = false;
 
         function initAudio() {
             if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioClass) {
+                    audioCtx = new AudioClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended' && audioUnlocked) {
+                audioCtx.resume().catch(() => {});
             }
         }
+
+        // Global user interaction listener to cleanly unlock Web Audio API on first touch/click
+        ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(evt => {
+            window.addEventListener(evt, () => {
+                audioUnlocked = true;
+                if (!audioCtx) {
+                    initAudio();
+                } else if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(() => {});
+                }
+            }, { once: true, passive: true });
+        });
 
         function playSound(type) {
             if (!soundEnabled) return;
             try {
-                initAudio();
+                if (!audioCtx) {
+                    initAudio();
+                }
+                if (!audioCtx || audioCtx.state !== 'running') {
+                    return; // Gracefully skip sound if browser has not received user interaction yet
+                }
                 const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
