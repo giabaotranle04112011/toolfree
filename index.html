@@ -2820,6 +2820,444 @@
             }
         }
 
+        /* ==========================================================================
+           LIVE CHAT SUPPORT 24/7 & REAL-TIME STAFF ENGINE (CYBERPUNK 2026)
+           ========================================================================== */
+        #support-fab-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            height: 48px;
+            padding: 0 18px 0 14px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, rgba(0, 245, 212, 0.2), rgba(0, 112, 243, 0.3));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.5px solid var(--primary);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 245, 212, 0.35), 0 0 15px var(--primary-dim);
+            z-index: 9900;
+            transition: var(--transition-smooth);
+            -webkit-tap-highlight-color: transparent;
+        }
+        #support-fab-btn:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 12px 35px rgba(0, 245, 212, 0.55), 0 0 25px var(--primary-glow);
+            border-color: #fff;
+        }
+        #support-fab-btn .support-fab-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        .support-pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00f5d4;
+            box-shadow: 0 0 8px #00f5d4;
+            animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.3); }
+        }
+        .support-unread-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent-red);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 900;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid #000;
+            box-shadow: 0 0 10px var(--accent-red-glow);
+        }
+
+        /* Support Chat Window Frame */
+        #support-chat-window {
+            position: fixed;
+            bottom: 86px;
+            right: 28px;
+            width: 390px;
+            height: 560px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 110px);
+            background: var(--bg-card-solid);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1.5px solid var(--border-glass-hover);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 35px var(--primary-dim);
+            z-index: 9901;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #support-chat-window.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Chat Header */
+        .support-chat-head {
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.25);
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .support-head-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .support-head-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 16px;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        .support-head-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-title);
+            line-height: 1.2;
+        }
+        .support-head-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Chat Navigation Tabs (For Admin/Staff Mode) */
+        .support-nav-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 4px 10px;
+            gap: 6px;
+        }
+        .support-tab-item {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: var(--transition-smooth);
+        }
+        .support-tab-item.active {
+            background: rgba(0, 245, 212, 0.15);
+            color: var(--primary);
+        }
+
+        /* Chat Messages Container */
+        .support-msg-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+        }
+        .support-msg-body::-webkit-scrollbar {
+            width: 5px;
+        }
+        .support-msg-body::-webkit-scrollbar-thumb {
+            background: var(--border-glass-hover);
+            border-radius: 10px;
+        }
+
+        /* Message Bubbles */
+        .support-bubble-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            animation: fadeInMsg 0.25s ease forwards;
+        }
+        @keyframes fadeInMsg {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .support-bubble-row.outgoing {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .support-bubble-row.incoming {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .support-bubble-meta {
+            font-size: 10.5px;
+            color: var(--text-dim);
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .support-bubble-card {
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 13px;
+            line-height: 1.45;
+            word-break: break-word;
+            position: relative;
+        }
+        .outgoing .support-bubble-card {
+            background: linear-gradient(135deg, var(--primary-dim), rgba(0, 112, 243, 0.4));
+            color: #fff;
+            border: 1px solid rgba(0, 245, 212, 0.3);
+            border-bottom-right-radius: 4px;
+        }
+        .incoming .support-bubble-card {
+            background: var(--bg-card);
+            color: var(--text-title);
+            border: 1px solid var(--border-glass);
+            border-bottom-left-radius: 4px;
+        }
+        .incoming.admin-vip .support-bubble-card {
+            border: 1.5px solid rgba(255, 183, 3, 0.6);
+            background: linear-gradient(135deg, rgba(255, 183, 3, 0.1), rgba(255, 0, 127, 0.1));
+            box-shadow: 0 0 15px rgba(255, 183, 3, 0.2);
+        }
+
+        /* Media in Messages */
+        .support-msg-img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 12px;
+            margin-top: 6px;
+            cursor: pointer;
+            border: 1px solid var(--border-glass);
+            transition: transform 0.2s;
+            display: block;
+        }
+        .support-msg-img:hover {
+            transform: scale(1.02);
+        }
+        .support-msg-video {
+            max-width: 100%;
+            max-height: 240px;
+            border-radius: 12px;
+            margin-top: 6px;
+            border: 1px solid var(--border-glass);
+            background: #000;
+        }
+        .support-file-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-top: 6px;
+            border: 1px solid var(--border-glass);
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition-smooth);
+        }
+        .support-file-card:hover {
+            border-color: var(--primary);
+            background: rgba(0, 245, 212, 0.1);
+        }
+        .support-file-icon {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        /* Chat Input Bar */
+        .support-input-bar {
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.25);
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .support-preview-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 245, 212, 0.08);
+            border: 1px dashed var(--primary);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11.5px;
+        }
+        .support-input-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .support-input-field {
+            flex: 1;
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            border-radius: 50px;
+            padding: 9px 16px;
+            color: var(--text-title);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+        .support-input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--primary-dim);
+        }
+        .support-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-inner);
+            border: 1px solid var(--border-glass);
+            color: var(--text-title);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+        .support-icon-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.08);
+        }
+        .support-send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+            border: none;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        .support-send-btn:hover {
+            transform: scale(1.1) rotate(-10deg);
+        }
+
+        /* Staff / Admin Inbox List */
+        .support-inbox-panel {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            gap: 8px;
+        }
+        .support-inbox-item {
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .support-inbox-item:hover, .support-inbox-item.active {
+            border-color: var(--primary);
+            background: rgba(0, 245, 212, 0.08);
+        }
+
+        /* Lightbox Modal */
+        #support-media-lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            cursor: pointer;
+        }
+        #support-media-lightbox.active {
+            display: flex;
+        }
+        #support-media-lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 14px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 35px var(--primary-glow);
+        }
+
+        @media (max-width: 768px) {
+            #support-fab-btn {
+                bottom: 78px;
+                right: 14px;
+                height: 42px;
+                padding: 0 14px 0 10px;
+                font-size: 11.5px;
+            }
+            #support-chat-window {
+                bottom: 128px;
+                right: 12px;
+                width: calc(100vw - 24px);
+                height: 70vh;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -4110,6 +4548,135 @@
         <i class="fa-solid fa-rocket"></i>
     </button>
 
+    <!-- Hidden File Input for Support Chat Attachments -->
+    <input type="file" id="support-file-input" style="display:none;" onchange="handleSupportFileSelected(event)" accept="image/*,video/*,.zip,.apk,.py,.lua,.txt,.pdf,.rar,.7z">
+
+    <!-- Floating Live Chat Support Pill (24/7) -->
+    <button id="support-fab-btn" onclick="toggleSupportChatWindow()" title="Chat trực tiếp với Admin & Nhân Viên Hỗ Trợ 24/7">
+        <div class="support-fab-icon"><i class="fa-solid fa-headset"></i></div>
+        <span>Hỗ Trợ 24/7</span>
+        <span class="support-pulse-dot"></span>
+        <span class="support-unread-badge" id="support-unread-badge">0</span>
+    </button>
+
+    <!-- Support Live Chat Window -->
+    <div id="support-chat-window">
+        <!-- Chat Head -->
+        <div class="support-chat-head">
+            <div class="support-head-info">
+                <div class="support-head-avatar"><i class="fa-solid fa-headset"></i></div>
+                <div>
+                    <div class="support-head-title" id="support-header-title">Hỗ Trợ Trực Tuyến 24/7</div>
+                    <div class="support-head-sub"><span class="support-pulse-dot"></span> <span id="support-header-status">Admin & Nhân viên đang online</span></div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <button class="theme-toggle-btn" id="admin-staff-open-btn" style="display:none; width:30px; height:30px; font-size:12px;" onclick="openAdminStaffModal()" title="Quản lý nhân viên hỗ trợ (Dành riêng cho Admin)"><i class="fa-solid fa-users-gear" style="color:#ffb703;"></i></button>
+                <button class="theme-toggle-btn" style="width:30px; height:30px; font-size:12px;" onclick="toggleSupportChatWindow()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <!-- Staff / Admin Navigation Tabs (Only visible for Staff & Admin) -->
+        <div class="support-nav-tabs" id="support-staff-tabs" style="display:none;">
+            <button class="support-tab-item active" id="tab-support-chat" onclick="switchSupportTab('chat')">
+                <i class="fa-solid fa-comments"></i> Chat Khách Hàng
+            </button>
+            <button class="support-tab-item" id="tab-support-inbox" onclick="switchSupportTab('inbox')">
+                <i class="fa-solid fa-inbox"></i> Hộp Thư (<span id="support-inbox-count">0</span>)
+            </button>
+        </div>
+
+        <!-- Staff Inbox List (Tickets Queue) -->
+        <div class="support-inbox-panel" id="support-inbox-panel">
+            <div style="font-size:11.5px; color:var(--text-dim); text-align:center; padding:10px 0;">Danh sách yêu cầu hỗ trợ từ khách hàng</div>
+            <div id="support-tickets-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <!-- Main Chat Messages Body -->
+        <div class="support-msg-body" id="support-msg-body">
+            <div class="support-bubble-row incoming">
+                <div class="support-bubble-meta">
+                    <i class="fa-solid fa-shield-halved" style="color:var(--primary);"></i> <span>Hệ Thống ClassQuid 3D</span>
+                </div>
+                <div class="support-bubble-card">
+                    👋 Chào bạn! Bạn đang cần hỗ trợ về Cấu hình Aim, Tải Tool, Cài đặt APK hay Roblox Script? Hãy gửi tin nhắn, đính kèm ảnh 🖼️ hoặc video 🎥 lỗi để Admin Gia Bảo và Đội ngũ Hỗ trợ giải đáp ngay nhé!
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="support-input-bar">
+            <!-- Selected Media Preview Pill -->
+            <div class="support-preview-bar" id="support-preview-bar">
+                <span id="support-preview-name" style="color:var(--primary); font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:260px;">📎 Đã chọn tệp</span>
+                <button type="button" onclick="clearSelectedSupportFile()" style="background:none; border:none; color:var(--accent-red); cursor:pointer; font-size:13px;"><i class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+
+            <form class="support-input-controls" id="support-chat-form" onsubmit="sendSupportMessage(event)">
+                <button type="button" class="support-icon-btn" onclick="triggerSupportFileUpload()" title="Đính kèm Ảnh, Video hoặc File (.zip, .apk, .py, .lua, .txt)">
+                    <i class="fa-solid fa-paperclip"></i>
+                </button>
+                <input type="text" id="support-text-input" class="support-input-field" placeholder="Nhập tin nhắn hỗ trợ..." autocomplete="off">
+                <button type="submit" class="support-send-btn" title="Gửi tin nhắn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Staff Manager Modal (Chỉ Admin Mới Mở Được) -->
+    <div class="modal-shade" id="admin-staff-modal">
+        <div class="modal-cq-window" style="max-width: 520px;"><div class="modal-drag-handle"></div>
+            <div class="modal-cq-head">
+                <div class="modal-cq-title">
+                    <i class="fa-solid fa-users-gear" style="color:#ffb703;"></i> <span>QUẢN LÝ NHÂN VIÊN HỖ TRỢ (ADMIN)</span>
+                </div>
+                <button class="theme-toggle-btn" onclick="closeModal('admin-staff-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-cq-body" style="padding: 20px; display:flex; flex-direction:column; gap:16px;">
+                <!-- Form Tạo Nhân Viên -->
+                <form id="admin-create-staff-form" onsubmit="handleCreateStaff(event)" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:10px;">
+                    <div style="font-size:13px; font-weight:800; color:var(--text-title); display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-user-plus" style="color:var(--primary);"></i> Tạo Tài Khoản Nhân Viên Mới
+                    </div>
+                    <div>
+                        <div class="auth-field-label"><span>Họ tên hiển thị:</span></div>
+                        <input type="text" id="staff-name" class="auth-field-input" placeholder="VD: Bảo Trợ Lý, Staff Hỗ Trợ 01..." required maxlength="30">
+                    </div>
+                    <div>
+                        <div class="auth-field-label"><span>Tên đăng nhập (Username):</span></div>
+                        <input type="text" id="staff-username" class="auth-field-input" placeholder="VD: staff_bao, troly01..." required maxlength="25">
+                    </div>
+                    <div>
+                        <div class="auth-field-label"><span>Mật khẩu:</span></div>
+                        <input type="password" id="staff-password" class="auth-field-input" placeholder="Nhập mật khẩu cho nhân viên..." required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-classquid btn-cq-gold" style="width:100%; padding:10px; margin-top:4px;">
+                        <i class="fa-solid fa-check"></i> Cấp Quyền & Tạo Nhân Viên
+                    </button>
+                </form>
+
+                <!-- Danh Sách Nhân Viên Hiện Tại -->
+                <div>
+                    <div style="font-size:13px; font-weight:800; color:var(--text-title); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+                        <span><i class="fa-solid fa-address-book" style="color:var(--primary);"></i> Danh Sách Nhân Viên Đang Hoạt Động</span>
+                        <span id="staff-total-count" style="font-size:11px; color:var(--primary); font-weight:700;">0 nhân viên</span>
+                    </div>
+                    <div id="admin-staff-list" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto;"></div>
+                </div>
+            </div>
+            <div class="modal-cq-foot">
+                <span style="font-size:11px; color:var(--text-dim); margin-right:auto;">Dữ liệu nhân viên được đồng bộ đám mây bảo mật</span>
+                <button class="btn-classquid btn-cq-ghost" onclick="closeModal('admin-staff-modal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Media Lightbox Viewer -->
+    <div id="support-media-lightbox" onclick="closeSupportLightbox()">
+        <img id="support-lightbox-img" src="" alt="Full view preview">
+    </div>
+
     <!-- Floating Cyber Music Player Widget (Remix Hot TikTok 2026) -->
     <div class="floating-music-player" id="music-player-widget">
         <!-- Toggle Collapse/Expand Arrow Button -->
@@ -4969,7 +5536,36 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
                 }
             }
 
-            // 2. Kiểm tra tài khoản thông thường (Đã đồng bộ từ Cloud)
+            // 2. Kiểm tra tài khoản Nhân Viên Hỗ Trợ (Staff Accounts)
+            let staffAccounts = JSON.parse(localStorage.getItem('tlgb_staff_accounts') || '[]');
+            let staffUser = staffAccounts.find(s => s.username === loginId);
+            if (staffUser) {
+                const staffInputHash = await hashPassword(password, staffUser.salt);
+                if (staffInputHash === staffUser.passwordHash) {
+                    currentUserSession = {
+                        id: staffUser.id,
+                        name: staffUser.name,
+                        username: staffUser.username,
+                        role: 'STAFF',
+                        tag: '🎧 HỖ TRỢ VIÊN',
+                        isStaff: true,
+                        type: 'staff',
+                        avatar: 'bunbunk11_circle.png'
+                    };
+                    localStorage.setItem('tlgb_auth_session', JSON.stringify(currentUserSession));
+                    playSound('success');
+                    updateNavbarAuthUI();
+                    if (typeof updateSupportStaffUI === 'function') updateSupportStaffUI();
+                    closeModal('auth-modal');
+                    showToast(`🎧 [HỖ TRỢ VIÊN] Chào mừng ${escapeHtml(staffUser.name)} đăng nhập thành công!`);
+                    return;
+                } else {
+                    showToast("❌ Mật khẩu nhân viên không chính xác!");
+                    return;
+                }
+            }
+
+            // 3. Kiểm tra tài khoản thông thường (Đã đồng bộ từ Cloud)
             let users = JSON.parse(localStorage.getItem('tlgb_registered_users') || '[]');
             let user = users.find(u => u.username === loginId || (u.email && u.email.toLowerCase() === loginId));
 
@@ -6362,10 +6958,641 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
 
             if (!activeTabSet && scrollPos < 350) {
                 document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.classList.remove('active'));
-                const homeTab = document.getElementById('tab-home');
-                if (homeTab) homeTab.classList.add('active');
+        // ==========================================================================
+        // REAL-TIME CUSTOMER SUPPORT 24/7 & ADMIN STAFF MANAGER ENGINE (2026 PRO)
+        // Hỗ trợ gửi Ảnh, Video, File, Đa vai trò (Admin, Staff, Khách Hàng)
+        // ==========================================================================
+        const SUPPORT_CLOUD_TOPIC = 'tlgb_classquid_support_v2026_global';
+        const SUPPORT_CLOUD_URL = `https://ntfy.sh/${SUPPORT_CLOUD_TOPIC}`;
+        const STAFF_CLOUD_TOPIC = 'tlgb_classquid_staff_v2026_global';
+        const STAFF_CLOUD_URL = `https://ntfy.sh/${STAFF_CLOUD_TOPIC}`;
+
+        let supportEventSource = null;
+        let staffEventSource = null;
+        let allSupportMessages = [];
+        let selectedSupportFile = null; // { name, size, type, dataUrl }
+        let clientTicketId = localStorage.getItem('tlgb_support_ticket_id');
+        if (!clientTicketId) {
+            clientTicketId = 'tkt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+            localStorage.setItem('tlgb_support_ticket_id', clientTicketId);
+        }
+
+        let activeStaffTicketId = null; // When staff/admin clicks a ticket from inbox
+        let activeSupportTab = 'chat';
+        let unreadSupportCount = 0;
+
+        function toggleSupportChatWindow() {
+            playSound('click');
+            if (typeof triggerHaptic === 'function') triggerHaptic(15);
+            const win = document.getElementById('support-chat-window');
+            if (!win) return;
+            win.classList.toggle('active');
+            
+            if (win.classList.contains('active')) {
+                unreadSupportCount = 0;
+                updateSupportUnreadBadge();
+                scrollSupportToBottom();
+                const inp = document.getElementById('support-text-input');
+                if (inp) inp.focus();
             }
-        }, { passive: true });
+        }
+
+        function updateSupportUnreadBadge() {
+            const badge = document.getElementById('support-unread-badge');
+            if (!badge) return;
+            if (unreadSupportCount > 0) {
+                badge.textContent = unreadSupportCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function updateSupportStaffUI() {
+            const adminBtn = document.getElementById('admin-staff-open-btn');
+            const staffTabs = document.getElementById('support-staff-tabs');
+            const headerStatus = document.getElementById('support-header-status');
+            const headerTitle = document.getElementById('support-header-title');
+
+            if (currentUserSession && (currentUserSession.isAdmin || currentUserSession.isStaff)) {
+                if (staffTabs) staffTabs.style.display = 'flex';
+                if (adminBtn) adminBtn.style.display = currentUserSession.isAdmin ? 'inline-flex' : 'none';
+                if (headerStatus) {
+                    headerStatus.innerHTML = currentUserSession.isAdmin 
+                        ? '<span style="color:#ffb703; font-weight:900;">👑 Tổng Quản Admin</span>' 
+                        : '<span style="color:#00f5d4; font-weight:800;">🎧 Nhân Viên Hỗ Trợ</span>';
+                }
+                if (headerTitle) headerTitle.textContent = 'Bàn Trực Hỗ Trợ Khách Hàng';
+            } else {
+                if (staffTabs) staffTabs.style.display = 'none';
+                if (adminBtn) adminBtn.style.display = 'none';
+                if (headerStatus) headerStatus.textContent = 'Admin & Nhân viên đang online';
+                if (headerTitle) headerTitle.textContent = 'Hỗ Trợ Trực Tuyến 24/7';
+                switchSupportTab('chat');
+            }
+        }
+
+        function switchSupportTab(tab) {
+            playSound('click');
+            activeSupportTab = tab;
+            const tabChat = document.getElementById('tab-support-chat');
+            const tabInbox = document.getElementById('tab-support-inbox');
+            const bodyChat = document.getElementById('support-msg-body');
+            const bodyInbox = document.getElementById('support-inbox-panel');
+
+            if (tab === 'chat') {
+                if (tabChat) tabChat.classList.add('active');
+                if (tabInbox) tabInbox.classList.remove('active');
+                if (bodyChat) bodyChat.style.display = 'flex';
+                if (bodyInbox) bodyInbox.style.display = 'none';
+                scrollSupportToBottom();
+            } else {
+                if (tabInbox) tabInbox.classList.add('active');
+                if (tabChat) tabChat.classList.remove('active');
+                if (bodyChat) bodyChat.style.display = 'none';
+                if (bodyInbox) bodyInbox.style.display = 'flex';
+                renderSupportInboxList();
+            }
+        }
+
+        // =========================================================================
+        // FILE & MEDIA ATTACHMENTS (ẢNH, VIDEO, FILE)
+        // =========================================================================
+        function triggerSupportFileUpload() {
+            playSound('click');
+            const fileInput = document.getElementById('support-file-input');
+            if (fileInput) fileInput.click();
+        }
+
+        function handleSupportFileSelected(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 15 * 1024 * 1024) {
+                showToast("⚠️ File quá lớn! Vui lòng chọn file dưới 15MB.");
+                e.target.value = '';
+                return;
+            }
+
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+
+            if (isImage) {
+                // Tối ưu nén ảnh phía client (Client-side Image Compressor)
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width;
+                        let h = img.height;
+                        const maxSide = 1200;
+                        if (w > maxSide || h > maxSide) {
+                            if (w > h) {
+                                h = Math.round((h * maxSide) / w);
+                                w = maxSide;
+                            } else {
+                                w = Math.round((w * maxSide) / h);
+                                h = maxSide;
+                            }
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+                        selectedSupportFile = {
+                            name: file.name,
+                            size: formatFileSize(file.size),
+                            type: 'image',
+                            dataUrl: optimizedDataUrl
+                        };
+                        showSupportFilePreview();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Xử lý Video hoặc File đính kèm (.zip, .apk, .py, .lua, .txt)
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    selectedSupportFile = {
+                        name: file.name,
+                        size: formatFileSize(file.size),
+                        type: isVideo ? 'video' : 'file',
+                        dataUrl: event.target.result
+                    };
+                    showSupportFilePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function showSupportFilePreview() {
+            if (!selectedSupportFile) return;
+            const bar = document.getElementById('support-preview-bar');
+            const nameEl = document.getElementById('support-preview-name');
+            if (bar && nameEl) {
+                const icon = selectedSupportFile.type === 'image' ? '🖼️' : (selectedSupportFile.type === 'video' ? '🎥' : '📁');
+                nameEl.textContent = `${icon} ${selectedSupportFile.name} (${selectedSupportFile.size})`;
+                bar.style.display = 'flex';
+            }
+            playSound('click');
+        }
+
+        function clearSelectedSupportFile() {
+            selectedSupportFile = null;
+            const bar = document.getElementById('support-preview-bar');
+            const fileInput = document.getElementById('support-file-input');
+            if (bar) bar.style.display = 'none';
+            if (fileInput) fileInput.value = '';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // =========================================================================
+        // GỬI TIN NHẮN HỖ TRỢ & ĐỒNG BỘ REAL-TIME CLOUD
+        // =========================================================================
+        function sendSupportMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('support-text-input');
+            if (!input) return;
+            const text = input.value.trim();
+
+            if (!text && !selectedSupportFile) {
+                showToast("⚠️ Vui lòng nhập tin nhắn hoặc đính kèm file!");
+                input.focus();
+                return;
+            }
+
+            const isStaffOrAdmin = currentUserSession && (currentUserSession.isAdmin || currentUserSession.isStaff);
+            const targetTicketId = (isStaffOrAdmin && activeStaffTicketId) ? activeStaffTicketId : clientTicketId;
+
+            let senderName = 'Khách Ẩn Danh';
+            let senderRole = 'GUEST';
+            let senderAvatar = 'bunbunk11_circle.png';
+
+            if (currentUserSession) {
+                senderName = currentUserSession.name || currentUserSession.username;
+                if (currentUserSession.isAdmin) {
+                    senderRole = 'ADMIN';
+                } else if (currentUserSession.isStaff) {
+                    senderRole = 'STAFF';
+                } else {
+                    senderRole = 'USER';
+                }
+                senderAvatar = currentUserSession.avatar || 'bunbunk11_circle.png';
+            } else {
+                senderName = 'Khách ' + clientTicketId.substring(4, 8).toUpperCase();
+            }
+
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const newMsg = {
+                id: 'smsg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                ticketId: targetTicketId,
+                senderId: currentUserSession ? currentUserSession.id : clientTicketId,
+                senderName: senderName,
+                senderRole: senderRole,
+                senderAvatar: senderAvatar,
+                text: text,
+                file: selectedSupportFile ? { ...selectedSupportFile } : null,
+                time: timeStr,
+                timestamp: Date.now()
+            };
+
+            // 1. Render cục bộ tức thì
+            appendSupportMessage(newMsg);
+
+            // 2. Phát sóng Cloud thời gian thực
+            fetch(SUPPORT_CLOUD_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                body: JSON.stringify({ type: 'SUPPORT_MESSAGE', msg: newMsg })
+            }).catch(err => console.log('Support push note:', err));
+
+            // Reset form
+            input.value = '';
+            clearSelectedSupportFile();
+            playSound('click');
+        }
+
+        function appendSupportMessage(msg) {
+            if (allSupportMessages.some(m => m.id === msg.id)) return;
+            allSupportMessages.push(msg);
+
+            // Lọc xem tin nhắn này có thuộc cuộc hội thoại hiện tại không
+            const isStaffOrAdmin = currentUserSession && (currentUserSession.isAdmin || currentUserSession.isStaff);
+            const currentViewTicket = (isStaffOrAdmin && activeStaffTicketId) ? activeStaffTicketId : clientTicketId;
+
+            if (msg.ticketId !== currentViewTicket && !isStaffOrAdmin) {
+                return;
+            }
+
+            renderSingleSupportBubble(msg);
+            scrollSupportToBottom();
+            updateSupportInboxCount();
+        }
+
+        function renderSingleSupportBubble(msg) {
+            const body = document.getElementById('support-msg-body');
+            if (!body) return;
+
+            const myId = currentUserSession ? currentUserSession.id : clientTicketId;
+            const isMine = msg.senderId === myId;
+            const isAdmin = msg.senderRole === 'ADMIN';
+            const isStaff = msg.senderRole === 'STAFF';
+
+            let roleBadge = '';
+            if (isAdmin) {
+                roleBadge = '<span style="background:linear-gradient(90deg, #ff007f, #ffb703); color:#000; font-weight:900; padding:1px 6px; border-radius:6px; font-size:9.5px; box-shadow:0 0 6px rgba(255,183,3,0.5);"><i class="fa-solid fa-crown"></i> ADMIN TỐI CAO</span>';
+            } else if (isStaff) {
+                roleBadge = '<span style="background:rgba(0,245,212,0.2); color:#00f5d4; border:1px solid #00f5d4; font-weight:800; padding:1px 6px; border-radius:6px; font-size:9.5px;"><i class="fa-solid fa-headset"></i> HỖ TRỢ VIÊN</span>';
+            }
+
+            let mediaHtml = '';
+            if (msg.file) {
+                if (msg.file.type === 'image') {
+                    mediaHtml = `<img src="${msg.file.dataUrl}" class="support-msg-img" onclick="openSupportLightbox('${msg.file.dataUrl}')" alt="${escapeHtml(msg.file.name)}" title="Bấm để xem ảnh phóng to">`;
+                } else if (msg.file.type === 'video') {
+                    mediaHtml = `<video src="${msg.file.dataUrl}" controls class="support-msg-video"></video>`;
+                } else {
+                    mediaHtml = `
+                        <a href="${msg.file.dataUrl}" download="${escapeHtml(msg.file.name)}" class="support-file-card">
+                            <i class="fa-solid fa-file-arrow-down support-file-icon"></i>
+                            <div>
+                                <div style="font-weight:700; font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(msg.file.name)}</div>
+                                <div style="font-size:10px; color:var(--text-dim);">${escapeHtml(msg.file.size || 'Tệp đính kèm')} • Bấm để tải về</div>
+                            </div>
+                        </a>
+                    `;
+                }
+            }
+
+            const textHtml = msg.text ? `<div>${escapeHtml(msg.text)}</div>` : '';
+
+            const row = document.createElement('div');
+            row.className = `support-bubble-row ${isMine ? 'outgoing' : 'incoming'} ${isAdmin ? 'admin-vip' : ''}`;
+            row.innerHTML = `
+                <div class="support-bubble-meta">
+                    <span>${escapeHtml(msg.senderName)}</span>
+                    ${roleBadge}
+                    <span>• ${escapeHtml(msg.time)}</span>
+                </div>
+                <div class="support-bubble-card">
+                    ${textHtml}
+                    ${mediaHtml}
+                </div>
+            `;
+            body.appendChild(row);
+        }
+
+        function scrollSupportToBottom() {
+            const body = document.getElementById('support-msg-body');
+            if (body) {
+                setTimeout(() => {
+                    body.scrollTop = body.scrollHeight;
+                }, 50);
+            }
+        }
+
+        function updateSupportInboxCount() {
+            const isStaffOrAdmin = currentUserSession && (currentUserSession.isAdmin || currentUserSession.isStaff);
+            if (!isStaffOrAdmin) return;
+
+            const tickets = new Set(allSupportMessages.map(m => m.ticketId));
+            const countEl = document.getElementById('support-inbox-count');
+            if (countEl) countEl.textContent = tickets.size;
+        }
+
+        function renderSupportInboxList() {
+            const listEl = document.getElementById('support-tickets-list');
+            if (!listEl) return;
+
+            // Nhóm tin nhắn theo Ticket
+            const ticketsMap = {};
+            allSupportMessages.forEach(m => {
+                if (!ticketsMap[m.ticketId]) {
+                    ticketsMap[m.ticketId] = [];
+                }
+                ticketsMap[m.ticketId].push(m);
+            });
+
+            const ticketIds = Object.keys(ticketsMap);
+            if (ticketIds.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:var(--text-dim); padding:20px 0;">Chưa có yêu cầu hỗ trợ nào.</div>';
+                return;
+            }
+
+            listEl.innerHTML = ticketIds.map(tId => {
+                const msgs = ticketsMap[tId];
+                const lastMsg = msgs[msgs.length - 1];
+                const clientName = msgs.find(m => m.senderRole === 'GUEST' || m.senderRole === 'USER')?.senderName || 'Khách Hàng';
+                const isActive = activeStaffTicketId === tId;
+
+                return `
+                    <div class="support-inbox-item ${isActive ? 'active' : ''}" onclick="selectStaffTicket('${tId}')">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="support-head-avatar" style="width:30px; height:30px; font-size:12px;"><i class="fa-solid fa-user"></i></div>
+                            <div>
+                                <div style="font-size:12.5px; font-weight:800; color:var(--text-title);">${escapeHtml(clientName)}</div>
+                                <div style="font-size:11px; color:var(--text-dim); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    ${escapeHtml(lastMsg.text || (lastMsg.file ? '📎 [File đính kèm]' : '...'))}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-size:10px; color:var(--text-dim); text-align:right;">
+                            <div>${escapeHtml(lastMsg.time)}</div>
+                            <div style="color:var(--primary); font-weight:700;">${msgs.length} tin</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectStaffTicket(tId) {
+            playSound('click');
+            activeStaffTicketId = tId;
+            switchSupportTab('chat');
+            
+            // Xóa và vẽ lại toàn bộ bong bóng chat cho ticket này
+            const body = document.getElementById('support-msg-body');
+            if (body) {
+                body.innerHTML = '';
+                const msgs = allSupportMessages.filter(m => m.ticketId === tId);
+                msgs.forEach(m => renderSingleSupportBubble(m));
+                scrollSupportToBottom();
+            }
+        }
+
+        // =========================================================================
+        // QUẢN LÝ NHÂN VIÊN HỖ TRỢ (DÀNH RIÊNG CHO ADMIN GIA BẢO)
+        // =========================================================================
+        function openAdminStaffModal() {
+            playSound('click');
+            if (!currentUserSession || !currentUserSession.isAdmin) {
+                showToast("⛔ Chỉ có Admin Tối Cao mới có quyền quản lý nhân viên!");
+                return;
+            }
+            renderAdminStaffList();
+            openModal('admin-staff-modal');
+        }
+
+        async function handleCreateStaff(e) {
+            e.preventDefault();
+            if (!currentUserSession || !currentUserSession.isAdmin) return;
+
+            const name = document.getElementById('staff-name').value.trim();
+            const username = document.getElementById('staff-username').value.trim().toLowerCase();
+            const password = document.getElementById('staff-password').value;
+
+            if (!name || !username || !password) {
+                showToast("⚠️ Vui lòng điền đầy đủ thông tin nhân viên!");
+                return;
+            }
+
+            if (username === ROOT_ADMIN_RECORD.username) {
+                showToast("⚠️ Tên đăng nhập này thuộc về Admin!");
+                return;
+            }
+
+            const staffList = JSON.parse(localStorage.getItem('tlgb_staff_accounts') || '[]');
+            if (staffList.some(s => s.username === username)) {
+                showToast("⚠️ Tên đăng nhập này đã được sử dụng!");
+                return;
+            }
+
+            // Mã hóa mật khẩu nhân viên Salted SHA-256
+            const salt = Math.random().toString(36).substring(2, 10);
+            const passwordHash = await hashPassword(password, salt);
+
+            const newStaff = {
+                id: 'staff_' + Date.now(),
+                name: name,
+                username: username,
+                salt: salt,
+                passwordHash: passwordHash,
+                role: 'STAFF',
+                createdBy: 'giabaotran04',
+                createdAt: Date.now()
+            };
+
+            // 1. Lưu cục bộ
+            staffList.push(newStaff);
+            localStorage.setItem('tlgb_staff_accounts', JSON.stringify(staffList));
+
+            // 2. Phát sóng Cloud Toàn Cầu
+            fetch(STAFF_CLOUD_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                body: JSON.stringify({ type: 'STAFF_CREATED', staff: newStaff })
+            }).catch(err => console.log('Staff cloud push note:', err));
+
+            // Reset form
+            document.getElementById('admin-create-staff-form').reset();
+            renderAdminStaffList();
+            playSound('success');
+            showToast(`✅ Đã cấp quyền nhân viên thành công cho: ${escapeHtml(name)}!`);
+        }
+
+        function renderAdminStaffList() {
+            const listEl = document.getElementById('admin-staff-list');
+            const totalEl = document.getElementById('staff-total-count');
+            if (!listEl) return;
+
+            const staffList = JSON.parse(localStorage.getItem('tlgb_staff_accounts') || '[]');
+            if (totalEl) totalEl.textContent = `${staffList.length} nhân viên`;
+
+            if (staffList.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:var(--text-dim); padding:10px 0;">Chưa có nhân viên hỗ trợ nào. Hãy tạo nhân viên đầu tiên!</div>';
+                return;
+            }
+
+            listEl.innerHTML = staffList.map(s => `
+                <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-inner); border:1px solid var(--border-glass); border-radius:10px; padding:8px 12px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-headset" style="color:var(--primary); font-size:14px;"></i>
+                        <div>
+                            <div style="font-size:12.5px; font-weight:800; color:var(--text-title);">${escapeHtml(s.name)}</div>
+                            <div style="font-size:10.5px; color:var(--text-dim);">Username: <strong style="color:var(--primary);">${escapeHtml(s.username)}</strong></div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="deleteStaffAccount('${s.id}')" style="background:rgba(255,0,85,0.15); border:1px solid var(--accent-red); color:var(--accent-red); padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:700;">
+                        <i class="fa-solid fa-trash"></i> Xóa
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function deleteStaffAccount(id) {
+            playSound('click');
+            if (!confirm("Bạn có chắc chắn muốn xóa quyền nhân viên hỗ trợ này không?")) return;
+
+            let staffList = JSON.parse(localStorage.getItem('tlgb_staff_accounts') || '[]');
+            staffList = staffList.filter(s => s.id !== id);
+            localStorage.setItem('tlgb_staff_accounts', JSON.stringify(staffList));
+
+            fetch(STAFF_CLOUD_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                body: JSON.stringify({ type: 'STAFF_DELETED', staffId: id })
+            }).catch(err => console.log('Staff delete push note:', err));
+
+            renderAdminStaffList();
+            showToast("🗑️ Đã xóa tài khoản nhân viên!");
+        }
+
+        // =========================================================================
+        // LIGHTBOX VIEWER
+        // =========================================================================
+        function openSupportLightbox(src) {
+            playSound('click');
+            const box = document.getElementById('support-media-lightbox');
+            const img = document.getElementById('support-lightbox-img');
+            if (box && img) {
+                img.src = src;
+                box.classList.add('active');
+            }
+        }
+
+        function closeSupportLightbox() {
+            playSound('click');
+            const box = document.getElementById('support-media-lightbox');
+            if (box) box.classList.remove('active');
+        }
+
+        // =========================================================================
+        // KHỞI ĐỘNG HỆ THỐNG SUPPORT & STAFF REAL-TIME CLOUD
+        // =========================================================================
+        function initSupportAndStaffEngine() {
+            updateSupportStaffUI();
+
+            // 1. Tải danh sách nhân viên từ Cloud
+            fetch(`${STAFF_CLOUD_URL}/json?poll=1&since=all`)
+                .then(res => res.text())
+                .then(text => {
+                    const lines = text.trim().split('\n');
+                    let staffList = JSON.parse(localStorage.getItem('tlgb_staff_accounts') || '[]');
+                    lines.forEach(line => {
+                        if (line) {
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.event === 'message' && data.message) {
+                                    const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+                                    if (parsed.type === 'STAFF_CREATED' && parsed.staff) {
+                                        if (!staffList.some(s => s.username === parsed.staff.username)) {
+                                            staffList.push(parsed.staff);
+                                        }
+                                    } else if (parsed.type === 'STAFF_DELETED' && parsed.staffId) {
+                                        staffList = staffList.filter(s => s.id !== parsed.staffId);
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+                    });
+                    localStorage.setItem('tlgb_staff_accounts', JSON.stringify(staffList));
+                }).catch(err => console.log('Staff poll note:', err));
+
+            // 2. Tải lịch sử tin nhắn Chat Hỗ Trợ từ Cloud
+            fetch(`${SUPPORT_CLOUD_URL}/json?poll=1&since=all`)
+                .then(res => res.text())
+                .then(text => {
+                    const lines = text.trim().split('\n');
+                    lines.forEach(line => {
+                        if (line) {
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.event === 'message' && data.message) {
+                                    const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+                                    if (parsed.type === 'SUPPORT_MESSAGE' && parsed.msg) {
+                                        appendSupportMessage(parsed.msg);
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+                    });
+                }).catch(err => console.log('Support poll note:', err));
+
+            // 3. Kết nối Server-Sent Events (SSE) Real-Time
+            if (window.EventSource) {
+                supportEventSource = new EventSource(`${SUPPORT_CLOUD_URL}/sse`);
+                supportEventSource.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.event === 'message' && data.message) {
+                            const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+                            if (parsed.type === 'SUPPORT_MESSAGE' && parsed.msg) {
+                                const myId = currentUserSession ? currentUserSession.id : clientTicketId;
+                                const isFromOther = parsed.msg.senderId !== myId;
+                                appendSupportMessage(parsed.msg);
+
+                                if (isFromOther) {
+                                    playSound('success');
+                                    if (typeof triggerHaptic === 'function') triggerHaptic(20);
+                                    const win = document.getElementById('support-chat-window');
+                                    if (!win || !win.classList.contains('active')) {
+                                        unreadSupportCount++;
+                                        updateSupportUnreadBadge();
+                                        showToast(`💬 [Hỗ Trợ Mới] ${escapeHtml(parsed.msg.senderName)}: ${escapeHtml(parsed.msg.text || 'Đã gửi file')}`);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {}
+                };
+            }
+        }
+
+        // Tự động khởi chạy
+        window.addEventListener('DOMContentLoaded', () => {
+            initSupportAndStaffEngine();
+        });
 
     </script>
 </body>
