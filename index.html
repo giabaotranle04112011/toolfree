@@ -4718,7 +4718,10 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
         // =========================================================================
         const CLOUD_TOPIC = 'tlgb_classquid_reviews_v2026_global';
         const CLOUD_URL = `https://ntfy.sh/${CLOUD_TOPIC}`;
+        const USER_CLOUD_TOPIC = 'tlgb_classquid_users_v2026_global';
+        const USER_CLOUD_URL = `https://ntfy.sh/${USER_CLOUD_TOPIC}`;
         let eventSource = null;
+        let userEventSource = null;
         let isCloudConnected = false;
         let currentReviewRating = 5;
         let currentUserTag = '🔥 Game Thủ Free Fire';
@@ -4758,6 +4761,51 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
                 if (savedSession) {
                     currentUserSession = JSON.parse(savedSession);
                     updateNavbarAuthUI();
+                }
+
+                // Tải danh sách tài khoản đã đăng ký từ Mây Toàn Cầu (Đồng bộ đa thiết bị)
+                fetch(`${USER_CLOUD_URL}/json?poll=1&since=all`)
+                    .then(res => res.text())
+                    .then(text => {
+                        const lines = text.trim().split('\n');
+                        const localUsers = JSON.parse(localStorage.getItem('tlgb_registered_users') || '[]');
+                        lines.forEach(line => {
+                            if (line) {
+                                try {
+                                    const data = JSON.parse(line);
+                                    if (data.event === 'message' && data.message) {
+                                        const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+                                        if (parsed && parsed.user && parsed.user.username) {
+                                            if (!localUsers.some(u => u.username === parsed.user.username)) {
+                                                localUsers.push(parsed.user);
+                                            }
+                                        }
+                                    }
+                                } catch (e) {}
+                            }
+                        });
+                        localStorage.setItem('tlgb_registered_users', JSON.stringify(localUsers));
+                    })
+                    .catch(err => console.log("User poll note:", err));
+
+                // Lắng nghe người dùng mới đăng ký trên các thiết bị khác qua SSE
+                if (window.EventSource) {
+                    userEventSource = new EventSource(`${USER_CLOUD_URL}/sse`);
+                    userEventSource.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.event === 'message' && data.message) {
+                                const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+                                if (parsed && parsed.user && parsed.user.username) {
+                                    const localUsers = JSON.parse(localStorage.getItem('tlgb_registered_users') || '[]');
+                                    if (!localUsers.some(u => u.username === parsed.user.username)) {
+                                        localUsers.push(parsed.user);
+                                        localStorage.setItem('tlgb_registered_users', JSON.stringify(localUsers));
+                                    }
+                                }
+                            }
+                        } catch (e) {}
+                    };
                 }
             } catch (e) {
                 console.log("Auth session init note:", e);
@@ -4883,10 +4931,20 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
                 createdAt: Date.now()
             };
 
+            // 1. Lưu cục bộ
             users.push(newUser);
             localStorage.setItem('tlgb_registered_users', JSON.stringify(users));
 
-            // Đăng nhập tự động
+            // 2. Bắn tài khoản lên Cloud Database Toàn Cầu (Để Máy B, Máy C... đều đăng nhập được!)
+            fetch(USER_CLOUD_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                body: JSON.stringify({ type: 'USER_REGISTERED', user: newUser })
+            }).then(() => {
+                console.log("Account synced live to Global Cloud!");
+            }).catch(err => console.log("User cloud push note:", err));
+
+            // 3. Đăng nhập tự động
             currentUserSession = {
                 id: newUser.id,
                 name: newUser.name,
@@ -4900,7 +4958,7 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
             playSound('success');
             updateNavbarAuthUI();
             closeModal('auth-modal');
-            showToast(`🎉 Chào mừng ${escapeHtml(name)}! Tạo tài khoản mã hóa thành công ❤️`);
+            showToast(`🎉 Chào mừng ${escapeHtml(name)}! Tài khoản đã đồng bộ toàn cầu ❤️`);
         }
 
         async function handleNativeLogin(e) {
@@ -4935,9 +4993,35 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
                 }
             }
 
-            // 2. Kiểm tra tài khoản thông thường
-            const users = JSON.parse(localStorage.getItem('tlgb_registered_users') || '[]');
-            const user = users.find(u => u.username === loginId || (u.email && u.email.toLowerCase() === loginId));
+            // 2. Kiểm tra tài khoản thông thường (Đã đồng bộ từ Cloud)
+            let users = JSON.parse(localStorage.getItem('tlgb_registered_users') || '[]');
+            let user = users.find(u => u.username === loginId || (u.email && u.email.toLowerCase() === loginId));
+
+            // Nếu chưa thấy cục bộ, thử kéo nhanh từ Mây Cloud về
+            if (!user) {
+                try {
+                    const res = await fetch(`${USER_CLOUD_URL}/json?poll=1&since=all`);
+                    const text = await res.text();
+                    const lines = text.trim().split('\n');
+                    lines.forEach(line => {
+                        if (line) {
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.event === 'message' && data.message) {
+                                    const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+                                    if (parsed && parsed.user && parsed.user.username) {
+                                        if (!users.some(u => u.username === parsed.user.username)) {
+                                            users.push(parsed.user);
+                                        }
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+                    });
+                    localStorage.setItem('tlgb_registered_users', JSON.stringify(users));
+                    user = users.find(u => u.username === loginId || (u.email && u.email.toLowerCase() === loginId));
+                } catch (e) {}
+            }
 
             if (!user) {
                 showToast("❌ Tài khoản không tồn tại! Vui lòng kiểm tra lại.");
