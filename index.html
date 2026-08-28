@@ -1938,7 +1938,7 @@
         /* Floating 3D Rocket Back-To-Top Button */
         #back-to-top-btn {
             position: fixed;
-            bottom: 28px;
+            bottom: 84px;
             left: 28px;
             width: 46px;
             height: 46px;
@@ -2006,7 +2006,8 @@
         .floating-music-player {
             position: fixed;
             bottom: 24px;
-            right: 24px;
+            left: 24px;
+            right: auto;
             background: var(--bg-card-solid);
             border: 1.5px solid var(--border-glass-hover);
             border-radius: 100px;
@@ -2026,7 +2027,7 @@
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 35px var(--primary-glow);
         }
         .floating-music-player.collapsed {
-            transform: translateX(calc(100% - 50px));
+            transform: translateX(calc(-100% + 50px));
             opacity: 0.88;
         }
         .floating-music-player.collapsed:hover {
@@ -2162,12 +2163,13 @@
         }
         @media (max-width: 600px) {
             .floating-music-player {
-                bottom: 16px;
-                right: 14px;
-                max-width: calc(100% - 28px);
+                bottom: 76px;
+                left: 12px;
+                right: auto;
+                max-width: 220px;
             }
             .floating-music-player.collapsed {
-                transform: translateX(calc(100% - 50px));
+                transform: translateX(calc(-100% + 46px));
             }
         }
 
@@ -2598,11 +2600,12 @@
             }
             .floating-music-player {
                 bottom: 76px !important;
-                right: 12px !important;
-                max-width: calc(100% - 24px) !important;
+                left: 12px !important;
+                right: auto !important;
+                max-width: 220px !important;
             }
             .floating-music-player.collapsed {
-                transform: translateX(calc(100% - 46px)) !important;
+                transform: translateX(calc(-100% + 46px)) !important;
             }
         }
 
@@ -4679,11 +4682,6 @@
 
     <!-- Floating Cyber Music Player Widget (Remix Hot TikTok 2026) -->
     <div class="floating-music-player" id="music-player-widget">
-        <!-- Toggle Collapse/Expand Arrow Button -->
-        <button class="music-toggle-arrow-btn" id="music-toggle-arrow" onclick="toggleMusicPlayerCollapse(event)" title="Thu gọn / Mở rộng trình phát nhạc">
-            <i class="fa-solid fa-chevron-right" id="music-arrow-icon"></i>
-        </button>
-
         <div class="music-disc-shell" onclick="toggleMusic()" title="Bật / Tạm dừng nhạc">
             <img src="giabao_avatar.png" alt="Vinyl Disc" class="music-disc-img" id="music-disc">
         </div>
@@ -4708,6 +4706,11 @@
                 <i class="fa-solid fa-download"></i>
             </a>
         </div>
+
+        <!-- Toggle Collapse/Expand Arrow Button -->
+        <button class="music-toggle-arrow-btn" id="music-toggle-arrow" onclick="toggleMusicPlayerCollapse(event)" title="Thu gọn / Mở rộng trình phát nhạc">
+            <i class="fa-solid fa-chevron-left" id="music-arrow-icon"></i>
+        </button>
     </div>
 
     <!-- Hidden Audio Engine -->
@@ -6958,6 +6961,11 @@ print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
 
             if (!activeTabSet && scrollPos < 350) {
                 document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.classList.remove('active'));
+                const homeTab = document.getElementById('tab-home');
+                if (homeTab) homeTab.classList.add('active');
+            }
+        }, { passive: true });
+
         // ==========================================================================
         // REAL-TIME CUSTOMER SUPPORT 24/7 & ADMIN STAFF MANAGER ENGINE (2026 PRO)
         // Hỗ trợ gửi Ảnh, Video, File, Đa vai trò (Admin, Staff, Khách Hàng)
