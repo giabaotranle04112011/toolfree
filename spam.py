@@ -10398,26 +10398,36 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-# Import pyautogui & pyperclip an toàn trên đa nền tảng
-try:
-    import pyautogui
-    import pyperclip
-    HAS_GUI_AUTOMATION = True
-except (ImportError, Exception):
+# Import pyautogui & pyperclip an toàn trên đa nền tảng (Android / Termux / Linux / Windows)
+class _DummyPyAutoGUI:
+    class FailSafeException(Exception):
+        pass
+    FAILSAFE = False
+    PAUSE = 0.0
+    def position(self): return (0, 0)
+    def size(self): return (1920, 1080)
+    def click(self, *args, **kwargs): pass
+    def hotkey(self, *args, **kwargs): pass
+    def press(self, *args, **kwargs): pass
+    def keyUp(self, *args, **kwargs): pass
+
+class _DummyPyperclip:
+    def copy(self, text): pass
+    def paste(self): return ""
+
+if os.name == 'nt':
     try:
-        if os.name == 'nt':
-            os.system("pip install pyautogui pyperclip")
-            import pyautogui
-            import pyperclip
-            HAS_GUI_AUTOMATION = True
-        else:
-            HAS_GUI_AUTOMATION = False
-            pyautogui = None
-            pyperclip = None
+        import pyautogui
+        import pyperclip
+        HAS_GUI_AUTOMATION = True
     except (ImportError, Exception):
         HAS_GUI_AUTOMATION = False
-        pyautogui = None
-        pyperclip = None
+        pyautogui = _DummyPyAutoGUI()
+        pyperclip = _DummyPyperclip()
+else:
+    HAS_GUI_AUTOMATION = False
+    pyautogui = _DummyPyAutoGUI()
+    pyperclip = _DummyPyperclip()
 
 # Thư viện âm thanh Windows
 try:
