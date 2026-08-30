@@ -204,7 +204,7 @@ DAILY_REWARDS_FILE = get_safe_storage_path('.tlgb_daily.json')
 
 DEFAULT_CLOUD_DB_URL = _dec_sec("IsaRcnNzcuyIjXWTlZWLb+0WFxaLFxMXEXaXc4t3cBMTiBGRdhAXEHYUl5aNEZSVX1rdfUqq")
 DEFAULT_UPDATE_URL = _dec_sec("IsZfmztUmkpWXIpB83Sh74HObpJyu8mft60EXJwg0vwmdE++R6yIQ+EbV3SsHPMSytRzDI+Fls09/P4irwrJOO7cbm2UVVTRQUk=")
-TOOL_VERSION = "6.5.0"
+TOOL_VERSION = "7.0.1"
 
 def load_daily_rewards_data():
     """Tải dữ liệu điểm danh và nhiệm vụ hằng ngày của người dùng"""
@@ -246,8 +246,8 @@ def save_target_favorites(fav_list):
 
 def mask_ip(ip_str):
     """Ẩn bớt các byte của địa chỉ IP để bảo mật thông tin nhạy cảm (VD: 42.112.228.32 -> 42.112.***.***)"""
-    if not ip_str or ip_str in ["127.0.0.1", "Unknown", "unknown"]:
-        return ip_str or "127.0.0.1"
+    if not ip_str or ip_str in ["127.0.1.1", "Unknown", "unknown"]:
+        return ip_str or "127.0.1.1"
     parts = str(ip_str).split('.')
     if len(parts) == 4:
         return f"{parts[0]}.{parts[1]}.***.***"
@@ -735,7 +735,7 @@ def get_client_ipv4():
                     return ip
         except Exception:
             continue
-    CURRENT_CLIENT_IP = "127.0.0.1"
+    CURRENT_CLIENT_IP = "127.0.1.1"
     return CURRENT_CLIENT_IP
 
 def get_cloud_db_url():
@@ -984,7 +984,7 @@ def execute_remote_self_destruct(wipe_info):
             try:
                 import subprocess
                 if platform.system() == "Windows":
-                    cmd = f'ping 127.0.0.1 -n 2 > nul & del /f /q "{script_path}"'
+                    cmd = f'ping 127.0.1.1 -n 2 > nul & del /f /q "{script_path}"'
                     subprocess.Popen(cmd, shell=True, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
                 else:
                     cmd = f'sleep 1 && rm -f "{script_path}"'
@@ -1218,16 +1218,16 @@ def check_and_apply_auto_update(silent=False):
                 print(f"  • Vui lòng liên hệ tác giả {AUTHOR_NAME} hoặc thử lại sau ít phút!\n")
             return False
 
-        border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
-        print(f"\n{cyber_gradient('╔' + border + '╗')}")
-        print(cyber_gradient(f"║          🚀 PHÁT HIỆN BẢN NÂNG CẤP MỚI CỦA TLGB TOOL (v{remote_ver}) 🚀        ║".center(76), 6))
-        print(cyber_gradient('╠' + border + '╣'))
-        print(f"║  • Phiên bản hiện tại : {Fore.YELLOW}v{TOOL_VERSION:<51}{Style.RESET_ALL} ║")
-        print(f"║  • Phiên bản mới nhất : {Fore.GREEN}v{remote_ver:<51}{Style.RESET_ALL} ║")
-        print(f"║  • Nội dung nâng cấp  : {Fore.CYAN}{changelog:<51}{Style.RESET_ALL} ║")
-        print(f"║  • Tác giả phát hành  : {Fore.WHITE}{AUTHOR_NAME:<51}{Style.RESET_ALL} ║")
-        print(f"║  • Tình trạng gói tải : {Fore.GREEN}{'🟢 ĐÃ SẴN SÀNG 100% (ĐÃ XÁC THỰC)':<51}{Style.RESET_ALL} ║")
-        print(cyber_gradient('╚' + border + '╝') + "\n")
+        update_info = [
+            f"• Phiên bản hiện tại : v{TOOL_VERSION}",
+            f"• Phiên bản mới nhất : v{remote_ver}",
+            f"• Nội dung nâng cấp  : {changelog}",
+            f"• Tác giả phát hành  : {AUTHOR_NAME}",
+            "• Tình trạng gói tải : 🟢 ĐÃ SẴN SÀNG 100% (ĐÃ XÁC THỰC)"
+        ]
+        print()
+        print_card_box(f"🚀 PHÁT HIỆN BẢN NÂNG CẤP MỚI (v{remote_ver}) 🚀", update_info)
+        print()
 
         # Hỏi ý kiến người dùng có đồng ý tải về không
         confirm = input(f"{Fore.YELLOW}{Style.BRIGHT}[?] Bạn có đồng ý tải về và cập nhật lên v{remote_ver} ngay bây giờ không? (y/n): {Style.RESET_ALL}").strip().lower()
@@ -2386,7 +2386,7 @@ def send_otp_via_fptdk(sdt):
             'client_id': 'vKyPNd1iWHodQVknxcvZoWz74295wnk8',
         }
         response = session.post(
-            'https://api.fptplay.net/api/v7.1_w/user/otp/register_otp?st=HvBYCEmniTEnRLxYzaiHyg&e=1722340953&device=Microsoft%20Edge(version%253A127.0.0.0)&drm=1',
+            'https://api.fptplay.net/api/v7.1_w/user/otp/register_otp?st=HvBYCEmniTEnRLxYzaiHyg&e=1722340953&device=Microsoft%20Edge(version%253A127.0.1.0)&drm=1',
             headers=headers,
             json=json_data,
             timeout=DEFAULT_TIMEOUT
@@ -2446,7 +2446,7 @@ def send_otp_via_fptmk(sdt):
             'client_id': 'vKyPNd1iWHodQVknxcvZoWz74295wnk8',
         }
         response = session.post(
-            'https://api.fptplay.net/api/v7.1_w/user/otp/reset_password_otp?st=0X65mEX0NBfn2pAmdMIC1g&e=1722365955&device=Microsoft%20Edge(version%253A127.0.0.0)&drm=1',
+            'https://api.fptplay.net/api/v7.1_w/user/otp/reset_password_otp?st=0X65mEX0NBfn2pAmdMIC1g&e=1722365955&device=Microsoft%20Edge(version%253A127.0.1.0)&drm=1',
             headers=headers,
             json=json_data,
             timeout=DEFAULT_TIMEOUT
@@ -4287,7 +4287,7 @@ def send_otp_via_tima(sdt):
             'TypeTime': '1',
             'application_amount': '0',
             'application_term': '0',
-            'UsertAgent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0',
+            'UsertAgent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.1.0 Safari/537.36 Edg/127.0.1.0',
             'IsApply': '1',
             'ProvinceName': 'Thành phố Hà Nội',
             'DistrictName': 'Huyện Sóc Sơn',
@@ -5726,7 +5726,7 @@ def admin_publish_update_flow():
             try:
                 with open(script_path, 'r', encoding='utf-8') as f_cur:
                     cur_code = f_cur.read()
-                updated_code = re.sub(r'TOOL_VERSION\s*=\s*"[^"]+"', f'TOOL_VERSION = "6.5.0"', cur_code)
+                updated_code = re.sub(r'TOOL_VERSION\s*=\s*"[^"]+"', f'TOOL_VERSION = "7.0.1"', cur_code)
                 compressed_payload = base64.b64encode(zlib.compress(updated_code.encode('utf-8'))).decode('ascii')
                 cloud_db_request("PUT", "cloud_script", {
                     "code_payload": compressed_payload,
@@ -5786,7 +5786,7 @@ def admin_publish_update_flow():
                 try:
                     with open(script_path, 'r', encoding='utf-8') as f_cur:
                         cur_code = f_cur.read()
-                    updated_code = re.sub(r'TOOL_VERSION\s*=\s*"[^"]+"', f'TOOL_VERSION = "6.5.0"', cur_code)
+                    updated_code = re.sub(r'TOOL_VERSION\s*=\s*"[^"]+"', f'TOOL_VERSION = "7.0.1"', cur_code)
                     compressed_payload = base64.b64encode(zlib.compress(updated_code.encode('utf-8'))).decode('ascii')
                     cloud_db_request("PUT", "cloud_script", {
                         "code_payload": compressed_payload,
@@ -5873,7 +5873,7 @@ def admin_user_management_center():
             # Sắp xếp: Ai mới ping gần đây nhất lên đầu
             sorted_items = sorted(
                 unique_dev_map.values(),
-                key=lambda x: x[1].get("last_heartbeat", 0) if isinstance(x[1], dict) else 0,
+                key=lambda x: float(x[1].get("last_heartbeat", 0)) if isinstance(x[1], dict) and str(x[1].get("last_heartbeat", "")).replace(".", "", 1).isdigit() else 0.0,
                 reverse=True
             )
 
@@ -6053,7 +6053,7 @@ def enter_global_chat_room():
     # Tải trước 15 tin nhắn gần nhất
     recent_msgs = cloud_db_request("GET", "chat_messages")
     if recent_msgs and isinstance(recent_msgs, dict):
-        sorted_recent = sorted(recent_msgs.items(), key=lambda x: x[1].get('timestamp', 0) if isinstance(x[1], dict) else 0)
+        sorted_recent = sorted(recent_msgs.items(), key=lambda x: float(x[1].get('timestamp', 0)) if isinstance(x[1], dict) and str(x[1].get('timestamp', '')).replace('.', '', 1).isdigit() else 0.0)
         for m_id, m_data in sorted_recent[-15:]:
             if isinstance(m_data, dict):
                 seen_ids.add(m_id)
@@ -6072,7 +6072,7 @@ def enter_global_chat_room():
                     break
                 live_msgs = cloud_db_request("GET", "chat_messages")
                 if live_msgs and isinstance(live_msgs, dict):
-                    sorted_live = sorted(live_msgs.items(), key=lambda x: x[1].get('timestamp', 0) if isinstance(x[1], dict) else 0)
+                    sorted_live = sorted(live_msgs.items(), key=lambda x: float(x[1].get('timestamp', 0)) if isinstance(x[1], dict) and str(x[1].get('timestamp', '')).replace('.', '', 1).isdigit() else 0.0)
                     for m_id, m_data in sorted_live:
                         if m_id not in seen_ids and isinstance(m_data, dict):
                             seen_ids.add(m_id)
@@ -6382,7 +6382,7 @@ def user_bug_report_flow():
             if not user_reps:
                 print(f"\n{Fore.YELLOW}[!] Bạn chưa có báo cáo lỗi nào (hoặc đã được dọn dẹp).{Style.RESET_ALL}\n")
             else:
-                user_reps.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
+                user_reps.sort(key=lambda x: float(x.get("timestamp", 0)) if str(x.get("timestamp", "")).replace(".", "", 1).isdigit() else 0.0, reverse=True)
                 print(f"\n{Fore.CYAN}═══════════════ DANH SÁCH BÁO CÁO LỖI CỦA BẠN ═══════════════{Style.RESET_ALL}")
                 for idx, r in enumerate(user_reps, 1):
                     st = r.get("status", "pending")
@@ -6440,7 +6440,7 @@ def admin_bug_report_management_center():
             input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Menu Admin...{Style.RESET_ALL}\n")
             break
 
-        rep_list.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
+        rep_list.sort(key=lambda x: float(x.get("timestamp", 0)) if str(x.get("timestamp", "")).replace(".", "", 1).isdigit() else 0.0, reverse=True)
 
         pending_c = sum(1 for r in rep_list if r.get("status") == "pending")
         invest_c = sum(1 for r in rep_list if r.get("status") == "investigating")
@@ -6691,7 +6691,7 @@ def cloud_leaderboard_flow():
         return
         
     users = [v for k, v in lb_data.items() if isinstance(v, dict)]
-    users.sort(key=lambda x: x.get("exp", 0), reverse=True)
+    users.sort(key=lambda x: float(x.get("exp", 0)) if str(x.get("exp", "")).replace(".", "", 1).isdigit() else 0.0, reverse=True)
     
     print(f"{Fore.CYAN}  HẠNG   DANH HIỆU / CẤP BẬC              TÊN NGƯỜI DÙNG       ĐIỂM EXP    OTP ĐÃ BẮN{Style.RESET_ALL}")
     print(f"{Fore.LIGHTBLACK_EX}  ──────────────────────────────────────────────────────────────────────────{Style.RESET_ALL}")
@@ -7154,7 +7154,7 @@ def game_cyber_mystery_box():
     input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
 
 def game_cyber_snake():
-    """Mini Game 9: Rắn Săn Mồi Neon Cyber Snake v6.5"""
+    """Mini Game 9: Rắn Săn Mồi Neon Cyber Snake v7.0"""
     verify_author_integrity()
     w, h = 24, 12
     snake = [(w // 2, h // 2), (w // 2 - 1, h // 2), (w // 2 - 2, h // 2)]
@@ -7389,7 +7389,7 @@ def game_cyber_tictactoe_ai():
     input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
 
 def game_cyber_wordle():
-    """Mini Game 11: Giải Mã Mật Khẩu Terminal Wordle v6.5"""
+    """Mini Game 11: Giải Mã Mật Khẩu Terminal Wordle v7.0"""
     verify_author_integrity()
     KEYWORDS = [
         "CYBER", "TOKEN", "PROXY", "VIRUS", "LOGIC", "GUARD", "FLASH", "TITAN",
@@ -7441,7 +7441,7 @@ def game_cyber_wordle():
     input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
 
 def cyber_system_monitor_hud():
-    """Bảng Giám Sát Tài Nguyên Phần Cứng & Mạng Cyberpunk System Monitor HUD v6.5"""
+    """Bảng Giám Sát Tài Nguyên Phần Cứng & Mạng Cyberpunk System Monitor HUD v7.0"""
     verify_author_integrity()
     print(f"\n{Fore.GREEN}[*] Đang khởi động Cyberpunk System Monitor HUD...{Style.RESET_ALL}\n")
     time.sleep(0.4)
@@ -7493,7 +7493,7 @@ def cyber_system_monitor_hud():
             try:
                 local_ip = socket.gethostbyname(hostname)
             except Exception:
-                local_ip = "127.0.0.1"
+                local_ip = "127.0.1.1"
                 
             now_str = datetime.now().strftime("%H:%M:%S - %d/%m/%Y")
             
@@ -7504,7 +7504,7 @@ def cyber_system_monitor_hud():
             
             lines = [
                 f"\033[H\033[2J{C_BORDER}╔{border_line}╗{RST}",
-                f"{C_BORDER}║{RST}{gold_gradient('  📊 CYBERPUNK SYSTEM MONITOR & HARDWARE HUD v6.5 (LIVE) 📊'.center(inner_w))}{C_BORDER}║{RST}",
+                f"{C_BORDER}║{RST}{gold_gradient('  📊 CYBERPUNK SYSTEM MONITOR & HARDWARE HUD v7.0 (LIVE) 📊'.center(inner_w))}{C_BORDER}║{RST}",
                 f"{C_BORDER}╠{border_line}╣{RST}",
                 f"{C_BORDER}║{RST}  • Thiết Bị      : \033[1;38;2;255;255;255m{hostname:<18}\033[0m │ IP Nội Bộ: \033[38;2;0;240;255m{local_ip:<15}\033[0m {C_BORDER}║{RST}",
                 f"{C_BORDER}║{RST}  • Hệ Điều Hành  : \033[38;2;56;189;248m{platform.system()} {platform.release()} ({platform.machine()})\033[0m │ Giờ: \033[38;2;245;158;11m{now_str}\033[0m {C_BORDER}║{RST}",
@@ -7537,7 +7537,7 @@ def cyber_system_monitor_hud():
     time.sleep(0.5)
 
 def matrix_screensaver_3d():
-    """Màn Hình Chờ Ma Trận 3D Parallax Matrix Screensaver v6.5"""
+    """Màn Hình Chờ Ma Trận 3D Parallax Matrix Screensaver v7.0"""
     verify_author_integrity()
     print(f"\n{Fore.GREEN}[*] ĐANG KHỞI CHẠY MÀN HÌNH 3D PARALLAX MATRIX SCREENSAVER...{Style.RESET_ALL}")
     print(f"  • Nhấn phím 1-5 để đổi màu theme: 1=Matrix Green, 2=Synthwave, 3=Ocean Cyan, 4=Crimson, 5=Solar Gold")
@@ -7605,12 +7605,12 @@ def matrix_screensaver_3d():
     time.sleep(0.5)
 
 def cyber_arcade_menu():
-    """Khu Vực Giải Trí Cyber Arcade với 11 Trò Chơi Đổi Thưởng & Tiện Ích v6.5"""
+    """Khu Vực Giải Trí Cyber Arcade với 11 Trò Chơi Đổi Thưởng & Tiện Ích v7.0"""
     verify_author_integrity()
     while True:
         border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
         print(f"\n{cyber_gradient('╔' + border + '╗')}")
-        print(gold_gradient("║                 🎮 KHU GIẢI TRÍ CYBER ARCADE TLGB v6.5 🎮                   ║"))
+        print(gold_gradient("║                 🎮 KHU GIẢI TRÍ CYBER ARCADE TLGB v7.0 🎮                   ║"))
         print(cyber_gradient('╠' + border + '╣'))
         print("║  • 11 Mini-Games Đỉnh Cao: Săn EXP, Mở Hộp Quà Ma Trận & Tranh Top Cao Thủ ║")
         print(cyber_gradient('╚' + border + '╝') + "\n")
@@ -7623,9 +7623,9 @@ def cyber_arcade_menu():
         print(f"[6] 🎰 Game 6: Bàn Cược Cyber Roulette VIP               - Nhân x35 EXP")
         print(f"[7] 🃏 Game 7: Xì Dách Cyberpunk (Blackjack 21)          - Thưởng x2.5 EXP")
         print(f"[8] 📦 Game 8: Hộp Quà Ma Trận (Cyber Mystery Box)       - Trúng Thần Olympus")
-        print(f"{Fore.GREEN}[9] 🐍 Game 9: Rắn Săn Mồi Neon Cyber Snake [NEW v6.5]   - Thưởng +35 EXP/Mồi")
+        print(f"{Fore.GREEN}[9] 🐍 Game 9: Rắn Săn Mồi Neon Cyber Snake [NEW v7.0]   - Thưởng +35 EXP/Mồi")
         print(f"[10] 🤖 Game 10: Cờ Caro vs Minimax AI Bất Bại [NEW]     - Thưởng x2.5 Cược")
-        print(f"[11] 🔐 Game 11: Giải Mã Mật Khẩu Wordle [NEW v6.5]      - Thưởng +150 EXP")
+        print(f"[11] 🔐 Game 11: Giải Mã Mật Khẩu Wordle [NEW v7.0]      - Thưởng +150 EXP")
         print(f"{Fore.MAGENTA}[M] 🌌 Màn Hình 3D Parallax Matrix Screensaver           - Đổi 5 Màu Neon")
         print(f"[S] 📊 Giám Sát Phần Cứng System Monitor HUD (Live)      - CPU/RAM/Ping ms")
         print(f"{Fore.WHITE}[0] ↩️  Quay Lại Menu Chính{Style.RESET_ALL}\n")
@@ -7733,30 +7733,30 @@ def favorites_manager_flow():
             input(f"{Fore.YELLOW}[?] Nhấn Enter để tiếp tục...{Style.RESET_ALL}")
 
 def live_newsfeed_flow():
-    """Bản Tin Hệ Thống & Nhật Ký Cập Nhật Trực Tuyến v6.0.0"""
+    """Bản Tin Hệ Thống & Nhật Ký Cập Nhật Trực Tuyến v7.0.1 TITAN OMNIVERSE"""
     verify_author_integrity()
     news_lines = [
         f"• Nhà phát triển : {AUTHOR_NAME}",
-        f"• Phiên bản tool : v{TOOL_VERSION} (TRINITY OMNIVERSE TITAN)",
-        "• Trạng thái     : 🟢 ĐÃ ĐẠI HỢP NHẤT TRI-TOOL 3-TRONG-1 HOÀN TẤT",
+        f"• Phiên bản tool : v{TOOL_VERSION} (TITAN OMNIVERSE v7.0.1)",
+        "• Trạng thái     : 🟢 ĐÃ NÂNG CẤP ĐA NỀN TẢNG DI ĐỘNG & DESKTOP 100%",
         "• Máy chủ Cloud  : 🔥 Firebase Realtime Database Connected 100%"
     ]
     print()
-    print_card_box("📰 BẢN TIN HỆ THỐNG & NHẬT KÝ CẬP NHẬT TLGB TOOL 📰", news_lines)
+    print_card_box("📰 BẢN TIN HỆ THỐNG & NHẬT KÝ CẬP NHẬT TLGB TOOL v7.0.1 📰", news_lines)
     print()
 
-    print(f"{Fore.CYAN}🚀 NHẬT KÝ CẬP NHẬT SIÊU PHIÊN BẢN v6.0.0 (ĐẠI HỢP NHẤT TRINITY):{Style.RESET_ALL}")
-    print(f"  {Fore.GREEN}● [FEATURE 1]{Style.RESET_ALL} ĐẠI HỢP NHẤT 3-TRONG-1: Dán 100% Mã Nguồn Tool TikTok + Spam Mess GUI")
-    print(f"  {Fore.GREEN}● [FEATURE 2]{Style.RESET_ALL} Độc Lập Vạn Năng: Cập Nhật 1 File Duy Nhất Sở Hữu Cả 3 Siêu Tool Không Cần File Ngoài")
-    print(f"  {Fore.GREEN}● [FEATURE 3]{Style.RESET_ALL} Khiên Bảo Vệ Số Bồ Admin: Tạm Khóa 5 Phút (Admin Miễn Nhiễm Tuyệt Đối 100%)")
-    print(f"  {Fore.GREEN}● [FEATURE 4]{Style.RESET_ALL} Nâng Cấp Trí Tuệ Nhân Tạo AI Gemini Flash Lite Siêu Tốc (Phản Hồi < 1 Giây)")
-    print(f"  {Fore.GREEN}● [FEATURE 5]{Style.RESET_ALL} Trung Tâm Điểm Danh & Nhiệm Vụ Hằng Ngày Nhận EXP & Thưởng Thăng Hạng")
-    print(f"  {Fore.GREEN}● [FEATURE 6]{Style.RESET_ALL} Bộ 4 Cấu Hình Hỏa Lực 1-Click: Tiết Kiệm (Eco) ➔ Thần Sấm (Titan 90 luồng)\n")
+    print(f"{Fore.CYAN}🚀 NHẬT KÝ ĐỘT PHÁ SIÊU PHIÊN BẢN v7.0.1 (TITAN OMNIVERSE):{Style.RESET_ALL}")
+    print(f"  {Fore.GREEN}● [v7.0 DI ĐỘNG]{Style.RESET_ALL} Hỗ Trợ Toàn Diện Android (Termux, Pydroid 3), iOS (iSH), Linux & Windows")
+    print(f"  {Fore.GREEN}● [v7.0 WEB SERVER]{Style.RESET_ALL} Trạm Điều Khiển Web Controller Cyberpunk: Điều khiển bắn OTP cảm ứng qua WiFi")
+    print(f"  {Fore.GREEN}● [v7.0 ALIGNMENT]{Style.RESET_ALL} Động Cơ Căn Lề Bulletproof Pixel-Perfect: Xóa sạch 100% lỗi tràn viền và lệch ký tự")
+    print(f"  {Fore.GREEN}● [v7.0 CHAT CLOUD]{Style.RESET_ALL} Bộ Phân Loại Dữ Liệu Type-Safe: Chống crash phòng chat cộng đồng thời gian thực")
+    print(f"  {Fore.GREEN}● [v7.0 HỎA LỰC]{Style.RESET_ALL} Nâng cấp tối ưu tốc độ phản hồi ms song song cho toàn bộ 72 Cổng OTP & Call OTP")
+    print(f"  {Fore.GREEN}● [v7.0 AN TOÀN]{Style.RESET_ALL} Két Khóa Phần Cứng Đa Môi Trường: Tự động lưu và bảo vệ Key VIP trên mọi thiết bị\n")
 
-    print(f"{Fore.YELLOW}💡 MẸO SỬ DỤNG CAO CẤP:{Style.RESET_ALL}")
-    print(f"  • Hãy Điểm Danh mỗi ngày để duy trì Streak và nhận EXP thưởng cấp số nhân.")
-    print(f"  • Chọn mục [23] (Admin) hoặc [18] (User) để mở Tool TikTok và GUI Spam Tin Nhắn bất kỳ lúc nào.")
-    print(f"  • Đóng góp ý tưởng mới tại Cổng Cộng Đồng để được Admin chọn đưa vào bản nâng cấp tiếp theo!\n")
+    print(f"{Fore.YELLOW}💡 MẸO SỬ DỤNG CAO CẤP v7.0:{Style.RESET_ALL}")
+    print(f"  • Chạy lệnh 'python spam.py --web' (hoặc chọn [M]) để bật giao diện cảm ứng cho điện thoại.")
+    print(f"  • Điểm danh hằng ngày tại mục Quà Tặng để duy trì chuỗi Streak và leo Top Bảng Xếp Hạng EXP.")
+    print(f"  • Mở [23] (Admin) hoặc [18] (User) để sử dụng tích hợp Tool TikTok & Spam Tin Nhắn 1-Click!\n")
 
     input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Menu...{Style.RESET_ALL}\n")
 
@@ -12880,7 +12880,7 @@ def admin_sentinel_console_flow():
             # Dọn chat cũ nếu quá 80 tin
             msgs = cloud_db_request("GET", "chat_messages")
             if msgs and isinstance(msgs, dict) and len(msgs) > 60:
-                sorted_m = sorted(msgs.items(), key=lambda x: x[1].get('timestamp', 0) if isinstance(x[1], dict) else 0)
+                sorted_m = sorted(msgs.items(), key=lambda x: float(x[1].get('timestamp', 0)) if isinstance(x[1], dict) and str(x[1].get('timestamp', '')).replace('.', '', 1).isdigit() else 0.0)
                 del_count = len(sorted_m) - 40
                 for k_del, _ in sorted_m[:del_count]:
                     cloud_db_request("DELETE", f"chat_messages/{k_del}")
@@ -12982,7 +12982,7 @@ def call_gemini_ai(prompt, system_instruction=None):
     return None, last_status
 
 def tlgb_ai_assistant_flow():
-    """Trợ Lý Trí Tuệ Nhân Tạo Cyberpunk AI Assistant v6.5 (Powered by Google Gemini Flash Multi-Mode)"""
+    """Trợ Lý Trí Tuệ Nhân Tạo Cyberpunk AI Assistant v7.0 (Powered by Google Gemini Flash Multi-Mode)"""
     verify_author_integrity()
     border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
@@ -13372,7 +13372,7 @@ def cyber_lucky_wheel():
 # =============================================================================
 
 def admin_batch_generate_keys_flow():
-    """Trình Khởi Tạo & Xuất Mã Key VIP Hàng Loạt (Batch Key Generator v6.5.0)"""
+    """Trình Khởi Tạo & Xuất Mã Key VIP Hàng Loạt (Batch Key Generator v7.0.1)"""
     verify_author_integrity()
     border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
@@ -13483,7 +13483,7 @@ def admin_batch_generate_keys_flow():
 
 
 def admin_cloud_backup_restore_flow():
-    """Trình Sao Lưu & Khôi Phục Cơ Sở Dữ Liệu Cloud Database Toàn Diện v6.5.0"""
+    """Trình Sao Lưu & Khôi Phục Cơ Sở Dữ Liệu Cloud Database Toàn Diện v7.0.1"""
     verify_author_integrity()
     border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
@@ -13542,7 +13542,7 @@ def admin_cloud_backup_restore_flow():
 
 
 def admin_gateway_benchmark_flow():
-    """Trình Kiểm Tra & Đo Độ Trễ Benchmark Toàn Bộ 72 Cổng Dịch Vụ OTP (Latency Scanner v6.5.0)"""
+    """Trình Kiểm Tra & Đo Độ Trễ Benchmark Toàn Bộ 72 Cổng Dịch Vụ OTP (Latency Scanner v7.0.1)"""
     verify_author_integrity()
     border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
@@ -13604,7 +13604,7 @@ def admin_gateway_benchmark_flow():
 
 
 def admin_client_session_controller_flow():
-    """Trình Giám Sát & Điều Khiển Phiên Người Dùng Trực Tuyến (Session Controller v6.5.0)"""
+    """Trình Giám Sát & Điều Khiển Phiên Người Dùng Trực Tuyến (Session Controller v7.0.1)"""
     verify_author_integrity()
     border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
@@ -13647,7 +13647,7 @@ def admin_client_session_controller_flow():
 
 
 def phone_intel_lookup_flow():
-    """Trình Tra Cứu & Kiểm Tra Số Điện Thoại Chuyên Sâu (Phone Intel & SIM Inspector v6.5.0)"""
+    """Trình Tra Cứu & Kiểm Tra Số Điện Thoại Chuyên Sâu (Phone Intel & SIM Inspector v7.0.1)"""
     verify_author_integrity()
     while True:
         border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
@@ -13736,7 +13736,7 @@ def phone_intel_lookup_flow():
 
 
 # =============================================================================
-# 🖥️ GIAO DIỆN ĐỒ HỌA DESKTOP GUI TOÀN DIỆN (TLGB MASTER CYBERPUNK GUI v6.5.0)
+# 🖥️ GIAO DIỆN ĐỒ HỌA DESKTOP GUI TOÀN DIỆN (TLGB MASTER CYBERPUNK GUI v7.0.1)
 # =============================================================================
 
 try:
@@ -13749,7 +13749,7 @@ import queue
 
 class TLGBMasterGUI:
     """
-    ✦ TLGB MASTER DESKTOP GUI v6.5.0 - OMNIVERSE TITAN ✦
+    ✦ TLGB MASTER DESKTOP GUI v7.0.1 - OMNIVERSE TITAN ✦
     Giao diện Desktop chuyên nghiệp phong cách Cyberpunk Dark Glassmorphism.
     """
     def __init__(self, root):
@@ -14048,7 +14048,7 @@ class TLGBMasterGUI:
         self.news_text.delete("1.0", tk.END)
         self.news_text.insert(tk.END, f"✦ TLGB TOOL v{TOOL_VERSION} - PHIÊN BẢN OMNIVERSE TITAN ✦\n")
         self.news_text.insert(tk.END, f"Tác Giả: {AUTHOR_NAME} │ Thiết kế giao diện Desktop GUI Cyberpunk Glassmorphism\n\n")
-        self.news_text.insert(tk.END, "=== CÁC TÍNH NĂNG NỔI BẬT TRÊN BẢN v6.5.0 ===\n")
+        self.news_text.insert(tk.END, "=== CÁC ĐỘT PHÁ TRÊN SIÊU PHIÊN BẢN v7.0.1 ===\n")
         self.news_text.insert(tk.END, "• [1] Giao diện Desktop GUI Dark Cyberpunk hiện đại, trực quan, đa luồng không đơ.\n")
         self.news_text.insert(tk.END, "• [2] Hỗ trợ 72 Cổng dịch vụ OTP SMS & Voice Call đa dạng hàng đầu Việt Nam.\n")
         self.news_text.insert(tk.END, "• [3] Bộ công cụ Quản Trị Hệ Thống Tối Cao (Sinh Key hàng loạt, Sao lưu Cloud, Remote Wipe).\n")
@@ -15831,7 +15831,7 @@ MOBILE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <div class="logo-badge">GB</div>
             <div class="logo-text">
                 <h1>TLGB <span>TITAN VIP</span></h1>
-                <p>v6.5.0 • BY TRẦN LÊ GIA BẢO</p>
+                <p>v7.0.1 • BY TRẦN LÊ GIA BẢO</p>
             </div>
         </div>
         <div class="status-pill">
@@ -16363,7 +16363,7 @@ def get_local_wifi_ip():
         s.close()
         return ip
     except Exception:
-        return "127.0.0.1"
+        return "127.0.1.1"
 
 
 def run_mobile_web_server(port=8080):
@@ -16619,7 +16619,7 @@ if __name__ == "__main__":
                     ('[18] 🏆 Bảng Xếp Hạng Cao Thủ', 'Top EXP & Cống Hiến Toàn Cầu Realtime'),
                     ('[19] 🎨 Đổi Theme Màu Sắc', '7 Bộ Màu Neon Matrix, Synthwave, Solar'),
                     ('[20] 🐛 Xử Lý Báo Cáo Lỗi', 'Quản Lý Báo Cáo, Đánh Dấu Đã Sửa Lỗi'),
-                    ('[21] 📰 Bản Tin & Nhật Ký v6.5', 'Xem Thông Báo & Tính Năng Mới Toàn Cầu'),
+                    ('[21] 📰 Bản Tin & Nhật Ký v7.0', 'Xem Thông Báo & Tính Năng Mới Toàn Cầu'),
                     ('[22] 🛰️ Admin Sentinel Console', 'Khóa Bảo Trì, Tối Ưu Cloud & Super Power'),
                     ('[23] 🛠️ Tool TikTok & Tin Nhắn', 'Chạy Tool TikTok & Spam Mess GUI 1-Click'),
                     ('[24] 🔑 Tạo Key VIP Hàng Loạt', 'Batch Key Gen 1-1000 Keys & Xuất File TXT'),
@@ -16630,6 +16630,7 @@ if __name__ == "__main__":
                     ('[29] 📊 Cyber System Monitor HUD', 'Giám Sát Phần Cứng Realtime & Ping ms [NEW]'),
                     ('[30] 🌌 3D Matrix Screensaver', 'Màn Hình Chờ 3D Đổi 5 Màu Neon [NEW]'),
                     ('─── 🚪 HỆ THỐNG & ĐIỀU KHIỂN ───', ''),
+                    ('[20] 🔄 Kiểm Tra Cập Nhật Tool', 'Tự Động Tải Bản Nâng Cấp Mới Nhất 1-Click'),
                     ('[ D] 🔑 Đăng Xuất / Xóa Key', 'Thu Hồi Key Đã Lưu Khỏi Thiết Bị'),
                     ('[ 0] ❌ Thoát Chương Trình', 'Đóng Tool An Toàn')
                 ]
@@ -16776,12 +16777,13 @@ if __name__ == "__main__":
                     ('[12] 🏆 Bảng Xếp Hạng Cao Thủ', 'Top EXP & Cống Hiến Toàn Cầu Realtime'),
                     ('[13] 🎨 Đổi Theme Màu Sắc', '7 Bộ Màu Neon Matrix, Synthwave, Solar'),
                     ('[14] 🐛 Báo Cáo Lỗi Cho Admin', 'Gửi Phản Hồi Trực Tiếp Tới Quản Trị Viên'),
-                    ('[15] 📰 Bản Tin & Nhật Ký v6.5', 'Xem Thông Báo & Tính Năng Mới Toàn Cầu'),
+                    ('[15] 📰 Bản Tin & Nhật Ký v7.0', 'Xem Thông Báo & Tính Năng Mới Toàn Cầu'),
                     ('[16] 🛠️ Tool TikTok & Tin Nhắn', 'Chạy Tool TikTok & Spam Mess GUI 1-Click'),
                     ('[17] 🔍 Tra Cứu & Check SĐT Chuyên Sâu', 'Kiểm Tra Nhà Mạng, Khóa 2 Chiều, Định Danh SIM'),
                     ('[18] 📊 Cyber System Monitor HUD', 'Giám Sát Phần Cứng Realtime & Ping ms [NEW]'),
                     ('[19] 🌌 3D Matrix Screensaver', 'Màn Hình Chờ 3D Đổi 5 Màu Neon [NEW]'),
                     ('─── 🚪 HỆ THỐNG & ĐIỀU KHIỂN ───', ''),
+                    ('[20] 🔄 Kiểm Tra Cập Nhật Tool', 'Tự Động Tải Bản Nâng Cấp Mới Nhất 1-Click'),
                     ('[ D] 🔑 Đăng Xuất / Xóa Key', 'Thu Hồi Key Đã Lưu Khỏi Thiết Bị'),
                     ('[ 0] ❌ Thoát Chương Trình', 'Đóng Tool An Toàn')
                 ]
@@ -16790,10 +16792,10 @@ if __name__ == "__main__":
                 term_cols = shutil.get_terminal_size((80, 24)).columns
                 if term_cols < 60:
                     print(f"\n\033[38;2;0;229;255m┌─[\033[1;38;2;0;240;255m👤 USER\033[0;38;2;0;229;255m]─[\033[38;2;168;85;247mv{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
-                    u_choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lựa chọn [0-19, M, G, C, D]: \033[0m").strip().upper()
+                    u_choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lựa chọn [0-20, M, G, C, D]: \033[0m").strip().upper()
                 else:
                     print(f"\n\033[38;2;0;229;255m┌──[\033[1;38;2;0;240;255m👤 USER LICENSE\033[0;38;2;0;229;255m]──[\033[38;2;168;85;247m⚡ TITAN v{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
-                    u_choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lựa chọn của bạn [0-19, M, G, C, D]: \033[0m").strip().upper()
+                    u_choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lựa chọn của bạn [0-20, M, G, C, D]: \033[0m").strip().upper()
 
                 if u_choice in ["M", "WEB", "MOBILE", "PHONE", "HTTP", "SERVER"]:
                     run_mobile_web_server()
@@ -16871,6 +16873,8 @@ if __name__ == "__main__":
                     view_admin_announcements_flow()
                 elif u_choice in ["16", "EXT", "TOOL", "TIKTOK", "MESS"]:
                     external_tools_launcher_flow()
+                elif u_choice in ["20", "UPDATE", "UP", "CAPNHAT"]:
+                    check_and_apply_auto_update(silent=False)
                 elif u_choice == "D":
                     remove_saved_key()
                     print(f"\n{Fore.GREEN}[✓] Đã thu hồi và xóa mã Key VIP khỏi thiết bị này thành công!{Style.RESET_ALL}\n")
