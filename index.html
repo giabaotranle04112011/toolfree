@@ -2950,10 +2950,13 @@
                 <!-- Category Filters -->
                 <div class="filter-row-cq">
                     <button class="cq-filter-btn active" onclick="setCategory('all', this)">
-                        <i class="fa-solid fa-border-all"></i> Tất Cả <span class="cq-count-badge" id="count-all">11</span>
+                        <i class="fa-solid fa-border-all"></i> Tất Cả <span class="cq-count-badge" id="count-all">12</span>
                     </button>
                     <button class="cq-filter-btn" onclick="setCategory('aim_ff', this)">
                         <i class="fa-solid fa-crosshairs"></i> Aim FF VIP <span class="cq-count-badge">2</span>
+                    </button>
+                    <button class="cq-filter-btn" onclick="setCategory('proxy_tool', this)">
+                        <i class="fa-solid fa-network-wired"></i> Lọc Proxy VIP <span class="cq-count-badge">1</span>
                     </button>
                     <button class="cq-filter-btn" onclick="setCategory('antivirus_tool', this)">
                         <i class="fa-solid fa-shield-virus"></i> Diệt Mã Độc <span class="cq-count-badge">1</span>
@@ -2983,14 +2986,14 @@
                 <div class="stat-card-cq">
                     <div class="stat-icon-sq cyan"><i class="fa-solid fa-layer-group"></i></div>
                     <div>
-                        <div class="stat-val-num">9+ DỰ ÁN</div>
+                        <div class="stat-val-num">10+ DỰ ÁN</div>
                         <div class="stat-desc-txt">Đã đóng gói hoàn chỉnh</div>
                     </div>
                 </div>
                 <div class="stat-card-cq">
                     <div class="stat-icon-sq red"><i class="fa-solid fa-download"></i></div>
                     <div>
-                        <div class="stat-val-num" id="total-downloads-stat">28,940+</div>
+                        <div class="stat-val-num" id="total-downloads-stat">32,450+</div>
                         <div class="stat-desc-txt">Lượt tải về thành công</div>
                     </div>
                 </div>
@@ -3017,7 +3020,7 @@
                 <h3 class="section-title-cq">
                     <i class="fa-solid fa-boxes-stacked"></i> DANH SÁCH DỰ ÁN & CÔNG CỤ
                 </h3>
-                <span class="mono" style="font-size:12px; color:var(--text-dim);" id="result-status">Đang hiển thị tất cả 9 dự án</span>
+                <span class="mono" style="font-size:12px; color:var(--text-dim);" id="result-status">Đang hiển thị tất cả 10 dự án</span>
             </div>
 
             <div class="cq-cards-grid" id="projects-grid-container">
@@ -3475,7 +3478,56 @@
                     </div>
                 </div>
 
-                <!-- 11: MEGA PACK ALL-IN-ONE -->
+                <!-- 11: BAO PROXY CHECKER - TOOL LỌC PROXY VIP 2026 -->
+                <div class="cq-project-card featured-card" data-category="proxy_tool" data-keywords="proxy tool loc proxy bao proxy checker http https socks4 socks5 geoip isp speed latency multi worker asyncio python customtkinter tlgb">
+                    <div class="cq-card-top">
+                        <div class="cq-badge-group">
+                            <span class="badge-cq hot"><i class="fa-solid fa-bolt"></i> LỌC PROXY</span>
+                            <span class="badge-cq vip">300 THREADS</span>
+                            <span class="badge-cq new">GUI TKINTER</span>
+                        </div>
+                        <div class="cq-card-meta">
+                            <button class="heart-btn-cq" onclick="toggleLike(this, 'proxy_checker')"><i class="fa-solid fa-heart"></i> <span class="like-count">1.6k</span></button>
+                            <span>v5.0 PRO • 59 KB</span>
+                        </div>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="cq-header-row">
+                            <div class="cq-card-icon mega" style="background:linear-gradient(135deg, rgba(59,130,246,0.2), rgba(0,245,212,0.2)); color:var(--primary);"><i class="fa-solid fa-network-wired"></i></div>
+                            <div>
+                                <h4 class="cq-card-title">Tool Lọc Proxy VIP 2026 (Bao Proxy Checker)</h4>
+                                <div class="cq-author-subtitle"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Trần Lê Gia Bảo (Bun K11)</div>
+                            </div>
+                        </div>
+                        <p class="cq-card-desc">
+                            Công cụ lọc và kiểm tra danh sách proxy đa luồng siêu tốc (1 - 300 luồng Asyncio), tự động nhận diện HTTP/HTTPS/SOCKS4/SOCKS5, đo độ trễ Latency, tra cứu GeoIP/ISP và xuất file Alive .txt, .csv, .json chuyên nghiệp!
+                        </p>
+                        <ul class="cq-bullet-list">
+                            <li><i class="fa-solid fa-check"></i> Asyncio Engine 300 luồng kiểm tra hàng nghìn proxy trong vài giây.</li>
+                            <li><i class="fa-solid fa-check"></i> Tự động nhận diện HTTP, HTTPS, SOCKS4, SOCKS5 & Auth User/Pass.</li>
+                            <li><i class="fa-solid fa-check"></i> Tra cứu GeoIP, Quốc kỳ, Thành phố, ISP nhà mạng thời gian thực.</li>
+                            <li><i class="fa-solid fa-check"></i> Xuất file linh hoạt ra .txt, .csv, .json và quản lý lịch sử SQLite.</li>
+                            <li><i class="fa-solid fa-check"></i> Lệnh khởi chạy: <code>python "tool lọc proxy\main.py"</code> hoặc file .bat 1-click.</li>
+                        </ul>
+                        <div class="cq-specs-bar">
+                            <span><i class="fa-brands fa-python"></i> Python 3.10+ CustomTkinter</span>
+                            <span>Dung lượng: <strong>59 KB</strong></span>
+                        </div>
+                        <div class="cq-btn-grid">
+                            <a href="downloads/Tool_Loc_Proxy_VIP_2026.zip" download="Tool_Loc_Proxy_VIP_2026.zip" class="btn-classquid btn-cq-primary" onclick="triggerDownloadFeedback('Tool_Loc_Proxy_VIP_2026.zip')">
+                                <i class="fa-solid fa-file-zipper"></i> Tải Tool ZIP (59KB)
+                            </a>
+                            <button class="btn-classquid btn-cq-gold" onclick="openCodeModal('proxy_checker')">
+                                <i class="fa-solid fa-code"></i> Xem Mã Nguồn
+                            </button>
+                            <button class="btn-classquid btn-cq-ghost" onclick="copyProxyCommand()" style="grid-column: span 2;">
+                                <i class="fa-solid fa-terminal"></i> Sao Chép Lệnh Chạy Tool
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 12: MEGA PACK ALL-IN-ONE -->
                 <div class="cq-project-card featured-card" data-category="all" data-keywords="all mega pack all-in-one tron bo tat ca du an zip tlgb bun k11">
                     <div class="cq-card-top">
                         <div class="cq-badge-group">
@@ -4446,10 +4498,59 @@ from tkinter import ttk, filedialog, messagebox
 
 # Khởi chạy: py -3.12 virus_cleaner_gui.py
 print("[🛡️] ALL-IN-ONE VIRUS CLEANER GUI PRO 2026 ACTIVATED!")`
+            },
+            proxy_checker: {
+                title: "Bao Proxy Checker VIP 2026 (main.py)",
+                url: "downloads/proxy_main_preview.py",
+                preview: `# -*- coding: utf-8 -*-
+"""
+╔══════════════════════════════════════════════════════════════╗
+║        ⚡ BAO PROXY CHECKER - PRO VIP 2026 ⚡                ║
+║   Công Cụ Kiểm Tra & Lọc Proxy Đa Luồng Siêu Tốc (Asyncio)   ║
+║            BẢN QUYỀN: TRẦN LÊ GIA BẢO (BUN K11)             ║
+╚══════════════════════════════════════════════════════════════╝
+"""
+import sys, os
+
+# Thêm đường dẫn gốc vào hệ thống
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from bao_proxy_checker.cli import build_arg_parser, run_cli_checker
+
+def main():
+    parser = build_arg_parser()
+    args, unknown = parser.parse_known_args()
+
+    cli_flags = ("--cli", "-f", "--file", "-p", "--paste", "--history", "-h", "--help")
+    is_cli_run = any(flag in sys.argv for flag in cli_flags)
+
+    if is_cli_run:
+        full_args = parser.parse_args()
+        run_cli_checker(full_args)
+    else:
+        # Khởi chạy giao diện CustomTkinter Cyberpunk
+        try:
+            from bao_proxy_checker.gui.app import BaoProxyCheckerApp
+            app = BaoProxyCheckerApp()
+            app.mainloop()
+        except Exception as e:
+            print(f"[!] Khởi động GUI gặp lỗi ({e}), chuyển sang CLI...")
+            parser.print_help()
+
+if __name__ == "__main__":
+    main()`
             }
         };
 
         let currentModalCode = "";
+
+        function copyProxyCommand() {
+            const cmd = 'cd /d "C:\\Users\\tranl\\Documents\\tlgbtoolproxy\\tool" && python "tool lọc proxy\\main.py"';
+            navigator.clipboard.writeText(cmd);
+            playSound('success');
+            if (typeof triggerHaptic === 'function') triggerHaptic(20);
+            showToast('💻 Đã sao chép lệnh khởi chạy Tool Lọc Proxy!');
+        }
 
         function openCodeModal(key) {
             playSound('click');
